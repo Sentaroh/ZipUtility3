@@ -1,0 +1,53 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:appv7="http://schemas.android.com/apk/res-auto">
+    
+    <item android:id="@+id/menu_top_find"
+          android:title="@string/msgs_menu_find" 
+          android:icon="@drawable/search"
+          appv7:showAsAction="always"/>
+    
+    <item android:id="@+id/menu_top_refresh"
+          android:title="@string/msgs_menu_refresh" 
+          android:icon="@drawable/ic_32_refresh"
+          appv7:showAsAction="always"/>
+    
+    <item android:id="@+id/menu_top_quit"
+          android:title="@string/msgs_menu_quit"
+          android:icon="@drawable/ic_32_close_gray"
+          appv7:showAsAction="always"/>
+
+    <item android:id="@+id/menu_top_sort"
+          android:title="@string/msgs_menu_sort" 
+          android:icon="@drawable/ic_128_sort_asc_gray"
+          appv7:showAsAction="always"/>
+
+    <item android:id="@+id/menu_top_save_zip_file"
+        android:title="@string/msgs_menu_save_zip_file"
+        />
+
+    <item android:id="@+id/menu_top_log_management"
+          android:title="@string/msgs_menu_log_management"
+          />
+    
+    <item android:id="@+id/menu_top_settings"
+          android:title="@string/msgs_menu_settings" 
+          android:icon="@android:drawable/ic_menu_preferences"
+          appv7:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/menu_top_show_system_information"
+        android:title="@string/msgs_menu_list_system_info"
+        />
+
+    <item android:id="@+id/menu_top_about"
+          android:title="@string/msgs_menu_about" 
+          android:icon="@android:drawable/ic_menu_info_details"
+          appv7:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/menu_top_storage_permission"
+        android:title="@string/msgs_menu_storage_permission"
+        />
+    <item android:id="@+id/menu_top_kill"
+          android:title="@string/msgs_menu_kill"
+          />
+    
+</menu>

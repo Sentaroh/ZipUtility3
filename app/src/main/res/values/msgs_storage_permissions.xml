@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="msgs_storage_permission_title">Permission to use storage</string>
+
+    <string name="msgs_main_external_storage_select_required_title">External Storage Access Permission</string>
+    <string name="msgs_main_external_storage_select_required_select_msg">In order to write the storage, Step 1 please tap the &#8220;SDCARD&#8221; or &#8220;USB&#8221;, Step2 then　Please tap the &#8220;Select&#8221; in the displayed screen.\n
+(Please tap the &#8220;Select&#8221; when the screen of &#8220;SDCARD&#8221; or &#8220;USB&#8221; in step2 is displayed directly in the upper left corner. If the upper left is other than &#8220;SDCARD&#8221; or &#8220;USB&#8221; are displayed, tap the upper left corner of the menu, from step 1 please try again.)</string>
+    <string name="msgs_main_external_storage_select_retry_select_msg">The root directory of the external storage was not selected. Do you wants to re select?</string>
+    <string name="msgs_main_external_storage_select_deny_msg">Permission to access external storage has been denied. You cannot save files to the external storage until you have permission to access the external storage.</string>
+    <string name="msgs_main_external_storage_required_select_msg_file">SMBSync_STORAGE_10.0_EN.png</string>
+
+    <string name="msgs_main_permission_primary_storage_title">Internal storage permission</string>
+    <string name="msgs_main_permission_primary_storage_request_msg">Please give permission to access internal storage in order to read and write photos of internal storage and management data.</string>
+    <string name="msgs_main_permission_primary_storage_denied_msg">Since permission to access internal storage is not given, it is impossible to read and write photos and management data, quit the application.</string>
+
+</resources>

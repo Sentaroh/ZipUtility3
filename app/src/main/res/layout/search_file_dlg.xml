@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/search_file_dlg_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,LabelFor,UselessParent,ContentDescription" >
+
+    <LinearLayout
+        android:id="@+id/search_file_dlg_title_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" 
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/search_file_dlg_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/msgs_search_file_dlg_title"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <ImageButton
+                android:id="@+id/search_file_dlg_sort_btn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="5dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_128_sort_asc_gray" />
+
+        </LinearLayout>
+
+        <include layout="@layout/divider_line1_turquoise" />
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/search_file_dlg_msg"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#ff0000"
+            android:visibility="gone" />
+
+        <include layout="@layout/divider_line1" />
+
+        <LinearLayout
+            android:id="@+id/search_file_dlg_search_option_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:orientation="vertical" >
+
+            <CheckedTextView
+                android:id="@+id/search_file_dlg_search_hidden_item"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                android:text="@string/msgs_search_file_dlg_search_hidden_item"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <CheckedTextView
+                android:id="@+id/search_file_dlg_search_case_sensitive"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                android:text="@string/msgs_search_file_dlg_search_case_sensitive"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <EditText
+                android:id="@+id/search_file_dlg_search_key"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_weight="1"
+                android:ems="10"
+                android:inputType="text"
+                android:text="*" >
+
+                <requestFocus />
+            </EditText>
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/search_file_dlg_search_result"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fastScrollAlwaysVisible="false"
+            android:fastScrollEnabled="true"
+            android:footerDividersEnabled="true"
+            android:headerDividersEnabled="true" >
+        </ListView>
+
+
+        <include layout="@layout/search_file_dlg_search_info" />
+        
+        <include layout="@layout/search_file_dlg_ok_cancel" />
+    </LinearLayout>
+
+</LinearLayout>

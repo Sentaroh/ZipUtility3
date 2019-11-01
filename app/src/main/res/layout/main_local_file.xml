@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:ignore="ButtonStyle,HardcodedText,UselessParent,RtlHardcoded,SpUsage" >
+
+    <include layout="@layout/main_dialog"/>
+    
+    <LinearLayout
+        android:id="@+id/local_file_view"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <Spinner
+            android:id="@+id/local_file_storage_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="2dp"
+            android:minHeight="40dp" />
+            
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+            <Button
+                android:id="@+id/local_file_top_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:drawableLeft="@drawable/ic_16_go_top_light"
+                android:text="@string/msgs_folder_view_top_btn" />
+
+            <com.sentaroh.android.Utilities3.Widget.NonWordwrapTextView
+                android:id="@+id/local_file_filepath"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text=""
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+            
+            <Button
+                android:id="@+id/local_file_up_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:drawableLeft="@drawable/ic_16_go_up_light"
+                android:text="@string/msgs_folder_view_up_btn" />
+            
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/local_file_empty"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Folder is empty"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <ListView
+            android:id="@+id/local_file_list"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:fadeScrollbars="true"
+            android:fastScrollAlwaysVisible="false"
+            android:fastScrollEnabled="false" />
+        <!--android:padding="16dp"-->
+        <!--android:clipToPadding="false"-->
+        <!--android:scrollbarStyle="outsideOverlay"-->
+
+   		<include layout="@layout/context_view_local"/>
+
+        <TextView
+            android:id="@+id/local_file_msg"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:visibility="gone"
+            android:text="SDCARD access was not granted"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    </LinearLayout>
+    
+
+</LinearLayout>

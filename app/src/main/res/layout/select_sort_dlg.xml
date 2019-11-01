@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/select_sort_dlg_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="7dp"
+    android:background="@drawable/dialog_box_outline"
+    android:orientation="vertical"
+    tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,LabelFor,UselessParent,InefficientWeight" >
+
+    <LinearLayout
+        android:id="@+id/select_sort_dlg_title_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/select_sort_dlg_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:gravity="center"
+            android:text="@string/msgs_search_file_dlg_sort_title"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <include layout="@layout/divider_line1_turquoise" />
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/select_sort_dlg_msg"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#ff0000"
+            android:visibility="gone" />
+
+        <include layout="@layout/divider_line1" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/msgs_search_file_dlg_sort_order_title"/>
+        
+        <RadioGroup
+            android:id="@+id/select_sort_dlg_rg_sort_order"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="5dp"
+            android:orientation="horizontal" >
+
+            <RadioButton
+                android:id="@+id/select_sort_dlg_rb_sort_order_asc"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="@string/msgs_search_file_dlg_sort_order_asc"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <RadioButton
+                android:id="@+id/select_sort_dlg_rb_sort_order_dsc"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/msgs_search_file_dlg_sort_order_dsc"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        </RadioGroup>
+        
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/msgs_search_file_dlg_sort_key_title"/>
+        
+        <RadioGroup
+            android:id="@+id/select_sort_dlg_rg_sort_key"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="5dp">
+
+            <RadioButton
+                android:id="@+id/select_sort_dlg_rb_sort_key_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/msgs_search_file_dlg_sort_key_name" />
+
+            <RadioButton
+                android:id="@+id/select_sort_dlg_rb_sort_key_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/msgs_search_file_dlg_sort_key_size" />
+
+            <RadioButton
+                android:id="@+id/select_sort_dlg_rb_sort_key_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/msgs_search_file_dlg_sort_key_time" />
+
+            
+            </RadioGroup>
+
+        <include layout="@layout/select_sort_dlg_ok_cancel" />
+    </LinearLayout>
+
+</LinearLayout>

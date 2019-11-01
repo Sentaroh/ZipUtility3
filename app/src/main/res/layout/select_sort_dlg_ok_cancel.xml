@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    tools:ignore="ButtonStyle,RtlHardcoded,Orientation" >
+
+    <Button
+        android:id="@+id/select_sort_dlg_cancel_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/msgs_common_dialog_cancel"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <Button
+        android:id="@+id/select_sort_dlg_ok_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/msgs_search_file_dlg_sort_btn_sort"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+    
+</LinearLayout>

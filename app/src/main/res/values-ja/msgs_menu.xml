@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="msgs_menu_log_management">ログファイル管理</string>
+	<string name="msgs_menu_about">アプリケーションについて</string>
+	<string name="msgs_menu_settings">設定</string>
+	<string name="msgs_menu_open_zip">開く</string>
+	<string name="msgs_menu_create_new_zip">作成</string>
+	<string name="msgs_menu_refresh">再読み込み</string>
+	<string name="msgs_menu_find">ファイル検索</string>
+	<string name="msgs_menu_quit">終了</string>
+	<string name="msgs_menu_kill">強制終了</string>
+    <string name="msgs_menu_sort">並び替え</string>
+
+    <string name="msgs_menu_save_zip_file">名前を付けて保存</string>
+
+    <string name="msgs_menu_storage_permission">外部ストレージ使用許可</string>
+</resources>

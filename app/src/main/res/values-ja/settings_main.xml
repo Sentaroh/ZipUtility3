@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_main_title">設定</string>
+    
+    <string name="settings_compress_title">圧縮</string>
+	
+	<string name="settings_no_compress_file_type_title">圧縮しないファイルタイプ</string>
+	
+    <string name="settings_zip_default_encoding_title">自動判別失敗時のエンコーディング</string>
+	<string name="settings_zip_default_encoding_dialog_title">エンコーディングの選択</string>
+
+    <string name="settings_confirm_exit_title">アプリ終了時の確認</string>
+    <string name="settings_confirm_exit_summary_ena">アプリ終了時の確認</string>
+
+    <string name="settings_ui_title">ユーザーインターフェース</string>
+	<string name="settings_use_light_theme_title">画面テーマ</string>
+    <string name="settings_use_light_theme_summary_ena">ライトテーマを使用する</string>
+
+    <string name="settings_open_as_text_file_type_title">テキストとして開くファイルタイプ</string>
+    <string name="settings_open_as_text_file_type">settings_open_as_text_file_type</string>
+
+    <string name="settings_device_orientation_portrait_title">端末の向き</string>
+    <string name="settings_device_orientation_portrait_summary_ena">端末の向きをポートレイトに固定する</string>
+    
+    
+    <string name="settings_default_current_setting">現設定=</string>
+
+    <string name="settings_other_title">Other</string>
+    
+    <string name="settings_exit_clean_title">Exit cleanly</string>
+    <string name="settings_exit_clean_summary_dis">Do not kill application process</string>
+    <string name="settings_exit_clean_summary_ena">Kill application process after application cleanup</string>
+	<string name="settings_exit_clean">settings_exit_clean</string>
+
+    <string name="settings_misc_title">その他</string>
+    
+</resources>

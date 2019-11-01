@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:ignore="ButtonStyle,HardcodedText,UselessParent,RtlHardcoded,SpUsage" >
+
+    <include layout="@layout/main_dialog"/>
+    
+    <LinearLayout
+        android:id="@+id/zip_file_view"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Spinner
+                android:id="@+id/zip_file_zip_file_spinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dp"
+                android:layout_marginTop="2dp"
+                android:layout_weight="2"
+                android:minHeight="40dp" />
+
+            <Spinner
+                android:id="@+id/zip_file_encoding"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
+                android:minHeight="40dp" />
+        </LinearLayout>
+    	<TextView
+    	    android:id="@+id/zip_file_info"
+    	    android:layout_width="match_parent"
+    	    android:layout_height="wrap_content"
+    	    android:layout_marginLeft="5dp"
+    	    android:layout_marginRight="5dp"
+    	    android:text="Small Text"
+    	    android:textAppearance="?android:attr/textAppearanceMedium" />
+        
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/zip_file_top_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_16_go_top_light"
+                android:text="@string/msgs_folder_view_top_btn" />
+
+			<com.sentaroh.android.Utilities3.Widget.NonWordwrapTextView
+                android:id="@+id/zip_file_filepath"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text=""
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+			
+            <Button
+                android:id="@+id/zip_file_up_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_16_go_up_light"
+                android:text="@string/msgs_folder_view_up_btn" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/zip_file_empty"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/msgs_zip_zip_folder_empty"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <ListView
+            android:id="@+id/zip_file_list"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+    	    android:layout_marginLeft="5dp"
+    	    android:layout_marginRight="5dp"
+            android:fadeScrollbars="false"
+            android:fastScrollAlwaysVisible="false"
+            android:fastScrollEnabled="false" />
+
+        
+    	<include layout="@layout/context_view_zip" />
+
+
+    </LinearLayout>
+    
+
+</LinearLayout>
