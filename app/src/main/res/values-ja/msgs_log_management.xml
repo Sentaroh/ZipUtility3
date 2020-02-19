@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="msgs_log_management_title">ログファイル管理</string>
+	<string name="msgs_log_management_title">ログ管理</string>
 	
 	<string name="msgs_log_management_label_delete">ログの削除</string>
 	<string name="msgs_log_management_label_share">ログの共有</string>
