@@ -9,7 +9,7 @@
     <string name="msgs_main_exit_confirm_msg">Do you want to terminate application.</string>
     <string name="msgs_main_kill_confirm_msg">Do you want to kill the application.</string>
     
-    <string name="msgs_main_about_title">About ZipUtility</string>
+    <string name="msgs_main_about_title">About ZipUtility3</string>
     <string name="msgs_main_about_content">Version %s\n\n
 It is an application for creating, editing, and extracting ZIP file. (Supports password-protected ZIP)\n
 \n

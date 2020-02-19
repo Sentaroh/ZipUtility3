@@ -9,7 +9,7 @@
     <string name="msgs_main_exit_confirm_msg">アプリケーションを終了しますか？</string>
     <string name="msgs_main_kill_confirm_msg">アプリケーションを強制終了しますか？</string>
     
-    <string name="msgs_main_about_title">About ZipUtility</string>
+    <string name="msgs_main_about_title">About ZipUtility3</string>
     <string name="msgs_main_about_content">Version %s\n\n
 ZIPファイルの作成・編集・抽出のためのアプリケーションです。（パスワード付きZIPをサポートしています）\n
 \n
