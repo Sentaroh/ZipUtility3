@@ -111,6 +111,7 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+import static com.sentaroh.android.Utilities3.SafManager3.SCOPED_STORAGE_SDK;
 import static com.sentaroh.android.ZipUtility3.Constants.*;
 
 @SuppressLint("ClickableViewAccessibility")
@@ -448,7 +449,7 @@ public class ZipFileManager {
                                         is.close();
                                         os.flush();
                                         os.close();
-                                        if (Build.VERSION.SDK_INT>=29) {
+                                        if (Build.VERSION.SDK_INT>=SCOPED_STORAGE_SDK) {
                                             SafFile3 tmp_sf=new SafFile3(mContext, tmp.getPath());
                                             if (out_file.exists()) out_file.delete();
                                             tmp_sf.moveTo(out_file);
@@ -515,7 +516,7 @@ public class ZipFileManager {
         mCurretnFileIsReadOnly =read_only;
 		if (in_file!=null) {
 		    if (!read_only) {
-		        if (Build.VERSION.SDK_INT>=29) {
+		        if (Build.VERSION.SDK_INT>=SCOPED_STORAGE_SDK) {
 		            if (in_file.getUuid().equals(SafFile3.SAF_FILE_UNKNOWN_UUID)) {
                         mCurretnFileIsReadOnly =false;
                     } else {
