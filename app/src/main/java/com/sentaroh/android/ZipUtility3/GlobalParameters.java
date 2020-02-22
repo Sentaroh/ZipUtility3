@@ -98,6 +98,16 @@ public class GlobalParameters {
     static final public String DEFAULT_OPEN_AS_TEXT_FILE_TYPE=
             "log;";
 
+    public boolean settingSupressAddExternalStorageNotification =false;
+    public boolean isSupressAddExternalStorageNotification() {
+        return settingSupressAddExternalStorageNotification;
+    }
+    public void setSupressAddExternalStorageNotification(Context c, boolean suppress) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+        prefs.edit().putBoolean(c.getString(R.string.settings_suppress_add_external_storage_notification), suppress).commit();
+        settingSupressAddExternalStorageNotification=suppress;
+    }
+
     public Handler uiHandler=null;
 
 
@@ -186,7 +196,11 @@ public class GlobalParameters {
 		settingZipDefaultEncoding=prefs.getString(c.getString(R.string.settings_zip_default_encoding), "UTF-8");
 
         settingConfirmAppExit=prefs.getBoolean(c.getString(R.string.settings_confirm_exit),true);
-	};
+
+        settingSupressAddExternalStorageNotification=
+                prefs.getBoolean(c.getString(R.string.settings_suppress_add_external_storage_notification), false);
+
+    };
 	
 	private boolean isDebuggable() {
 		boolean result=false;

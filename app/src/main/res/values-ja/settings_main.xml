@@ -33,5 +33,9 @@
 	<string name="settings_exit_clean">settings_exit_clean</string>
 
     <string name="settings_misc_title">その他</string>
-    
+
+    <string name="settings_suppress_add_external_storage_notification">settings_suppress_add_external_storage_notification</string>
+    <string name="settings_suppress_add_external_storage_notification_summary_ena">外部ストレージ追加の通知を表示しない</string>
+    <string name="settings_suppress_add_external_storage_notification_title">外部ストレージ追加の通知</string>
+
 </resources>

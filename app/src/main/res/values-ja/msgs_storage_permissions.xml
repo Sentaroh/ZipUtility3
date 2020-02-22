@@ -13,4 +13,8 @@
     <string name="msgs_main_permission_primary_storage_request_msg">内部ストレージにデータや管理用データの読み書きを行うために内部ストレージにアクセスする許可を与えてください。</string>
     <string name="msgs_main_permission_primary_storage_denied_msg">内部ストレージにアクセスする許可が与えられていないためアプリケーションを続行できません、アプリケーションを終了します。</string>
 
+    <string name="msgs_main_suppress_add_external_storage_notification_title">外部ストレージ追加の通知</string>
+    <string name="msgs_main_suppress_add_external_storage_notification_msg">新しい外部ストレージが検出されました。外部ストレージを追加しますか？</string>
+    <string name="msgs_main_suppress_add_external_storage_notification_suppress">この通知を次回以降表示しない （アプリ設定で再表示できます）</string>
+
 </resources>

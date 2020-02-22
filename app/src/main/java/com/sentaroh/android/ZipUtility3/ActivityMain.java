@@ -57,6 +57,7 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TabHost;
@@ -299,7 +300,10 @@ public class ActivityMain extends AppCompatActivity {
                     if (mRestartStatus==0) {
                         Intent in=getIntent();
                         if (in!=null && in.getData()!=null) showZipFileByIntent(in);
-                        else mLocalFileMgr.showLocalFileView(true);
+                        else {
+                            mLocalFileMgr.showLocalFileView(true);
+                            showAddExternalStorageNotification();
+                        }
                     } else if (mRestartStatus==2) {
                         mLocalFileMgr.showLocalFileView(true);
                         if (mGp.activityIsDestroyed) {
@@ -321,6 +325,119 @@ public class ActivityMain extends AppCompatActivity {
             if (mStoragePermissionPrimaryListener==null) openService(ntfy);
         }
 
+    }
+
+    private void showAddExternalStorageNotification() {
+        mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+
+                " entered, isStoragePermissionRequired="+mGp.safMgr.isStoragePermissionRequired()+
+                ", isSupressAddExternalStorageNotification"+mGp.isSupressAddExternalStorageNotification());
+        if (mGp.safMgr.isStoragePermissionRequired() && !mGp.isSupressAddExternalStorageNotification()) {
+            NotifyEvent ntfy=new NotifyEvent(mContext);
+            ntfy.setListener(new NotifyEvent.NotifyEventListener() {
+                @Override
+                public void positiveResponse(Context context, Object[] objects) {
+                    boolean suppress=(boolean)objects[0];
+                    if (suppress) {
+                        mGp.setSupressAddExternalStorageNotification(mContext, true);
+                    }
+                    NotifyEvent ntfy_add=new NotifyEvent(mContext);
+                    ntfy_add.setListener(new NotifyEvent.NotifyEventListener() {
+                        @Override
+                        public void positiveResponse(Context context, Object[] objects) {
+                        }
+
+                        @Override
+                        public void negativeResponse(Context context, Object[] objects) {
+
+                        }
+                    });
+                    requestLocalStoragePermission(ntfy_add);
+                }
+
+                @Override
+                public void negativeResponse(Context context, Object[] objects) {
+                    boolean suppress=(boolean)objects[0];
+                    if (suppress) {
+                        mGp.setSupressAddExternalStorageNotification(mContext, true);
+                    }
+                }
+            });
+            ArrayList<SafManager3.StorageVolumeInfo>svl=SafManager3.buildStoragePermissionRequiredList(mContext);
+            String new_storage="";
+            for(SafManager3.StorageVolumeInfo si:svl) {
+                new_storage+=si.description+"("+si.uuid+")"+"\n";
+            }
+            showDialogWithHideOption(mActivity, mGp, mUtil,
+                    true, mContext.getString(R.string.msgs_common_dialog_ok),
+                    true, mContext.getString(R.string.msgs_common_dialog_close),
+                    mContext.getString(R.string.msgs_main_suppress_add_external_storage_notification_title),
+                    mContext.getString(R.string.msgs_main_suppress_add_external_storage_notification_msg)+"\n-"+new_storage,
+                    mContext.getString(R.string.msgs_main_suppress_add_external_storage_notification_suppress), ntfy);
+        }
+
+    }
+
+    static public void showDialogWithHideOption(final Activity activity, final GlobalParameters gp, CommonUtilities cu,
+                                                boolean ok_visible, String ok_label, boolean cancel_visible, String cancel_label,
+                                                String title_text, String msg_text, String suppress_text,
+                                                NotifyEvent p_ntfy) {
+
+        final Context c=activity.getApplicationContext();
+
+        final Dialog dialog = new Dialog(activity, gp.applicationTheme);//, android.R.style.Theme_Black);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.show_warning_message_dlg);
+
+        final LinearLayout title_view = (LinearLayout) dialog.findViewById(R.id.show_warning_message_dlg_title_view);
+        final TextView title = (TextView) dialog.findViewById(R.id.show_warning_message_dlg_title);
+        title_view.setBackgroundColor(gp.themeColorList.title_background_color);
+        title.setText(title_text);
+        title.setTextColor(gp.themeColorList.title_text_color);
+
+        ((TextView) dialog.findViewById(R.id.show_warning_message_dlg_msg)).setText(msg_text);
+
+        final Button btnOk = (Button) dialog.findViewById(R.id.show_warning_message_dlg_close);
+        btnOk.setText(ok_label);
+        btnOk.setVisibility(ok_visible?Button.VISIBLE:Button.GONE);
+        final Button btnCancel = (Button) dialog.findViewById(R.id.show_warning_message_dlg_cancel);
+        btnCancel.setText(cancel_label);
+        btnCancel.setVisibility(cancel_visible?Button.VISIBLE:Button.GONE);
+        final CheckedTextView ctvSuppr = (CheckedTextView) dialog.findViewById(R.id.show_warning_message_dlg_ctv_suppress);
+        ctvSuppr.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((CheckedTextView)v).toggle();
+            }
+        });
+        ctvSuppr.setText(suppress_text);
+
+        CommonDialog.setDlgBoxSizeCompact(dialog);
+        ctvSuppr.setChecked(false);
+
+        btnOk.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                dialog.dismiss();
+                p_ntfy.notifyToListener(true, new Object[]{ctvSuppr.isChecked()});
+//                if (ctvSuppr.isChecked()) {
+//                    prefs.edit().putBoolean(c.getString(R.string.settings_suppress_warning_location_service_disabled), true).commit();
+//                    gp.settingSupressLocationServiceWarning =true;
+//                }
+            }
+        });
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                dialog.dismiss();
+                p_ntfy.notifyToListener(false, new Object[]{ctvSuppr.isChecked()});
+            }
+        });
+
+        dialog.setOnCancelListener(new Dialog.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface arg0) {
+                btnCancel.performClick();
+            }
+        });
+        dialog.show();
     }
 
 //    @Override

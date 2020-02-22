@@ -13,4 +13,8 @@
     <string name="msgs_main_permission_primary_storage_request_msg">Please give permission to access internal storage in order to read and write photos of internal storage and management data.</string>
     <string name="msgs_main_permission_primary_storage_denied_msg">Since permission to access internal storage is not given, it is impossible to read and write photos and management data, quit the application.</string>
 
+    <string name="msgs_main_suppress_add_external_storage_notification_title">Notification of adding external storage</string>
+    <string name="msgs_main_suppress_add_external_storage_notification_msg">New external storage has been detected. Add external storage?</string>
+    <string name="msgs_main_suppress_add_external_storage_notification_suppress">Disable this notification (can be enabled in sync settings)</string>
+
 </resources>

@@ -59,5 +59,9 @@
 	<string name="settings_exit_clean">settings_exit_clean</string>
 
     <string name="settings_misc_title">Miscellaneous</string>
-    
+
+    <string name="settings_suppress_add_external_storage_notification">settings_suppress_add_external_storage_notification</string>
+    <string name="settings_suppress_add_external_storage_notification_summary_ena">Do not show notification of external storage addition.</string>
+    <string name="settings_suppress_add_external_storage_notification_title">Notification of adding external storage</string>
+
 </resources>
