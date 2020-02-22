@@ -61,6 +61,7 @@ import android.widget.TextView;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentManager;
 
+import com.sentaroh.android.Utilities3.CallBackListener;
 import com.sentaroh.android.Utilities3.ContextButton.ContextButtonUtil;
 import com.sentaroh.android.Utilities3.ContextMenu.CustomContextMenu;
 import com.sentaroh.android.Utilities3.ContextMenu.CustomContextMenuItem.CustomContextMenuOnClickListener;
@@ -2020,7 +2021,19 @@ public class ZipFileManager {
                             getAllItemInLocalDirectory(sel_list, add_file);
                             for (SafFile3 sel_file : sel_list) {
                                 try {
-                                    bzf.addItem(sel_file.getPath(), n_zp);
+                                    CallBackListener cbl=new CallBackListener() {
+                                        @Override
+                                        public boolean onCallBack(Context context, Object o, Object[] objects) {
+                                            if (!tc.isEnabled()) {
+                                                bzf.abort();
+                                            } else {
+                                                int prog=(Integer)o;
+                                                putProgressMessage(mContext.getString(R.string.msgs_zip_add_file_adding, sel_file.getPath(), prog));
+                                            }
+                                            return true;
+                                        }
+                                    };
+                                    bzf.addItem(sel_file.getPath(), n_zp, cbl);
                                     if (!tc.isEnabled()) {
                                         mCommonDlg.showCommonDialog(false, "W", String.format(mContext.getString(R.string.msgs_zip_add_file_cancelled), sel_file.getPath()), "", null);
                                         try {bzf.destroy();} catch (Exception e) {}
@@ -2043,10 +2056,29 @@ public class ZipFileManager {
                         }
                     }
                     try {
-                        putProgressMessage(mContext.getString(R.string.msgs_zip_zip_file_being_updated));
-                        disableCancelButton();
-
-                        if (bzf.close()) renameBufferedZipFile(mGp, mUtil, mCurrentFilePath, out_temp.getPath(), zip_file_name);
+//                        disableCancelButton();
+                        CallBackListener cbl=new CallBackListener() {
+                            @Override
+                            public boolean onCallBack(Context context, Object o, Object[] objects) {
+                                if (!tc.isEnabled()) {
+                                    bzf.abort();
+                                } else {
+                                    int prog=(Integer)o;
+                                    putProgressMessage(mContext.getString(R.string.msgs_zip_zip_file_being_updated)+" "+prog+"%");
+                                }
+                                return true;
+                            }
+                        };
+                        if (bzf.isAborted() || bzf.close(cbl)) {
+                            if (!bzf.isAborted()) renameBufferedZipFile(mGp, mUtil, mCurrentFilePath, out_temp.getPath(), zip_file_name);
+                            else {
+                                mCommonDlg.showCommonDialog(false, "W", mContext.getString(R.string.msgs_zip_write_zip_file_canelled), "", null);
+                                try {bzf.destroy();} catch (Exception e) {}
+                                deleteBufferedZipWork(mGp, mUtil, mCurrentFilePath, out_temp.getPath());
+                                closeUiDialogView(500);
+                                return;
+                            }
+                        }
 
                         if (p_ntfy != null) p_ntfy.notifyToListener(true, new Object[]{add_item});
                         String w_sel_list = "", sep = "";
@@ -2919,9 +2951,29 @@ public class ZipFileManager {
                         }
                     }
                     if (tc.isEnabled()) {
-                        putProgressMessage(mContext.getString(R.string.msgs_zip_zip_file_being_updated));
-                        disableCancelButton();
-                        if (bzf.close()) renameBufferedZipFile(mGp, mUtil, zip_file_path, out_temp.getPath(), zip_file_name);
+//                        disableCancelButton();
+                        CallBackListener cbl=new CallBackListener() {
+                            @Override
+                            public boolean onCallBack(Context context, Object o, Object[] objects) {
+                                if (!tc.isEnabled()) bzf.abort();
+                                else {
+                                    int prog=(Integer)o;
+                                    putProgressMessage(mContext.getString(R.string.msgs_zip_zip_file_being_updated)+" "+prog+"%");
+                                }
+                                return true;
+                            }
+                        };
+                        if (bzf.isAborted() || bzf.close(cbl)) {
+                            if (!bzf.isAborted()) renameBufferedZipFile(mGp, mUtil, zip_file_path, out_temp.getPath(), zip_file_name);
+                            else {
+                                mCommonDlg.showCommonDialog(false, "W", mContext.getString(R.string.msgs_zip_write_zip_file_canelled), "", null);
+                                try {bzf.destroy();} catch (Exception e) {}
+                                deleteBufferedZipWork(mGp, mUtil, zip_file_path, out_temp.getPath());
+                                closeUiDialogView(500);
+                                return;
+                            }
+                        }
+
                     }
                 } catch (Exception e) {
                     mUtil.addLogMsg("I", e.getMessage());
@@ -2984,8 +3036,8 @@ public class ZipFileManager {
     }
 
     static public void deleteBufferedZipWork(GlobalParameters gp, CommonUtilities util, String dest_path, String out_path) {
-        File of=new File(out_path);
-        if (of.exists()) of.delete();
+        SafFile3 of=new SafFile3(gp.appContext, out_path);
+        of.deleteIfExists();
     }
 
 	private void putProgressMessage(final String msg) {
