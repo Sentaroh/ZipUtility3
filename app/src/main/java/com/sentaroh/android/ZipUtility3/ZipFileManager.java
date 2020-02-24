@@ -2018,6 +2018,7 @@ public class ZipFileManager {
                         if (item != null) {
                             SafFile3 add_file = new SafFile3(mContext, item);
                             ZipParameters n_zp = new ZipParameters(zp);
+                            n_zp.setDefaultFolderPath(zip_base+"/");
                             ArrayList<SafFile3> sel_list = new ArrayList<SafFile3>();
                             if (add_file.isDirectory()) sel_list.add(add_file);
                             getAllItemInLocalDirectory(sel_list, add_file);
@@ -2035,6 +2036,10 @@ public class ZipFileManager {
                                             return true;
                                         }
                                     };
+                                    String abs_input_file_path=sel_file.getPath().replace(n_zp.getDefaultFolderPath(), "");
+                                    String file_name_in_zip=zip_curr_dir.equals("")?abs_input_file_path:zip_curr_dir+"/"+abs_input_file_path;
+                                    if (sel_file.isDirectory()) n_zp.setFileNameInZip(file_name_in_zip+"/");
+                                    else n_zp.setFileNameInZip(file_name_in_zip);
                                     bzf.addItem(sel_file.getPath(), n_zp, cbl);
                                     if (!tc.isEnabled()) {
                                         mCommonDlg.showCommonDialog(false, "W", String.format(mContext.getString(R.string.msgs_zip_add_file_cancelled), sel_file.getPath()), "", null);
@@ -2868,13 +2873,11 @@ public class ZipFileManager {
 							if (tfli.isDirectory()) {
 								if (fh.getFileName().startsWith(tfli.getZipFileName()+"/")) {
 									sel_fh.add(fh);
-//									Log.v("","added name="+fh.getFileName());
 									break;
 								}
 							} else {
 								if (fh.getFileName().equals(tfli.getZipFileName())) {
 									sel_fh.add(fh);
-//									Log.v("","added name="+fh.getFileName());
 									break;
 								}
 							}
