@@ -2372,7 +2372,7 @@ public class ZipFileManager {
         boolean include_root=false;
         boolean scoped_storage_mode=mGp.safMgr.isScopedStorageMode();
         CommonFileSelector2 fsdf=
-                CommonFileSelector2.newInstance(scoped_storage_mode, true, false, CommonFileSelector2.DIALOG_SELECT_CATEGORY_FILE,
+                CommonFileSelector2.newInstance(scoped_storage_mode, true, false, CommonFileSelector2.DIALOG_SELECT_CATEGORY_DIRECTORY,
                         true, true, SafFile3.SAF_FILE_PRIMARY_UUID, "", "", mContext.getString(R.string.msgs_zip_extract_select_dest_directory));
         fsdf.showDialog(false, mActivity.getSupportFragmentManager(), fsdf, ntfy);
 	};

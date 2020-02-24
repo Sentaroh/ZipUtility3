@@ -76,6 +76,7 @@ import com.sentaroh.android.Utilities3.Zip.ZipUtil;
 
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
+import net.lingala.zip4j.model.ZipParameters;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -896,7 +897,7 @@ public class LocalFileManager {
                         try {
                             buildFileListBySearchKey(cpc, tc, dlg_hidden.isChecked(), psd, s_tfl, s_key, sf);
                         } finally {
-                            cpc.release();
+                            if (cpc!=null) cpc.release();
                         }
                         psd.dismissAllowingStateLoss();
                         if (!tc.isEnabled()) {
@@ -3446,6 +3447,7 @@ public class LocalFileManager {
                     String base_dir=mMainFilePath;
                     String added_item="", added_sep="";
                     putProgressMessage(mContext.getString(R.string.msgs_local_file_add_file_begin));
+                    zp.setDefaultFolderPath(base_dir+"/");
                     for(String item:add_item) {
                         SafFile3 in_file=new SafFile3(mContext, item);
                         ArrayList<SafFile3> sel_list=new ArrayList<SafFile3>();
@@ -3456,6 +3458,8 @@ public class LocalFileManager {
                             String msg= String.format(mContext.getString(R.string.msgs_local_file_add_file_adding),sel_item.getPath());
                             mUtil.addLogMsg("I", msg);
                             putProgressMessage(msg);
+                            if (sel_item.isDirectory()) zp.setFileNameInZip(sel_item.getPath().replace(zp.getDefaultFolderPath(), "")+"/");
+                            else zp.setFileNameInZip(sel_item.getPath().replace(zp.getDefaultFolderPath(), ""));
                             bzf.addItem(sel_item, zp);
                             if (!tc.isEnabled()) {
                                 msg= String.format(mContext.getString(R.string.msgs_local_file_add_file_cancelled),item);
