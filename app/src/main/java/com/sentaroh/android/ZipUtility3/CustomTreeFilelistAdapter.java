@@ -465,7 +465,7 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
 //                        holder.tv_count.setVisibility(TextView.GONE);
                     }
                     if (o.isDirectory()) {
-                        if (!o.isZipFileItem()) holder.tv_size.setVisibility(TextView.GONE);//VISIBLE);
+                        if (!o.isZipFileItem()) holder.tv_size.setVisibility(TextView.VISIBLE);
                         else holder.tv_size.setVisibility(TextView.GONE);
                     } else {
                         holder.tv_count.setVisibility(TextView.GONE);
