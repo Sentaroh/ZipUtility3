@@ -86,6 +86,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+import it.sephiroth.android.library.easing.Linear;
+
 import static com.sentaroh.android.Utilities3.SafManager3.SCOPED_STORAGE_SDK;
 import static com.sentaroh.android.ZipUtility3.Constants.ENCODING_NAME_UTF8;
 import static com.sentaroh.android.ZipUtility3.Constants.IO_AREA_SIZE;
@@ -304,6 +306,7 @@ public class LocalFileManager {
 
         mMainDialogView = (LinearLayout) mMainView.findViewById(R.id.main_dialog_view);
         mMainDialogView.setVisibility(LinearLayout.VISIBLE);
+
         mTreeFilelistView = (ListView) mMainView.findViewById(R.id.local_file_list);
         mFileEmpty = (TextView) mMainView.findViewById(R.id.local_file_empty);
         mFileEmpty.setVisibility(TextView.GONE);
@@ -2468,6 +2471,9 @@ public class LocalFileManager {
 
 	private void showDialogProgress() {
 		mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
+        mMainDialogView.bringToFront();
+        mMainDialogView.setBackgroundColor(mGp.themeColorList.text_background_color);
+
 //		Thread.dumpStack();
 	}
 

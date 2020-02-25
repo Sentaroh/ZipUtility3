@@ -3086,7 +3086,9 @@ public class ZipFileManager {
 
 	private void showDialogProgress() {
 		mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
-	};
+        mMainDialogView.bringToFront();
+        mMainDialogView.setBackgroundColor(mGp.themeColorList.text_background_color);
+    };
 
 	private void hideDialog() {
 		mDialogProgressSpinView.setVisibility(LinearLayout.GONE);
