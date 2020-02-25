@@ -273,8 +273,8 @@ public class ActivityMain extends AppCompatActivity {
 	private void processOnResumed() {
         if (mRestartStatus==1) {
             if (isUiEnabled()) {
-//                mZipFileMgr.refreshFileList();
-//                mLocalFileMgr.refreshFileList();
+                mZipFileMgr.refreshFileList();
+                mLocalFileMgr.refreshFileList();
             }
             try {
                 mSvcClient.aidlSetActivityInForeground();

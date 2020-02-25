@@ -2951,11 +2951,15 @@ public class LocalFileManager {
                                 mTreeFilelistView.setAdapter(null);
                                 ArrayList<TreeFilelistItem> tfl=(ArrayList<TreeFilelistItem>)objects[0];
                                 mTreeFilelistAdapter.setDataList(tfl);
+                                mTreeFilelistView.setAdapter(mTreeFilelistAdapter);
                                 mMainFilePath=n_dir;
                                 if (!mMainStoragePath.equals(n_dir)) {
                                     setCurrentDirectoryText(n_dir);
                                     if (tfl.size()>0) {
-                                        if (p_dli!=null) mTreeFilelistView.setSelectionFromTop(p_dli.pos_x, p_dli.pos_y);
+                                        if (p_dli!=null) {
+//                                            mUtil.addDebugMsg(1, "I", "setPosition1 x="+p_dli.pos_x+", y="+p_dli.pos_y);
+                                            mTreeFilelistView.setSelectionFromTop(p_dli.pos_x, p_dli.pos_y);
+                                        }
                                     }
                                 } else {
                                     mCurrentDirectory.setText(n_dir);
@@ -2964,17 +2968,19 @@ public class LocalFileManager {
 //                                    mCurrentDirectory.requestLayout();
                                     if (tfl.size()>0) {
                                         if (p_dli!=null) {
-                                            mUiHandler.post(new Runnable(){
-                                                @Override
-                                                public void run() {
-                                                    mTreeFilelistView.setSelectionFromTop(p_dli.pos_x, p_dli.pos_y);
-                                                }
-                                            });
+                                            mTreeFilelistView.setSelectionFromTop(p_dli.pos_x, p_dli.pos_y);
+//                                            mUtil.addDebugMsg(1, "I", "setPosition2 x="+p_dli.pos_x+", y="+p_dli.pos_y);
+//                                            mUiHandler.postDelayed(new Runnable(){
+//                                                @Override
+//                                                public void run() {
+//                                                    mUtil.addDebugMsg(1, "I", "setPosition2 x="+p_dli.pos_x+", y="+p_dli.pos_y);
+//                                                    mTreeFilelistView.setSelectionFromTop(p_dli.pos_x, p_dli.pos_y);
+//                                                }
+//                                            },50);
                                         }
                                     }
                                     setTopUpButtonEnabled(false);
                                 }
-                                mTreeFilelistView.setAdapter(mTreeFilelistAdapter);
                                 if (mTreeFilelistAdapter.getCount()==0) {
                                     mTreeFilelistView.setVisibility(ListView.GONE);
                                     mFileEmpty.setVisibility(TextView.VISIBLE);
@@ -3607,7 +3613,7 @@ public class LocalFileManager {
                     else setCurrentDirectoryText(fp.replace(mLocalStorageSelector.getSelectedItem().toString(), ""));
                     invalidateLocalFileView();
                     mCurrentDirectory.setVisibility(TextView.VISIBLE);
-                    mTreeFilelistView.setSelectionFromTop(0, 0);
+//                    mTreeFilelistView.setSelectionFromTop(0, 0);
                     setTreeFileListener();
 
                     if (tfl.size()==0) {
