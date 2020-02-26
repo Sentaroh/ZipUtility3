@@ -45,7 +45,7 @@
                 android:layout_marginRight="5dp"
                 android:ellipsize="end"
                 android:gravity="top"
-                android:lines="2"
+                android:lines="3"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
         </LinearLayout>
 
