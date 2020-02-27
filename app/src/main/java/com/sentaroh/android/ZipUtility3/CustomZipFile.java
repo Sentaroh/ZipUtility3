@@ -63,18 +63,33 @@ public class CustomZipFile {
         else return ZipUtil.getFileHeaders(mContext, mSafFile.getFile(), mEncoding);
     }
 
+    private ArrayList<FileHeader> mFileHeaderList=null;
     public FileHeader getFileHeader(String fh_name) {
-        ArrayList<FileHeader> fh_list=null;
-        if (mSafFile.isSafFile()) fh_list=ZipUtil.getFileHeaders(mContext, mSafFile.getUri(), mEncoding);
-        else fh_list=ZipUtil.getFileHeaders(mContext, mSafFile.getFile(), mEncoding);
+        if (mFileHeaderList==null) {
+            if (mSafFile.isSafFile()) mFileHeaderList=ZipUtil.getFileHeaders(mContext, mSafFile.getUri(), mEncoding);
+            else mFileHeaderList=ZipUtil.getFileHeaders(mContext, mSafFile.getFile(), mEncoding);
+        }
         try {
-            return ZipUtil.getFileHeader(fh_list, fh_name);
+            return ZipUtil.getFileHeader(mFileHeaderList, fh_name);
         } catch (ZipException e) {
             log.error("getFileHeader error",e);
             e.printStackTrace();
             return null;
         }
     }
+
+//    public FileHeader getFileHeader(String fh_name) {
+//        ArrayList<FileHeader> fh_list=null;
+//        if (mSafFile.isSafFile()) fh_list=ZipUtil.getFileHeaders(mContext, mSafFile.getUri(), mEncoding);
+//        else fh_list=ZipUtil.getFileHeaders(mContext, mSafFile.getFile(), mEncoding);
+//        try {
+//            return ZipUtil.getFileHeader(fh_list, fh_name);
+//        } catch (ZipException e) {
+//            log.error("getFileHeader error",e);
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
 
     private String mPassword=null;
     public void setPassword(String pswd) {
@@ -84,23 +99,42 @@ public class CustomZipFile {
         return mPassword;
     }
 
-    public ZipInputStream getInputStream(FileHeader fh) throws IOException {
-//        SplitInputStream splitInputStream = null;
+    private SeekableInputStream mSeekableInputStream=null;
+    private SeekableInputStream createSeekableInputStream() {
         SeekableInputStream sis=null;
         try {
             if (mSafFile.isSafFile()) sis=new SeekableInputStream(mContext, mSafFile.getUri());
             else sis=new SeekableInputStream(mContext, mSafFile.getFile());
+        } catch (IOException e) {
+            sis=null;
+        }
+        return sis;
+    }
 
-            sis.seek(fh.getOffsetLocalHeader());
+
+    public ZipInputStream getInputStream(FileHeader fh) throws Exception {
+//        SplitInputStream splitInputStream = null;
+        long b_time=System.currentTimeMillis();
+        try {
+            if (mSeekableInputStream==null) {
+                mSeekableInputStream=createSeekableInputStream();
+                if(mSeekableInputStream==null) {
+                    throw new Exception("SeekableInputStream creation error");
+                }
+            }
+//            if (mSeekableInputStream.getPosition()>fh.getOffsetLocalHeader()) log.info("pointer="+mSeekableInputStream.getPosition()+", header="+fh.getOffsetLocalHeader());
+//            else log.info("not closed");
+            mSeekableInputStream.seek(fh.getOffsetLocalHeader());
             ZipInputStream zipInputStream = null;
-            if (getPassword()==null) zipInputStream =new ZipInputStream(sis, Charset.forName(mEncoding));
-            else zipInputStream =new ZipInputStream(sis, mPassword.toCharArray(), Charset.forName(mEncoding));
+            if (getPassword()==null) zipInputStream =new ZipInputStream(mSeekableInputStream, Charset.forName(mEncoding));
+            else zipInputStream =new ZipInputStream(mSeekableInputStream, mPassword.toCharArray(), Charset.forName(mEncoding));
             zipInputStream.getNextEntry();
 
             return zipInputStream;
         } catch (IOException e) {
-            if (sis != null) {
-                sis.close();
+            if (mSeekableInputStream != null) {
+                mSeekableInputStream.close();
+                mSeekableInputStream=null;
             }
             throw e;
         }

@@ -33,6 +33,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -92,6 +93,7 @@ import net.lingala.zip4j.model.enums.CompressionLevel;
 import net.lingala.zip4j.model.enums.CompressionMethod;
 import net.lingala.zip4j.model.enums.EncryptionMethod;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Externalizable;
@@ -286,6 +288,7 @@ public class ZipFileManager {
         mDialogProgressSpinView=(LinearLayout)mMainView.findViewById(R.id.main_dialog_progress_spin_view);
         mDialogProgressSpinView.setVisibility(LinearLayout.GONE);
         mDialogProgressSpinMsg1=(TextView)mMainView.findViewById(R.id.main_dialog_progress_spin_syncprof);
+        mDialogProgressSpinMsg1.setVisibility(TextView.GONE);
         mDialogProgressSpinMsg2=(TextView)mMainView.findViewById(R.id.main_dialog_progress_spin_syncmsg);
         mDialogProgressSpinCancel=(Button)mMainView.findViewById(R.id.main_dialog_progress_spin_btn_cancel);
 
@@ -2453,6 +2456,7 @@ public class ZipFileManager {
 			}
 		};
 		th.setName("extract");
+		th.setPriority(Thread.MIN_PRIORITY);
 		th.start();
 	};
 
@@ -2860,7 +2864,7 @@ public class ZipFileManager {
 			}
 		} catch (ZipException e) {
 //			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (Exception e) {
 //			e.printStackTrace();
 		}
 		return result;
@@ -3582,6 +3586,7 @@ public class ZipFileManager {
 	private boolean extractSpecificFileByExternal(ThreadCtrl tc, CustomZipFile zf, String zip_file_name,
                                                   String dest_path, String dest_file_name, boolean scan_media) {
 		boolean result=false;
+//		long b_time=System.currentTimeMillis();
 		try {
 			if (tc.isEnabled()) {
 				FileHeader fh=zf.getFileHeader(zip_file_name);
@@ -3591,33 +3596,32 @@ public class ZipFileManager {
 				SafFile3 out_dir_sf=new SafFile3(mContext, dest_path);
 				if (!out_dir_sf.exists()) out_dir_sf.mkdirs();
                 SafFile3 out_file_sf=new SafFile3(mContext, w_path);
-                if (!out_file_sf.exists()) out_file_sf.createNewFile();
+                out_file_sf.deleteIfExists();
+                out_file_sf.createNewFile();
 				OutputStream os=out_file_sf.getOutputStream();
 
 				long fsz=fh.getUncompressedSize();
 				long frc=0;
-				byte[] buff=new byte[IO_AREA_SIZE*4];
-				int rc=is.read(buff);
-//                if (buff.length>fsz) {
-//                    mUiHandler.post(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            hideDialog();
-//                        }
-//                    });
-//                }
-				while(rc>0) {
+				byte[] buff=new byte[IO_AREA_SIZE];
+				int rc=0;
+				String msg_txt=mContext.getString(R.string.msgs_zip_extract_file_extracting);
+				boolean prog_enable=fsz>(1024*1024*4);
+				int prog_value=0, prev_prog_value=-1;
+				while((rc=is.read(buff))>0) {
 					if (!tc.isEnabled()) break;
+//					mUtil.addDebugMsg(1, "I", "name="+zip_file_name+", rc="+rc+", size="+buff.length);
 					os.write(buff,0,rc);
 					frc+=rc;
-					long progress=(frc*100)/(fsz);
-					if (buff.length<fsz)
-					    putProgressMessage(String.format(mContext.getString(R.string.msgs_zip_extract_file_extracting), zip_file_name, progress));
-					rc=is.read(buff);
+					prog_value=(int)((frc*100)/(fsz));
+					if (prog_enable && prev_prog_value!=prog_value) {
+					    prev_prog_value=prog_value;
+					    putProgressMessage(String.format(msg_txt, zip_file_name, prog_value));
+                    }
 				}
 				os.flush();
 				os.close();
 				is.close();
+
 				if (!tc.isEnabled()) out_file_sf.delete();
 			}
 			result=true;

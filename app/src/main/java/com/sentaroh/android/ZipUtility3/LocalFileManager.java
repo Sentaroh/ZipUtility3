@@ -333,6 +333,7 @@ public class LocalFileManager {
         mDialogProgressSpinView = (LinearLayout) mMainView.findViewById(R.id.main_dialog_progress_spin_view);
         mDialogProgressSpinView.setVisibility(LinearLayout.GONE);
         mDialogProgressSpinMsg1 = (TextView) mMainView.findViewById(R.id.main_dialog_progress_spin_syncprof);
+        mDialogProgressSpinMsg1.setVisibility(TextView.GONE);
         mDialogProgressSpinMsg2 = (TextView) mMainView.findViewById(R.id.main_dialog_progress_spin_syncmsg);
         mDialogProgressSpinCancel = (Button) mMainView.findViewById(R.id.main_dialog_progress_spin_btn_cancel);
 
