@@ -56,6 +56,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
@@ -1009,14 +1010,127 @@ public class ActivityMain extends AppCompatActivity {
 		mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_main_kill_confirm_msg), "", ntfy);
 	};
 
-	private void aboutApplicaion() {
-		mCommonDlg.showCommonDialog(false, "I",
-				getString(R.string.msgs_main_about_title), String.format(
-				getString(R.string.msgs_main_about_content),getApplVersionName()),
-				null);
-	};
+//	private void aboutApplicaion() {
+//		mCommonDlg.showCommonDialog(false, "I",
+//				getString(R.string.msgs_main_about_title), String.format(
+//				getString(R.string.msgs_main_about_content),getApplVersionName()),
+//				null);
+//	};
 
-	public String getApplVersionName() {
+    public String getAppVersionName() {
+        try {
+            String packegeName = getPackageName();
+            PackageInfo packageInfo = getPackageManager().getPackageInfo(packegeName, PackageManager.GET_META_DATA);
+            return packageInfo.versionName;
+        } catch (NameNotFoundException e) {
+            return "";
+        }
+    };
+
+    private void aboutApplicaion() {
+        final Dialog dialog = new Dialog(mActivity);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.about_dialog);
+
+        final LinearLayout title_view = (LinearLayout) dialog.findViewById(R.id.about_dialog_title_view);
+        final TextView title = (TextView) dialog.findViewById(R.id.about_dialog_title);
+        title_view.setBackgroundColor(mGp.themeColorList.title_background_color);
+        title.setTextColor(mGp.themeColorList.title_text_color);
+        title.setText(getString(R.string.msgs_dlg_title_about)+"(Ver "+getAppVersionName()+")");
+
+        // get our tabHost from the xml
+        final TabHost tab_host = (TabHost)dialog.findViewById(R.id.about_tab_host);
+        tab_host.setup();
+
+        final TabWidget tab_widget = (TabWidget)dialog.findViewById(android.R.id.tabs);
+
+        tab_widget.setStripEnabled(false);
+        tab_widget.setShowDividers(LinearLayout.SHOW_DIVIDER_NONE);
+
+        CustomTabContentView tabViewProf = new CustomTabContentView(this,getString(R.string.msgs_about_dlg_func_btn));
+        tab_host.addTab(tab_host.newTabSpec("func").setIndicator(tabViewProf).setContent(android.R.id.tabcontent));
+
+        CustomTabContentView tabViewPrivacy = new CustomTabContentView(this,getString(R.string.msgs_about_dlg_privacy_btn));
+        tab_host.addTab(tab_host.newTabSpec("privacy").setIndicator(tabViewPrivacy).setContent(android.R.id.tabcontent));
+
+        CustomTabContentView tabViewHist = new CustomTabContentView(this,getString(R.string.msgs_about_dlg_change_btn));
+        tab_host.addTab(tab_host.newTabSpec("change").setIndicator(tabViewHist).setContent(android.R.id.tabcontent));
+
+
+        LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LinearLayout ll_func=(LinearLayout)vi.inflate(R.layout.about_dialog_func,null);
+        LinearLayout ll_change=(LinearLayout)vi.inflate(R.layout.about_dialog_change,null);
+        LinearLayout ll_privacy=(LinearLayout)vi.inflate(R.layout.about_dialog_privacy,null);
+
+        final WebView func_view=(WebView)ll_func.findViewById(R.id.about_dialog_function);
+        func_view.loadUrl("File:///android_asset/"+getString(R.string.msgs_dlg_title_about_func_desc));
+        func_view.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+//		func_view.getSettings().setBuiltInZoomControls(true);
+
+        final WebView change_view=(WebView)ll_change.findViewById(R.id.about_dialog_change_history);
+        change_view.loadUrl("File:///android_asset/"+getString(R.string.msgs_dlg_title_about_change_desc));
+        change_view.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+//		change_view.getSettings().setBuiltInZoomControls(true);
+
+        final WebView privacy_view=(WebView)ll_privacy.findViewById(R.id.about_dialog_privacy);
+        privacy_view.loadUrl("File:///android_asset/"+getString(R.string.msgs_dlg_title_about_privacy_desc));
+        privacy_view.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+
+        final CustomViewPagerAdapter adapter=new CustomViewPagerAdapter(this,
+                new WebView[]{func_view, privacy_view, change_view});
+        final CustomViewPager mAboutViewPager=(CustomViewPager)dialog.findViewById(R.id.about_view_pager);
+//	    mMainViewPager.setBackgroundColor(mThemeColorList.window_color_background);
+        mAboutViewPager.setAdapter(adapter);
+        mAboutViewPager.setOffscreenPageLimit(3);
+        mAboutViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener(){
+            @Override
+            public void onPageSelected(int position) {
+//		    	util.addDebugMsg(2,"I","onPageSelected entered, pos="+position);
+                tab_widget.setCurrentTab(position);
+                tab_host.setCurrentTab(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+//		    	util.addDebugMsg(2,"I","onPageScrollStateChanged entered, state="+state);
+            }
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//		    	util.addDebugMsg(2,"I","onPageScrolled entered, pos="+position);
+            }
+        });
+
+        tab_host.setOnTabChangedListener(new OnTabChangeListener(){
+            @Override
+            public void onTabChanged(String tabId) {
+                mUtil.addDebugMsg(2,"I","onTabchanged entered. tab="+tabId);
+                mAboutViewPager.setCurrentItem(tab_host.getCurrentTab());
+            }
+        });
+
+        final Button btnOk = (Button) dialog.findViewById(R.id.about_dialog_btn_ok);
+
+        CommonDialog.setDlgBoxSizeLimit(dialog,true);
+
+        // OKボタンの指定
+        btnOk.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        // Cancelリスナーの指定
+        dialog.setOnCancelListener(new Dialog.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface arg0) {
+                btnOk.performClick();
+            }
+        });
+
+        dialog.show();
+    };
+
+    public String getApplVersionName() {
 		try {
 		    String packegeName = getPackageName();
 		    PackageInfo packageInfo = getPackageManager().getPackageInfo(packegeName, PackageManager.GET_META_DATA);
