@@ -62,6 +62,7 @@ import android.widget.TextView;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentManager;
 
+import com.sentaroh.android.Utilities3.BuildConfig;
 import com.sentaroh.android.Utilities3.CallBackListener;
 import com.sentaroh.android.Utilities3.ContextButton.ContextButtonUtil;
 import com.sentaroh.android.Utilities3.ContextMenu.CustomContextMenu;
@@ -2146,8 +2147,6 @@ public class ZipFileManager {
 
 	static public void getZipParmDlg(CommonUtilities mUtil, Activity mActivity, final GlobalParameters mGp,
                                      final String selected_encoding, final String pswd, final String fp, final NotifyEvent p_ntfy) {
-		@SuppressWarnings("unused")
-		boolean w_zip_empty=false;
 		int zip_comp_method=0, zip_enc_method=0;
 		final CustomZipFile zf=createZipFile(mGp.appContext, fp, selected_encoding);
 		mUtil.addDebugMsg(1, "I", "getZipParm comp_method="+zip_comp_method+", enc_method="+zip_enc_method);
@@ -2331,6 +2330,7 @@ public class ZipFileManager {
 		CommonUtilities.setSpinnerBackground(mActivity, spinner, mGp.themeIsLight);
 		final CustomSpinnerAdapter adapter=
 				new CustomSpinnerAdapter(mActivity, android.R.layout.simple_spinner_item);
+		adapter.setSpinner(spinner);
 		adapter.add(mGp.appContext.getString(R.string.msgs_zip_parm_zip_comp_level_fastest));
 		adapter.add(mGp.appContext.getString(R.string.msgs_zip_parm_zip_comp_level_fast));
 		adapter.add(mGp.appContext.getString(R.string.msgs_zip_parm_zip_comp_level_normal));
