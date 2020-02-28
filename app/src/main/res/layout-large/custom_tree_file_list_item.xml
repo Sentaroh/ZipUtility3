@@ -66,7 +66,8 @@
                     android:gravity="right"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
-                    android:text="xx item"/>
+                    android:text="xx item"
+                    android:textAppearance="?android:attr/textAppearanceSmall"/>
 
                 <TextView
                     android:id="@+id/tree_file_list_size"
@@ -74,7 +75,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginRight="5dp"
                     android:gravity="right"
-                    android:text="size" />
+                    android:text="size"
+                    android:textAppearance="?android:attr/textAppearanceSmall"/>
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -86,14 +88,16 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="5dp"
-                        android:text="2018/12/31" />
+                        android:text="2018/12/31"
+                        android:textAppearance="?android:attr/textAppearanceSmall"/>
 
                     <TextView
                         android:id="@+id/tree_file_list_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="5dp"
-                        android:text="xx:xx:xx" />
+                        android:text="xx:xx:xx"
+                        android:textAppearance="?android:attr/textAppearanceSmall"/>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
