@@ -62,7 +62,6 @@ import android.widget.TextView;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentManager;
 
-import com.sentaroh.android.Utilities3.BuildConfig;
 import com.sentaroh.android.Utilities3.CallBackListener;
 import com.sentaroh.android.Utilities3.ContextButton.ContextButtonUtil;
 import com.sentaroh.android.Utilities3.ContextMenu.CustomContextMenu;
@@ -3703,7 +3702,8 @@ public class ZipFileManager {
                                                 if (sf.isSafFile()) {
                                                     uri=sf.getUri();
                                                 } else {
-                                                    uri= FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID + ".provider", new File(sf.getPath()));
+                                                    uri= FileProvider.getUriForFile(mContext,
+                                                            BuildConfig.APPLICATION_ID + ".provider", new File(fp));
                                                 }
                                                 intent.setDataAndType(uri, mt);
                                                 mActivity.startActivity(intent);
