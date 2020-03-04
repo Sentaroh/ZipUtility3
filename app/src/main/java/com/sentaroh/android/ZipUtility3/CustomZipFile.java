@@ -58,13 +58,13 @@ public class CustomZipFile {
         return mEncoding;
     }
 
-    public ArrayList<FileHeader> getFileHeaders() {
+    public ArrayList<FileHeader> getFileHeaders() throws IOException {
         if (mSafFile.isSafFile()) return ZipUtil.getFileHeaders(mContext, mSafFile.getUri(), mEncoding);
         else return ZipUtil.getFileHeaders(mContext, mSafFile.getFile(), mEncoding);
     }
 
     private ArrayList<FileHeader> mFileHeaderList=null;
-    public FileHeader getFileHeader(String fh_name) {
+    public FileHeader getFileHeader(String fh_name) throws IOException {
         if (mFileHeaderList==null) {
             if (mSafFile.isSafFile()) mFileHeaderList=ZipUtil.getFileHeaders(mContext, mSafFile.getUri(), mEncoding);
             else mFileHeaderList=ZipUtil.getFileHeaders(mContext, mSafFile.getFile(), mEncoding);

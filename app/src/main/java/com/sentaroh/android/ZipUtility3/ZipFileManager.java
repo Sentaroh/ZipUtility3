@@ -375,7 +375,8 @@ public class ZipFileManager {
 	private void addZipFileViewer(boolean temp_file, String fp) {
 		ZipFileViewerItem n_fvi=new ZipFileViewerItem();
 		n_fvi.file_path=fp;
-		n_fvi.temporary_file=temp_file;
+//		n_fvi.temporary_file=temp_file;
+		n_fvi.read_only_file=temp_file;
 		zipFileViewerList.add(n_fvi);
 		Collections.sort(zipFileViewerList, new Comparator<ZipFileViewerItem>(){
 			@Override
@@ -518,7 +519,7 @@ public class ZipFileManager {
 	public void showZipFile(boolean read_only, SafFile3 in_file) {
 		if (!isUiEnabled()) return;
 		Bundle bd=new Bundle();
-        mCurretnFileIsReadOnly =read_only;
+//        mCurretnFileIsReadOnly =read_only;
 		if (in_file!=null) {
 		    if (!read_only) {
 		        if (Build.VERSION.SDK_INT>=SCOPED_STORAGE_SDK) {
@@ -546,9 +547,11 @@ public class ZipFileManager {
 					saveZipFileViewr(s_fp, bd);
 					ZipFileViewerItem fvi=getZipFileViewer(in_file.getPath());
 					if (fvi!=null) {
+					    mCurretnFileIsReadOnly=fvi.read_only_file;
 						refreshZipFileSpinner(in_file);
 						restoreViewContents(in_file.getPath(), fvi.saved_data);
 					} else {
+                        mCurretnFileIsReadOnly=read_only;
 						addZipFileViewer(read_only, in_file.getPath());
 						mCurrentFilePath=in_file.getPath();
 						mCurrentDirectory.setText("/");
@@ -556,6 +559,7 @@ public class ZipFileManager {
 						refreshZipFileSpinner(in_file);
 					}
 				} else {
+                    mCurretnFileIsReadOnly=read_only;
 					addZipFileViewer(read_only, in_file.getPath());
 					mCurrentFilePath=in_file.getPath();
 					mCurrentDirectory.setText("/");
@@ -567,8 +571,12 @@ public class ZipFileManager {
 					public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 						String n_fp=mZipFileSpinner.getSelectedItem().toString();
                         ZipFileViewerItem fvi=getZipFileViewer(n_fp);
-                        if (fvi!=null) showZipFile(fvi.temporary_file, new SafFile3(mContext, n_fp));
-                        else showZipFile(false, new SafFile3(mContext, n_fp));
+                        if (fvi!=null) {
+//                            mCurretnFileIsReadOnly=fvi.read_only_file;
+                            showZipFile(fvi.read_only_file, new SafFile3(mContext, n_fp));
+                        } else {
+                            showZipFile(false, new SafFile3(mContext, n_fp));
+                        }
 					}
 					@Override
 					public void onNothingSelected(AdapterView<?> parent) {}
@@ -583,8 +591,9 @@ public class ZipFileManager {
 
 	class ZipFileViewerItem {
 		public String file_path="";
-        public boolean temporary_file=false;
+//        public boolean temporary_file=false;
         public Bundle saved_data=null;
+        public boolean read_only_file=false;
 	};
 
 	class SavedViewData implements Externalizable {
@@ -1191,9 +1200,10 @@ public class ZipFileManager {
 		mEncodingSpinner.setVisibility(Spinner.VISIBLE);
 		mFileInfo.setVisibility(TextView.VISIBLE);
 
-		File lf=new File(fp);
+		SafFile3 lf=new SafFile3(mContext, fp);
 		String tfs=MiscUtil.convertFileSize(lf.length());
-		String info= String.format(mContext.getString(R.string.msgs_zip_zip_file_info),tfs, mZipFileList.size(), mEncodingSelected);
+		int size=mZipFileList==null?0:mZipFileList.size();
+		String info= String.format(mContext.getString(R.string.msgs_zip_zip_file_info),tfs, size, mEncodingSelected);
         String read_only= mCurretnFileIsReadOnly ?mContext.getString(R.string.msgs_zip_zip_file_info_temporary):"";
         if (mCurretnFileIsReadOnly) {
             SpannableStringBuilder sb=new SpannableStringBuilder(read_only+" "+info);
@@ -1269,9 +1279,14 @@ public class ZipFileManager {
 						}
 					});
 
-					String detect_encoding="";
+					String detect_encoding=null;
 					if (mEncodingDesired.equals(mContext.getString(R.string.msgs_zip_parm_zip_encoding_auto))) {
-						detect_encoding= ZipUtil.detectFileNameEncoding(mContext, fp);
+					    try {
+                            detect_encoding= ZipUtil.detectFileNameEncoding(mContext, fp);
+                        } catch(Exception e) {
+//                            mUtil.addDebugMsg(1, "I", "error="+e.getMessage());
+//					        e.printStackTrace();
+                        }
 						if (detect_encoding==null) {
 							mEncodingSelected=mGp.settingZipDefaultEncoding;
 						} else mEncodingSelected=detect_encoding;
@@ -1280,7 +1295,14 @@ public class ZipFileManager {
 						mEncodingSelected=mEncodingDesired;
 					}
 					mUtil.addDebugMsg(1, "I", "createFileList desired="+mEncodingDesired+", selected="+mEncodingSelected);
-					mZipFileList=ZipUtil.buildZipFileList(mContext, fp, mEncodingSelected);
+                    try {
+                        mZipFileList=ZipUtil.buildZipFileList(mContext, fp, mEncodingSelected);
+                    } catch(Exception e) {
+                        mCommonDlg.showCommonDialog(false, "E", "ZIP file", "ZIP file list creation error, error="+e.getMessage(), null);
+                        mZipFileList=null;
+//                        mUtil.addDebugMsg(1, "I", "error="+e.getMessage());
+//                        e.printStackTrace();
+                    }
 					mUtil.addDebugMsg(2, "I", "createFileList Zip file list created");
 					if (tc.isEnabled()) {
 						ntfy_create_file_list.notifyToListener(true, null);
@@ -1291,28 +1313,32 @@ public class ZipFileManager {
 			};
 			th.start();
 		} else {
-			mTreeFilelistView.setVisibility(ListView.GONE);
-			mFileEmpty.setVisibility(TextView.VISIBLE);
-			mFileEmpty.setText(R.string.msgs_zip_folder_not_specified);
-			mCurrentDirectory.setVisibility(TextView.GONE);
-			mFileListUp.setVisibility(Button.GONE);
-			mFileListUp.setEnabled(false);
-			mFileListTop.setVisibility(Button.GONE);
-			mEncodingSpinner.setVisibility(Spinner.INVISIBLE);
-			mZipFileSpinner.setVisibility(TextView.INVISIBLE);
-
-	    	mContextButtonCopyView.setVisibility(LinearLayout.INVISIBLE);
-	    	mContextButtonCutView.setVisibility(LinearLayout.INVISIBLE);
-	    	mContextButtonPasteView.setVisibility(LinearLayout.INVISIBLE);
-	    	mContextButtonExtractView.setVisibility(LinearLayout.INVISIBLE);
-	        mContextButtonDeleteView.setVisibility(LinearLayout.INVISIBLE);
-	        mContextButtonSelectAllView.setVisibility(LinearLayout.INVISIBLE);
-	        mContextButtonUnselectAllView.setVisibility(LinearLayout.INVISIBLE);
-
-	        mFileInfo.setVisibility(TextView.INVISIBLE);
+            hideTreeFileListView();
 			if (p_ntfy!=null) p_ntfy.notifyToListener(false, null);
 		}
 	};
+
+	private void hideTreeFileListView() {
+        mTreeFilelistView.setVisibility(ListView.GONE);
+        mFileEmpty.setVisibility(TextView.VISIBLE);
+        mFileEmpty.setText(R.string.msgs_zip_folder_not_specified);
+        mCurrentDirectory.setVisibility(TextView.GONE);
+        mFileListUp.setVisibility(Button.GONE);
+        mFileListUp.setEnabled(false);
+        mFileListTop.setVisibility(Button.GONE);
+        mEncodingSpinner.setVisibility(Spinner.INVISIBLE);
+        mZipFileSpinner.setVisibility(TextView.INVISIBLE);
+
+        mContextButtonCopyView.setVisibility(LinearLayout.INVISIBLE);
+        mContextButtonCutView.setVisibility(LinearLayout.INVISIBLE);
+        mContextButtonPasteView.setVisibility(LinearLayout.INVISIBLE);
+        mContextButtonExtractView.setVisibility(LinearLayout.INVISIBLE);
+        mContextButtonDeleteView.setVisibility(LinearLayout.INVISIBLE);
+        mContextButtonSelectAllView.setVisibility(LinearLayout.INVISIBLE);
+        mContextButtonUnselectAllView.setVisibility(LinearLayout.INVISIBLE);
+
+        mFileInfo.setVisibility(TextView.INVISIBLE);
+    }
 
 //	private void saveZipFileList(ArrayList<ZipFileListItem>fl, String fp) {
 //		File lf=new File(mGp.applicationCacheDirectory+"/ZipSearchList");
@@ -2412,8 +2438,11 @@ public class ZipFileManager {
 				final CustomZipFile zf=createZipFile(mContext, zip_file_path, zip_file_encoding);
 				ArrayList<FileHeader> zf_fhl=null;
 				StackTraceElement[] ste=null;
-                zf_fhl=(ArrayList<FileHeader>) zf.getFileHeaders();
-
+				try {
+                    zf_fhl=(ArrayList<FileHeader>) zf.getFileHeaders();
+                } catch(Exception e) {
+				    e.printStackTrace();
+                }
 				if (zf_fhl!=null) {
                     ArrayList<FileHeader> sel_fhl=new ArrayList<FileHeader>();
                     for(FileHeader fh_item:zf_fhl) {
@@ -2873,7 +2902,11 @@ public class ZipFileManager {
 	private ArrayList<FileHeader> buildSelectedFileHeaderList(CustomZipFile zf, CustomTreeFilelistAdapter tfa) {
 		ArrayList<FileHeader> sel_fh=new ArrayList<FileHeader>();
 		ArrayList<FileHeader> zf_list=null;
-        zf_list = (ArrayList<FileHeader>) zf.getFileHeaders();
+        try {
+            zf_list = (ArrayList<FileHeader>) zf.getFileHeaders();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
 		if (zf_list!=null) {
 			if (tfa.isItemSelected()) {
 				for(FileHeader fh:zf_list) {
