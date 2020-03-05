@@ -3199,8 +3199,8 @@ public class LocalFileManager {
 	  			.setOnClickListener(new CustomContextMenuOnClickListener() {
 				@Override
 				public void onClick(CharSequence menuTitle) {
-					String curr_dir= mLocalStorageSelector.getSelectedItem().toString()+mCurrentDirectory.getText().toString();
-					if (mCurrentDirectory.getText().toString().equals("/")) curr_dir= mLocalStorageSelector.getSelectedItem().toString();
+					String curr_dir=mCurrentDirectory.getText().toString();
+//					if (mCurrentDirectory.getText().toString().equals("/")) curr_dir= mLocalStorageSelector.getSelectedItem().toString();
 					FileManagerDirectoryListItem dli=CommonUtilities.getDirectoryItem(mDirectoryList, curr_dir);
 					if (dli==null) {
 						dli=new FileManagerDirectoryListItem();
@@ -3220,7 +3220,9 @@ public class LocalFileManager {
                             ArrayList<TreeFilelistItem> tfl=(ArrayList<TreeFilelistItem>)objects[0];
                             mTreeFilelistAdapter.setDataList(tfl);
                             if (tfl.size()>0) mTreeFilelistView.setSelection(0);
-                            setCurrentDirectoryText(dir.replace(mLocalStorageSelector.getSelectedItem().toString(), ""));
+//                            setCurrentDirectoryText(dir.replace(mLocalStorageSelector.getSelectedItem().toString(), ""));
+                            setCurrentDirectoryText(dir);
+                            mMainFilePath=dir;
                             mContextButtonArchiveView.setVisibility(ImageButton.INVISIBLE);
                             mContextButtonDeleteView.setVisibility(ImageButton.INVISIBLE);
                             setTopUpButtonEnabled(true);
@@ -3566,95 +3568,90 @@ public class LocalFileManager {
 		else if (fid.equals("gz")) mt=MIME_TYPE_ZIP;
 		else if (fid.equals("zip")) mt=MIME_TYPE_ZIP;
         else mt=getMimeTypeFromFileExtention(mGp, f_name);
-		if (mt != null) {
-		    if (mt.equals(MIME_TYPE_ZIP)) mActivity.showZipFile(false, sf);
-		    else {
-                try {
-                    Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION |Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    Uri uri=null;
-                    if (sf.isSafFile()) {
-                        uri=sf.getUri();
-                    } else {
-                        uri= FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID + ".provider", new File(sf.getPath()));
-                    }
-//                    uri= FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID + ".provider", new File(sf.getPath()));
-                    intent.setDataAndType(uri, mt);
-                    boolean ex=sf.exists();
-                    mActivity.startActivity(intent);
-                    result=true;
-                } catch(ActivityNotFoundException e) {
-                    mCommonDlg.showCommonDialog(false,"E",
-                            String.format(mContext.getString(R.string.msgs_zip_specific_extract_file_viewer_not_found),f_name,mt),"",null);
+        if (mt!=null && mt.equals(MIME_TYPE_ZIP)) mActivity.showZipFile(false, sf);
+        else {
+            try {
+                Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION |Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+                Uri uri=null;
+                if (sf.isSafFile()) {
+                    uri=sf.getUri();
+                } else {
+                    uri= FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID + ".provider", new File(sf.getPath()));
                 }
+//                    uri= FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID + ".provider", new File(sf.getPath()));
+                if (mt==null) intent.setDataAndType(uri, "*/*");
+                else intent.setDataAndType(uri, mt);
+                boolean ex=sf.exists();
+                mActivity.startActivity(intent);
+                result=true;
+            } catch(ActivityNotFoundException e) {
+                mCommonDlg.showCommonDialog(false,"E",
+                        String.format(mContext.getString(R.string.msgs_zip_specific_extract_file_viewer_not_found),f_name,mt),"",null);
             }
-		} else {
-			mCommonDlg.showCommonDialog(false,"E", 
-					String.format(mContext.getString(R.string.msgs_zip_specific_extract_mime_type_not_found),f_name),"",null);
-		}
+        }
+
+//		if (mt != null) {
+//		} else {
+//			mCommonDlg.showCommonDialog(false,"E",
+//					String.format(mContext.getString(R.string.msgs_zip_specific_extract_mime_type_not_found),f_name),"",null);
+//		}
 		return result;
 	};
 	
 	private void createFileList(final String fp, final NotifyEvent p_ntfy) {
-		if (!fp.equals("")) {
-//			File lf=new File(fp);
-			mTreeFilelistView.setVisibility(ListView.VISIBLE);
-			mContextButtonView.setVisibility(ListView.VISIBLE);
-			mFileListUp.setVisibility(Button.VISIBLE);
-			mFileListTop.setVisibility(Button.VISIBLE);
-            String n_sn= mLocalStorageSelector.getSelectedItem().toString();
-            String n_fp=getSafStorageByDescription(n_sn).saf_file.getPath();
-			if (fp.equals(n_fp)) {
-				setTopUpButtonEnabled(false);
-			} else {
-				setTopUpButtonEnabled(true);
-			}
+        mTreeFilelistView.setVisibility(ListView.VISIBLE);
+        mContextButtonView.setVisibility(ListView.VISIBLE);
+        mFileListUp.setVisibility(Button.VISIBLE);
+        mFileListTop.setVisibility(Button.VISIBLE);
+        String n_sn= mLocalStorageSelector.getSelectedItem().toString();
+        String n_fp=getSafStorageByDescription(n_sn).saf_file.getPath();
+        if (fp.equals(n_fp)) {
+            setTopUpButtonEnabled(false);
+        } else {
+            setTopUpButtonEnabled(true);
+        }
 
-			NotifyEvent ntfy=new NotifyEvent(mContext);
-			ntfy.setListener(new NotifyEventListener() {
-                @Override
-                public void positiveResponse(Context context, Object[] objects) {
-                    ArrayList<TreeFilelistItem> tfl=(ArrayList<TreeFilelistItem>)objects[0];
-                    if (mTreeFilelistAdapter==null) mTreeFilelistAdapter=new CustomTreeFilelistAdapter(mActivity, false, true);
-                    mTreeFilelistAdapter.setDataList(tfl);
-                    mTreeFilelistAdapter.setCheckBoxEnabled(isUiEnabled());
-                    mTreeFilelistAdapter.notifyDataSetChanged();
-                    mTreeFilelistView.setAdapter(mTreeFilelistAdapter);
-                    if (fp.equals(mLocalStorageSelector.getSelectedItem().toString())) mCurrentDirectory.setText(mMainFilePath);
-                    else setCurrentDirectoryText(fp.replace(mLocalStorageSelector.getSelectedItem().toString(), ""));
-                    invalidateLocalFileView();
-                    mCurrentDirectory.setVisibility(TextView.VISIBLE);
+        NotifyEvent ntfy=new NotifyEvent(mContext);
+        ntfy.setListener(new NotifyEventListener() {
+            @Override
+            public void positiveResponse(Context context, Object[] objects) {
+                ArrayList<TreeFilelistItem> tfl=(ArrayList<TreeFilelistItem>)objects[0];
+                if (mTreeFilelistAdapter==null) mTreeFilelistAdapter=new CustomTreeFilelistAdapter(mActivity, false, true);
+                mTreeFilelistAdapter.setDataList(tfl);
+                mTreeFilelistAdapter.setCheckBoxEnabled(isUiEnabled());
+                mTreeFilelistAdapter.notifyDataSetChanged();
+                mTreeFilelistView.setAdapter(mTreeFilelistAdapter);
+                if (fp.equals(mLocalStorageSelector.getSelectedItem().toString())) mCurrentDirectory.setText(mMainFilePath);
+                else setCurrentDirectoryText(fp.replace(mLocalStorageSelector.getSelectedItem().toString(), ""));
+                invalidateLocalFileView();
+                mCurrentDirectory.setVisibility(TextView.VISIBLE);
 //                    mTreeFilelistView.setSelectionFromTop(0, 0);
-                    setTreeFileListener();
+                setTreeFileListener();
 
-                    if (tfl.size()==0) {
-                        mContextButtonSelectAllView.setVisibility(LinearLayout.INVISIBLE);
-                        mContextButtonUnselectAllView.setVisibility(LinearLayout.INVISIBLE);
-                        mTreeFilelistView.setVisibility(ListView.GONE);
-                        mFileEmpty.setVisibility(TextView.VISIBLE);
-                        mFileEmpty.setText(R.string.msgs_zip_local_folder_empty);
-                    } else {
-                        mContextButtonSelectAllView.setVisibility(LinearLayout.VISIBLE);
-                        mContextButtonUnselectAllView.setVisibility(LinearLayout.INVISIBLE);
-                        mContextButtonCreateView.setVisibility(ImageButton.VISIBLE);
-                        mFileEmpty.setVisibility(TextView.GONE);
-                        mTreeFilelistView.setVisibility(ListView.VISIBLE);
-                    }
-
-                    if (p_ntfy!=null) p_ntfy.notifyToListener(true, new Object[]{tfl});
+                if (tfl.size()==0) {
+                    mContextButtonSelectAllView.setVisibility(LinearLayout.INVISIBLE);
+                    mContextButtonUnselectAllView.setVisibility(LinearLayout.INVISIBLE);
+                    mTreeFilelistView.setVisibility(ListView.GONE);
+                    mFileEmpty.setVisibility(TextView.VISIBLE);
+                    mFileEmpty.setText(R.string.msgs_zip_local_folder_empty);
+                } else {
+                    mContextButtonSelectAllView.setVisibility(LinearLayout.VISIBLE);
+                    mContextButtonUnselectAllView.setVisibility(LinearLayout.INVISIBLE);
+                    mContextButtonCreateView.setVisibility(ImageButton.VISIBLE);
+                    mFileEmpty.setVisibility(TextView.GONE);
+                    mTreeFilelistView.setVisibility(ListView.VISIBLE);
                 }
 
-                @Override
-                public void negativeResponse(Context context, Object[] objects) {
+                if (p_ntfy!=null) p_ntfy.notifyToListener(true, new Object[]{tfl});
+            }
 
-                }
-            });
-			createTreeFileList(fp, ntfy);
-		} else {
-			if (p_ntfy!=null) p_ntfy.notifyToListener(false, null);
-//			p_ntfy.notifyToListener(false,new Object[]{ 
-//					getString(R.string.msgs_text_browser_file_file_name_not_specified)});
-		}
+            @Override
+            public void negativeResponse(Context context, Object[] objects) {
+
+            }
+        });
+        createTreeFileList(fp, ntfy);
 	};
 
 	private void setCurrentDirectoryText(String cd) {
@@ -3664,10 +3661,7 @@ public class LocalFileManager {
     private void createTreeFileList(final String target_dir, final NotifyEvent p_ntfy) {
 	    boolean async=false;
 	    if (Build.VERSION.SDK_INT>=SCOPED_STORAGE_SDK) {
-//            createSafApiTreeFileListAsync(target_dir, p_ntfy);
             createSafApiTreeFileListSync(target_dir, p_ntfy);
-//            if (async) createSafApiTreeFileListAsync(target_dir, p_ntfy);
-//            else createSafApiTreeFileListSync(target_dir, p_ntfy);
         } else {
 	        if (target_dir.startsWith(SafFile3.SAF_FILE_PRIMARY_STORAGE_PREFIX)) createFileApiTreeFileList(target_dir, p_ntfy);
 	        else {
@@ -3675,8 +3669,6 @@ public class LocalFileManager {
                 if (lf.canRead()) createFileApiTreeFileList(target_dir, p_ntfy);
                 else {
                     createSafApiTreeFileListAsync(target_dir, p_ntfy);
-//                    if (async) createSafApiTreeFileListAsync(target_dir, p_ntfy);
-//                    else createSafApiTreeFileListSync(target_dir, p_ntfy);
                 }
             }
         }
