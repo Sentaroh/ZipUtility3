@@ -1639,7 +1639,7 @@ public class ActivityMain extends AppCompatActivity {
 			if (tabId.equals(mContext.getString(R.string.msgs_main_tab_name_local))) {
 				mLocalFileMgr.refreshFileList(true);
 			} else {
-				mZipFileMgr.refreshFileList();
+			    if (mZipFileMgr!=null) mZipFileMgr.refreshFileList();
 			}
 			
 			refreshOptionMenu();
