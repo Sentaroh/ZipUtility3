@@ -17,7 +17,6 @@
         android:allowBackup="true"
         android:icon="@drawable/zip_utility"
         android:label="@string/app_name"
-        android:foregroundServiceType="dataSync|location"
         android:requestLegacyExternalStorage="true"
         android:theme="@style/Main" >
         <activity

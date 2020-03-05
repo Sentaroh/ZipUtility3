@@ -3431,11 +3431,15 @@ public class ZipFileManager {
 					} else {
 						ZipFileListItem zfli=getZipFileListItem(tfi.getZipFileName());
 						if (zfli!=null) {
-							String comp_method="UNKNOWN:";
+							String comp_method="Unknown. code="+zfli.getCompressionMethod();
+							String enc_method="None";
 							if (zfli.getCompressionMethod()==ZipFileListItem.COMPRESSION_METHOD_DEFLATE) comp_method="DEFLATE";
 							else if (zfli.getCompressionMethod()==ZipFileListItem.COMPRESSION_METHOD_STORE) comp_method="STORE";
-							if (zfli.getEncryptionMethod()==ZipFileListItem.ENCRPTION_METHOD_AES) comp_method="AES";
-							else if (zfli.getEncryptionMethod()==ZipFileListItem.ENCRPTION_METHOD_ZIP) comp_method="ZIP";
+                            else if (zfli.getCompressionMethod()==ZipFileListItem.COMPRESSION_METHOD_BZIP2) comp_method="BZIP2";
+                            else if (zfli.getCompressionMethod()==ZipFileListItem.COMPRESSION_METHOD_LZMA) comp_method="LZMA";
+                            else if (zfli.getCompressionMethod()==ZipFileListItem.COMPRESSION_METHOD_AES) comp_method="AES";
+							if (zfli.getEncryptionMethod()==ZipFileListItem.ENCRPTION_METHOD_AES) enc_method="AES";
+							else if (zfli.getEncryptionMethod()==ZipFileListItem.ENCRPTION_METHOD_ZIP) enc_method="ZIP";
 							long comp_size=zfli.getCompressedFileLength();
 //							long last_mod=fh.getLastModFileTime();
 //							Log.v("","enc="+fh.getEncryptionMethod());
@@ -3448,7 +3452,7 @@ public class ZipFileManager {
 									mContext.getString(R.string.msgs_zip_zip_item_property_encrypted_no);
 							String prop= String.format(mContext.getString(R.string.msgs_zip_zip_item_property_file),
 									 StringUtil.convDateTimeTo_YearMonthDayHourMinSec(last_mod),
-									 comp_method, comp_size,uncomp_size, enc_yes_no);
+									 comp_method, enc_method, comp_size, uncomp_size);
 							mCommonDlg.showCommonDialog(false, "I", "/"+zfli.getFileName(), prop, null);
 						}
 					}
