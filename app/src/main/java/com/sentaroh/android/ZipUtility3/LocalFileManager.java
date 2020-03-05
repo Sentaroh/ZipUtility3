@@ -3453,6 +3453,7 @@ public class LocalFileManager {
                 BufferedZipFile3 bzf=null;
                 try {
                     bzf=new BufferedZipFile3(mContext, null, out_path, ZipUtil.DEFAULT_ZIP_FILENAME_ENCODING, out_sf.getAppDirectoryCache());
+                    bzf.setNoCompressExtentionList(mGp.settingNoCompressFileType);
                     bzf.setPassword(zp.getPassword());
                     String base_dir=mMainFilePath;
                     String added_item="", added_sep="";

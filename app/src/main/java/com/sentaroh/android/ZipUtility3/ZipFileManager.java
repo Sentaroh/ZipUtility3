@@ -1969,27 +1969,49 @@ public class ZipFileManager {
 
 	};
 
-	static public void getAllItemInLocalDirectory(ArrayList<SafFile3> sel_item_list, SafFile3 lf) {
-		if (lf.isDirectory()) {
-			SafFile3[] fl=lf.listFiles();
-			if (fl!=null && fl.length>0) {
-				for(SafFile3 cf:fl) {
-					if (cf.isDirectory()) {
-						sel_item_list.add(cf);
-						getAllItemInLocalDirectory(sel_item_list, cf);
-					} else {
-						sel_item_list.add(cf);
-					}
-				}
-//			} else {
-//				sel_item_list.add(lf);
-			}
-		} else {
-			sel_item_list.add(lf);
-		}
+	static public void getAllItemInLocalDirectory(ArrayList<SafFile3> sel_item_list, SafFile3 sf) {
+	    File lf=new File(sf.getPath());
+	    if (lf.canRead()) getFileApiAllItemInLocalDirectory(sf.getContext(), sel_item_list, lf);
+	    else getSafApiAllItemInLocalDirectory(sel_item_list, sf);
 	};
 
-	private void closeUiDialogView(int delay_time) {
+    static public void getSafApiAllItemInLocalDirectory(ArrayList<SafFile3> sel_item_list, SafFile3 lf) {
+        if (lf.isDirectory()) {
+            SafFile3[] fl=lf.listFiles();
+            if (fl!=null && fl.length>0) {
+                for(SafFile3 cf:fl) {
+                    if (cf.isDirectory()) {
+                        sel_item_list.add(cf);
+                        getSafApiAllItemInLocalDirectory(sel_item_list, cf);
+                    } else {
+                        sel_item_list.add(cf);
+                    }
+                }
+            }
+        } else {
+            sel_item_list.add(lf);
+        }
+    };
+
+    static public void getFileApiAllItemInLocalDirectory(Context c, ArrayList<SafFile3> sel_item_list, File lf) {
+        if (lf.isDirectory()) {
+            File[] fl=lf.listFiles();
+            if (fl!=null && fl.length>0) {
+                for(File cf:fl) {
+                    if (cf.isDirectory()) {
+                        sel_item_list.add(new SafFile3(c, cf.getPath()));
+                        getFileApiAllItemInLocalDirectory(c, sel_item_list, cf);
+                    } else {
+                        sel_item_list.add(new SafFile3(c, cf.getPath()));
+                    }
+                }
+            }
+        } else {
+            sel_item_list.add(new SafFile3(c, lf.getPath()));
+        }
+    };
+
+    private void closeUiDialogView(int delay_time) {
         mUiHandler.postDelayed(new Runnable(){
             @Override
             public void run() {
@@ -2032,6 +2054,7 @@ public class ZipFileManager {
                     out_temp.createNewFile();
                     BufferedZipFile3 bzf = new BufferedZipFile3(mContext, in_zip, out_temp,
                             ZipUtil.DEFAULT_ZIP_FILENAME_ENCODING, out_temp.getAppDirectoryCache());
+                    bzf.setNoCompressExtentionList(mGp.settingNoCompressFileType);
                     bzf.setPassword(zp.getPassword());
                     for (String item : add_item) {
                         if (item != null) {
