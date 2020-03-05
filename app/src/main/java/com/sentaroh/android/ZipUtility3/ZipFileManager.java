@@ -33,7 +33,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -93,7 +92,6 @@ import net.lingala.zip4j.model.enums.CompressionLevel;
 import net.lingala.zip4j.model.enums.CompressionMethod;
 import net.lingala.zip4j.model.enums.EncryptionMethod;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Externalizable;
@@ -211,16 +209,7 @@ public class ZipFileManager {
 		mTreeFilelistAdapter=new CustomTreeFilelistAdapter(mActivity, false, true);
 		mTreeFilelistView.setAdapter(mTreeFilelistAdapter);
 
-		NotifyEvent ntfy=new NotifyEvent(mContext);
-		ntfy.setListener(new NotifyEventListener(){
-			@Override
-			public void positiveResponse(final Context c, final Object[] o) {
-			}
-			@Override
-			public void negativeResponse(Context c, final Object[] o) {
-			}
-		});
-		createFileList(mCurrentFilePath, ntfy, "");
+        hideTreeFileListView();
 	};
 
     public void reInitView() {
@@ -332,12 +321,12 @@ public class ZipFileManager {
         setContextButtonListener();
 	};
 
-	private void saveZipFileViewr(String fp, Bundle bd) {
+	private void saveZipFileViewerItem(String fp, Bundle bd) {
 		mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered, fp="+fp);
 		for(ZipFileViewerItem fvi:zipFileViewerList) {
 			if (fvi.file_path.equals(fp)) {
 				fvi.saved_data=bd;
-				mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" saved, fp="+fp);
+				mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" file viewer item saved, fp="+fp);
 				return;
 			}
 		}
@@ -358,10 +347,10 @@ public class ZipFileManager {
 		}
 		mZipFileSpinner.setSelection(adapter.getPosition(fp));
 		adapter.notifyDataSetChanged();
-		mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" added, pos="+adapter.getPosition(fp)+", fp="+fp);
+		mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" file viewer item added, pos="+adapter.getPosition(fp)+", fp="+fp);
 	};
 	
-	private ZipFileViewerItem getZipFileViewer(String fp) {
+	private ZipFileViewerItem getZipFileViewerItem(String fp) {
 		for(ZipFileViewerItem fvi:zipFileViewerList) {
 			if (fvi.file_path.equals(fp)) {
 				mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" found, fp="+fp);
@@ -372,7 +361,7 @@ public class ZipFileManager {
 		return null;
 	};
 
-	private void addZipFileViewer(boolean temp_file, String fp) {
+	private void addZipFileViewerItem(boolean temp_file, String fp) {
 		ZipFileViewerItem n_fvi=new ZipFileViewerItem();
 		n_fvi.file_path=fp;
 //		n_fvi.temporary_file=temp_file;
@@ -384,7 +373,7 @@ public class ZipFileManager {
 				return lhs.file_path.compareToIgnoreCase(rhs.file_path);
 			}
 		});
-		mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" added, fp="+fp);
+		mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" file viewer item added, fp="+fp);
 	};
 	
 	private void refreshZipFileSpinner(SafFile3 fp) {
@@ -544,15 +533,15 @@ public class ZipFileManager {
 				mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" saved file path="+s_fp);
 				mZipFileSpinner.setOnItemSelectedListener(null);
 				if (!s_fp.equals("")) {
-					saveZipFileViewr(s_fp, bd);
-					ZipFileViewerItem fvi=getZipFileViewer(in_file.getPath());
+					saveZipFileViewerItem(s_fp, bd);
+					ZipFileViewerItem fvi= getZipFileViewerItem(in_file.getPath());
 					if (fvi!=null) {
 					    mCurretnFileIsReadOnly=fvi.read_only_file;
 						refreshZipFileSpinner(in_file);
 						restoreViewContents(in_file.getPath(), fvi.saved_data);
 					} else {
                         mCurretnFileIsReadOnly=read_only;
-						addZipFileViewer(read_only, in_file.getPath());
+						addZipFileViewerItem(read_only, in_file.getPath());
 						mCurrentFilePath=in_file.getPath();
 						mCurrentDirectory.setText("/");
 						refreshFileList(true);
@@ -560,7 +549,7 @@ public class ZipFileManager {
 					}
 				} else {
                     mCurretnFileIsReadOnly=read_only;
-					addZipFileViewer(read_only, in_file.getPath());
+					addZipFileViewerItem(read_only, in_file.getPath());
 					mCurrentFilePath=in_file.getPath();
 					mCurrentDirectory.setText("/");
 					refreshFileList(true);
@@ -570,7 +559,7 @@ public class ZipFileManager {
 					@Override
 					public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 						String n_fp=mZipFileSpinner.getSelectedItem().toString();
-                        ZipFileViewerItem fvi=getZipFileViewer(n_fp);
+                        ZipFileViewerItem fvi= getZipFileViewerItem(n_fp);
                         if (fvi!=null) {
 //                            mCurretnFileIsReadOnly=fvi.read_only_file;
                             showZipFile(fvi.read_only_file, new SafFile3(mContext, n_fp));
