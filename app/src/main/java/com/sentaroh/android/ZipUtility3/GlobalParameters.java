@@ -92,7 +92,7 @@ public class GlobalParameters {
 	public String settingZipDefaultEncoding="UTF-8";
 	public String settingNoCompressFileType=DEFAULT_NOCOMPRESS_FILE_TYPE;
 	static final public String DEFAULT_NOCOMPRESS_FILE_TYPE=
-			"aac;avi;gif;ico;gz;jpe;jpeg;jpg;m3u;m4a;m4u;mov;movie;mp2;mp3;mpe;mpeg;mpg;mpga;ogg;png;qt;ra;ram;svg;tgz;wmv;";
+			"aac;avi;gif;ico;gz;jpe;jpeg;jpg;m3u;m4a;m4u;mov;movie;mp2;mp3;mpe;mpeg;mpg;mpga;ogg;png;qt;ra;ram;svg;tgz;wmv;zip;";
 
     public String settingOpenAsTextFileType=DEFAULT_OPEN_AS_TEXT_FILE_TYPE;
     static final public String DEFAULT_OPEN_AS_TEXT_FILE_TYPE=

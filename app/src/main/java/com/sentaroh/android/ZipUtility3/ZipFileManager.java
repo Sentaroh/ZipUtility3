@@ -79,6 +79,8 @@ import com.sentaroh.android.Utilities3.ThreadCtrl;
 import com.sentaroh.android.Utilities3.Widget.CustomSpinnerAdapter;
 import com.sentaroh.android.Utilities3.Widget.NonWordwrapTextView;
 import com.sentaroh.android.Utilities3.Zip.BufferedZipFile3;
+import com.sentaroh.android.Utilities3.Zip.HeaderReader;
+import com.sentaroh.android.Utilities3.Zip.SeekableInputStream;
 import com.sentaroh.android.Utilities3.Zip.ZipFileListItem;
 import com.sentaroh.android.Utilities3.Zip.ZipUtil;
 
@@ -86,11 +88,18 @@ import com.sentaroh.android.Utilities3.Zip.ZipUtil;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.io.inputstream.ZipInputStream;
 import net.lingala.zip4j.model.FileHeader;
+import net.lingala.zip4j.model.LocalFileHeader;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.AesKeyStrength;
 import net.lingala.zip4j.model.enums.CompressionLevel;
 import net.lingala.zip4j.model.enums.CompressionMethod;
 import net.lingala.zip4j.model.enums.EncryptionMethod;
+
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.compress.compressors.lzma.LZMACompressorInputStream;
+import org.tukaani.xz.ArrayCache;
+import org.tukaani.xz.LZMA2InputStream;
+import org.tukaani.xz.LZMAInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -105,6 +114,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.StreamCorruptedException;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -3632,7 +3642,30 @@ public class ZipFileManager {
 		try {
 			if (tc.isEnabled()) {
 				FileHeader fh=zf.getFileHeader(zip_file_name);
-				ZipInputStream is=zf.getInputStream(fh);
+                InputStream is=null;
+                SeekableInputStream sis=null;
+                if (zf.getSafFile().isSafFile()) sis=new SeekableInputStream(mContext, zf.getSafFile().getUri());
+                else sis=new SeekableInputStream(mContext, zf.getSafFile().getFile());
+                sis.seek(fh.getOffsetLocalHeader());
+                HeaderReader hr=new HeaderReader();
+                LocalFileHeader lh=hr.readLocalFileHeader(sis, Charset.forName(zf.getEncoding()));
+                if (fh.getCompressionMethod()==CompressionMethod.BZIP2) {
+                    is = new BZip2CompressorInputStream(sis);
+//                } else if (fh.getCompressionMethod()==CompressionMethod.LZMA) {
+//                    byte[] buff1=new byte[1];
+//                    byte[] buff2=new byte[4];
+//                    byte[] buff3=new byte[8];
+//                    sis.read(buff1);
+//                    sis.read(buff2);
+//                    sis.read(buff3);
+//                    mUtil.addDebugMsg(1, "I", "props="+StringUtil.getHexString(buff1, 0, 1)+
+//                            ", dict="+StringUtil.getHexString(buff2, 0, 4)+
+//                            ", uncsz="+StringUtil.getHexString(buff3, 0, 8));
+//                    sis.seek(fh.getOffsetLocalHeader()+4);
+//                    is=new LZMAInputStream(sis);
+                } else {
+                    is=zf.getInputStream(fh);
+                }
 
 				String w_path=dest_path.endsWith("/")?dest_path+dest_file_name:dest_path+"/"+dest_file_name;
 				SafFile3 out_dir_sf=new SafFile3(mContext, dest_path);

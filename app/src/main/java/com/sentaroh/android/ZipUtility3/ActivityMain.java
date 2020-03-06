@@ -79,6 +79,7 @@ import com.sentaroh.android.Utilities3.NotifyEvent.NotifyEventListener;
 import com.sentaroh.android.Utilities3.SafFile3;
 import com.sentaroh.android.Utilities3.SafManager3;
 import com.sentaroh.android.Utilities3.SafStorage3;
+import com.sentaroh.android.Utilities3.StringUtil;
 import com.sentaroh.android.Utilities3.SystemInfo;
 import com.sentaroh.android.Utilities3.ThemeUtil;
 import com.sentaroh.android.Utilities3.ThreadCtrl;
@@ -88,10 +89,14 @@ import com.sentaroh.android.Utilities3.Widget.CustomViewPagerAdapter;
 import com.sentaroh.android.Utilities3.Widget.NonWordwrapTextView;
 import com.sentaroh.android.ZipUtility3.Log.LogManagementFragment;
 
+import org.apache.commons.compress.compressors.lzma.LZMACompressorInputStream;
+import org.apache.commons.compress.compressors.lzma.LZMACompressorOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -214,6 +219,39 @@ public class ActivityMain extends AppCompatActivity {
     	mGp.copyCutModeIsCut=false;
 
         cleanupCacheFile();
+//
+//
+//        Thread th=new Thread(){
+//          @Override
+//          public void run() {
+//              File lf=new File("/storage/emulated/0/lzma.lzma");
+//              try {
+//                  LZMACompressorOutputStream os=new LZMACompressorOutputStream(new FileOutputStream(lf));
+//                  os.write("lzma".getBytes());
+//                  os.finish();
+//                  os.flush();
+//                  os.close();
+//
+//                  FileInputStream fis=new FileInputStream(new File("/storage/emulated/0/lzma.zip"));
+//                  byte[] buff=new byte[100];
+//                  int rc=fis.read(buff, 0, 48);
+//                  mUtil.addDebugMsg(1,"I", "cnt="+rc+", data="+ StringUtil.getHexString(buff, 0, rc));
+//                  rc=fis.read(buff, 0, 13);
+//                  mUtil.addDebugMsg(1,"I", "cnt="+rc+", data="+StringUtil.getHexString(buff, 0, rc));
+//                  fis.close();
+//
+//                  LZMACompressorInputStream lis=new LZMACompressorInputStream(new ByteArrayInputStream(buff));
+//                  byte[] lbuff=new byte[100];
+//                  rc=lis.read(lbuff);
+//                  mUtil.addDebugMsg(1,"I", "cnt="+rc+", data="+StringUtil.getHexString(buff, 0, rc)+", string="+new String(buff, 0, rc));
+//                  lis.close();
+//
+//              } catch (IOException e) {
+//                  e.printStackTrace();
+//              }
+//          }
+//        };
+//        th.start();
     };
 
     private class MyUncaughtExceptionHandler extends AppUncaughtExceptionHandler {
