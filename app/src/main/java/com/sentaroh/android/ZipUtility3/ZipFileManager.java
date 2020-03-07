@@ -149,8 +149,11 @@ public class ZipFileManager {
 	private String mMainPassword="";
 
 	private boolean mCurretnFileIsReadOnly =false;
-	
-	private Button mFileListUp, mFileListTop;
+
+    private ArrayList<ZipFileViewerItem> zipFileViewerList=new ArrayList<ZipFileViewerItem>();
+    private Spinner mZipFileSpinner=null;
+
+    private Button mFileListUp, mFileListTop;
 	private NonWordwrapTextView mCurrentDirectory;
 	private TextView mFileEmpty, mFileInfo;
 	private Spinner mEncodingSpinner;
@@ -247,7 +250,7 @@ public class ZipFileManager {
 		
 		mZipFileSpinner=(Spinner)mMainView.findViewById(R.id.zip_file_zip_file_spinner);
 		CommonUtilities.setSpinnerBackground(mActivity, mZipFileSpinner, mGp.themeIsLight);
-		CustomSpinnerAdapter adapter=new CustomSpinnerAdapter(mActivity, android.R.layout.simple_spinner_item);
+		ZipFileSelectorAdapter adapter=new ZipFileSelectorAdapter(mActivity, android.R.layout.simple_spinner_item);
 		adapter.setDropDownViewResource(R.layout.spinner_dropdown_single_choice);
         mZipFileSpinner.setPrompt(mContext.getString(R.string.msgs_zip_zip_select_file));
 //		mZipFileSpinner.setPrompt(mContext.getString(R.string.msgs_main_sync_profile_dlg_sync_folder_type_prompt));
@@ -584,9 +587,6 @@ public class ZipFileManager {
 		} else {
 		}
 	};
-
-	private ArrayList<ZipFileViewerItem> zipFileViewerList=new ArrayList<ZipFileViewerItem>();
-	private Spinner mZipFileSpinner=null;
 
 	class ZipFileViewerItem {
 		public String file_path="";
