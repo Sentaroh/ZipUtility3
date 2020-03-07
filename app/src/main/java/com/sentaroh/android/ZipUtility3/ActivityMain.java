@@ -764,13 +764,16 @@ public class ActivityMain extends AppCompatActivity {
             }
         });
         pd.show();
+
+        String fn="unkonw_file_name";
+        if (in_file!=null && in_file.getName()!=null) fn=in_file.getName();
+        final File cache_file=new File(mContext.getExternalCacheDir(), fn);
         final Handler hndl=new Handler();
         Thread th=new Thread() {
             @Override
             public void run() {
                 FileOutputStream fos=null;
                 InputStream is=null;
-                final File cache_file=new File(mContext.getExternalCacheDir(),in_file.getName());
                 try {
                     cache_file.delete();
                     fos=new FileOutputStream(cache_file);
