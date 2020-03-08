@@ -223,6 +223,7 @@ public class LocalFileManager {
             refreshFileList();
         } else {
             final String curr_dir = mCurrentDirectory.getText().toString();
+
             if (isCopyCutDestValid(curr_dir)) {
                 mContextButtonPasteView.setVisibility(ImageButton.VISIBLE);
             } else {
@@ -328,6 +329,7 @@ public class LocalFileManager {
         else
             mFileListTop.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_16_go_top_light, 0, 0, 0);
         mCurrentDirectory = (NonWordwrapTextView) mMainView.findViewById(R.id.local_file_filepath);
+        mCurrentDirectory.setText(SafFile3.SAF_FILE_PRIMARY_STORAGE_PREFIX);
 //        mCurrentDirectory.setDebugEnable(true);
 //        mCurrentDirectory.setTextColor(mGp.themeColorList.text_color_primary);
 
