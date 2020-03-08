@@ -67,6 +67,7 @@ import com.sentaroh.android.Utilities3.NotifyEvent;
 import com.sentaroh.android.Utilities3.NotifyEvent.NotifyEventListener;
 import com.sentaroh.android.Utilities3.SafFile3;
 import com.sentaroh.android.Utilities3.SafStorage3;
+import com.sentaroh.android.Utilities3.StringUtil;
 import com.sentaroh.android.Utilities3.ThemeUtil;
 import com.sentaroh.android.Utilities3.ThreadCtrl;
 import com.sentaroh.android.Utilities3.Widget.CustomSpinnerAdapter;
@@ -3724,8 +3725,9 @@ public class LocalFileManager {
             public void run() {
                 final ArrayList<TreeFilelistItem> tfl=new ArrayList<TreeFilelistItem>();
                 SafFile3 sf=new SafFile3(mContext, target_dir);
-                ContentProviderClient cpc=sf.getContentProviderClient();
+                ContentProviderClient cpc=null;
                 try {
+                    cpc=sf.getContentProviderClient();
                     SafFile3[] fl=sf.listFiles(cpc);
                     mUtil.addDebugMsg(1,"I","createSafApiTreeFileList listFiles ended");
                     if (fl!=null) {
@@ -3778,11 +3780,13 @@ public class LocalFileManager {
                             }
                         });
                     }
+                    mUtil.addDebugMsg(1,"I","createSafApiTreeFileList ended");
+                } catch(Exception e) {
+                    mUtil.addDebugMsg(1,"I","createSafApiTreeFileList ended with error. error="+e.getMessage()+"\n"+ MiscUtil.getStackTraceString(e));
                 } finally {
-                    cpc.release();
+                    if (cpc!=null) cpc.release();
                 }
 
-                mUtil.addDebugMsg(1,"I","createSafApiTreeFileList ended");
                 mUiHandler.post(new Runnable(){
                     @Override
                     public void run() {
