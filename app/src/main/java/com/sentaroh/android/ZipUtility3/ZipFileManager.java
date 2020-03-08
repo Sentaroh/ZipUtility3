@@ -2574,7 +2574,11 @@ public class ZipFileManager {
 								mUiHandler.post(new Runnable(){
 									@Override
 									public void run() {
-										getZipPasswordDlg(mActivity, mGp, mMainPassword, zf, fh_item, ntfy_pswd, true);
+                                        if (isSupportedCompressionMethod(fh_item)) getZipPasswordDlg(mActivity, mGp, mMainPassword, zf, fh_item, ntfy_pswd, true);
+                                        else {
+                                            mCommonDlg.showCommonDialog(false, "E", "Extract error", "Unsupported compression method. code="+
+                                                    getCompressionMethodName(fh_item), null);
+                                        }
 									}
 								});
 								break;
@@ -2587,7 +2591,12 @@ public class ZipFileManager {
 							mUiHandler.post(new Runnable(){
 								@Override
 								public void run() {
-									getZipPasswordDlg(mActivity, mGp, mMainPassword, zf, fh_item, ntfy_pswd, true);
+									if (isSupportedCompressionMethod(fh_item)) getZipPasswordDlg(mActivity, mGp, mMainPassword, zf, fh_item, ntfy_pswd, true);
+                                    else {
+                                        CompressionMethod cm=getCompressionMethod(fh_item);
+                                        mCommonDlg.showCommonDialog(false, "E", "Extract error", "Unsupported compression method. code="+
+                                                getCompressionMethodName(fh_item), null);
+                                    }
 								}
 							});
 							break;
@@ -3451,13 +3460,8 @@ public class ZipFileManager {
 					} else {
 						ZipFileListItem zfli=getZipFileListItem(tfi.getZipFileName());
 						if (zfli!=null) {
-							String comp_method="Unknown. code="+zfli.getCompressionMethod();
+							String comp_method=getCompressionMethodName(zfli.getCompressionMethod());
 							String enc_method="None";
-							if (zfli.getCompressionMethod()==ZipFileListItem.COMPRESSION_METHOD_DEFLATE) comp_method="DEFLATE";
-							else if (zfli.getCompressionMethod()==ZipFileListItem.COMPRESSION_METHOD_STORE) comp_method="STORE";
-                            else if (zfli.getCompressionMethod()==ZipFileListItem.COMPRESSION_METHOD_BZIP2) comp_method="BZIP2";
-                            else if (zfli.getCompressionMethod()==ZipFileListItem.COMPRESSION_METHOD_LZMA) comp_method="LZMA";
-                            else if (zfli.getCompressionMethod()==ZipFileListItem.COMPRESSION_METHOD_AES) comp_method="AES";
 							if (zfli.getEncryptionMethod()==ZipFileListItem.ENCRPTION_METHOD_AES) enc_method="AES";
 							else if (zfli.getEncryptionMethod()==ZipFileListItem.ENCRPTION_METHOD_ZIP) enc_method="ZIP";
 							long comp_size=zfli.getCompressedFileLength();
@@ -3647,32 +3651,29 @@ public class ZipFileManager {
 			if (tc.isEnabled()) {
                 InputStream is=null;
 				FileHeader fh=zf.getFileHeader(zip_file_name);
-                CompressionMethod cm=null;
-                if (fh.getCompressionMethod()==CompressionMethod.AES_INTERNAL_ONLY) cm=fh.getAesExtraDataRecord().getCompressionMethod();
-                else cm=fh.getCompressionMethod();
-                if (cm!=CompressionMethod.AES_INTERNAL_ONLY  && cm!=CompressionMethod.DEFLATE && cm!=CompressionMethod.STORE && cm!=CompressionMethod.BZIP2) {
-                    throw new ZipException("Unsupported compression method. code="+cm.getCode());
+                CompressionMethod cm=getCompressionMethod(fh);
+                if (!isSupportedCompressionMethod(fh)) {
+                    throw new ZipException("Unsupported compression method. code="+getCompressionMethodName(fh));
                 } else {
                     if (cm==CompressionMethod.BZIP2) {
+                        InputStream tis=(InputStream)zf.getInputStream(fh);
+                        BufferedInputStream bis=new BufferedInputStream(tis, IO_AREA_SIZE*4);
+                        is = new BZip2CompressorInputStream(bis);
 //                        if (fh.isEncrypted()) {
-////                            throw new ZipException("Encrypted data cannot be extracted with BZIP2 compression.");
-//                            InputStream tis=zf.getInputStream(fh);
-//                            BufferedInputStream bis=new BufferedInputStream(tis, 1024*1024);
+//                            BufferedInputStream bis=new BufferedInputStream(tis, 1024*1024*4);
 //                            is = new BZip2CompressorInputStream(bis);
 //                        } else {
-////                            SeekableInputStream sis=null;
-////                            if (zf.getSafFile().isSafFile()) sis=new SeekableInputStream(mContext, zf.getSafFile().getUri());
-////                            else sis=new SeekableInputStream(mContext, zf.getSafFile().getFile());
-////                            HeaderReader hr=new HeaderReader();
-////                            sis.seek(fh.getOffsetLocalHeader());
-////                            LocalFileHeader lh=hr.readLocalFileHeader(sis, Charset.forName(zf.getEncoding()));
-////                            sis.seek(lh.getOffsetStartOfData()+30+lh.getFileNameLength()+lh.getExtraFieldLength());
-////                            mUtil.addDebugMsg(1,"I","pos="+sis.getPosition());
-////                            is = new BZip2CompressorInputStream(sis);
+//                            SeekableInputStream sis=null;
+//                            if (zf.getSafFile().isSafFile()) sis=new SeekableInputStream(mContext, zf.getSafFile().getUri());
+//                            else sis=new SeekableInputStream(mContext, zf.getSafFile().getFile());
+//                            HeaderReader hr=new HeaderReader();
+//                            sis.seek(fh.getOffsetLocalHeader());
+//                            LocalFileHeader lh=hr.readLocalFileHeader(sis, Charset.forName(zf.getEncoding()));
+//                            sis.seek(lh.getOffsetStartOfData()+30+lh.getFileNameLength()+lh.getExtraFieldLength());
+//                            mUtil.addDebugMsg(1,"I","pos="+sis.getPosition());
+//                            BufferedInputStream bis=new BufferedInputStream(sis, 1024*1024*4);
+//                            is = new BZip2CompressorInputStream(bis);
 //                        }
-                        InputStream tis=zf.getInputStream(fh);
-                        BufferedInputStream bis=new BufferedInputStream(tis, 1024*1024);
-                        is = new BZip2CompressorInputStream(bis);
                     } else {
                         is=zf.getInputStream(fh);
                     }
@@ -3812,7 +3813,11 @@ public class ZipFileManager {
             });
             if (encrypted) {
                 FileHeader fh=zf.getFileHeader(e_name);
-                getZipPasswordDlg(mActivity, mGp, mMainPassword, zf, fh, ntfy_pswd, false);
+                if (isSupportedCompressionMethod(fh)) getZipPasswordDlg(mActivity, mGp, mMainPassword, zf, fh, ntfy_pswd, false);
+                else {
+                    mCommonDlg.showCommonDialog(false, "E", "Extract error", "Unsupported compression method. code="+
+                            getCompressionMethodName(fh), null);
+                }
             } else {
                 ntfy_pswd.notifyToListener(true, null);
             }
@@ -3827,6 +3832,52 @@ public class ZipFileManager {
 //		}
 
 	};
+
+	private boolean isSupportedCompressionMethod(FileHeader fh) {
+	    boolean result=false;
+        CompressionMethod cm=getCompressionMethod(fh);
+
+        if (cm==CompressionMethod.STORE || cm==CompressionMethod.DEFLATE || cm==CompressionMethod.AES_INTERNAL_ONLY || cm==CompressionMethod.BZIP2) {
+	        result=true;
+        }
+
+	    return result;
+    }
+
+    private CompressionMethod getCompressionMethod(FileHeader fh) {
+        CompressionMethod cm=fh.getCompressionMethod();
+        if (fh.getCompressionMethod()==CompressionMethod.AES_INTERNAL_ONLY) cm=fh.getAesExtraDataRecord().getCompressionMethod();
+	    return cm;
+    }
+
+    private String getCompressionMethodName(FileHeader fh) {
+	    CompressionMethod cm=getCompressionMethod(fh);
+        return getCompressionMethodName(cm.getCode());
+    }
+
+    private String getCompressionMethodName(int code) {
+        String method_name="Unknown("+String.valueOf(code)+")";
+        if (code==CompressionMethod.STORE.getCode()) method_name="STORE";
+        else if (code==CompressionMethod.COMP_FACTOR1.getCode()) method_name="REDUCE1";
+        else if (code==CompressionMethod.COMP_FACTOR2.getCode()) method_name="REDUCE2";
+        else if (code==CompressionMethod.COMP_FACTOR3.getCode()) method_name="REDUCE3";
+        else if (code==CompressionMethod.COMP_FACTOR4.getCode()) method_name="REDUCE4";
+        else if (code==CompressionMethod.DEFLATE.getCode()) method_name="DEFLATE";
+        else if (code==CompressionMethod.DEFLATE64.getCode()) method_name="DEFLATE64";
+        else if (code==CompressionMethod.AES_INTERNAL_ONLY.getCode()) method_name="AES_INTERNAL_ONLY";
+        else if (code==CompressionMethod.BZIP2.getCode()) method_name="BZIP2";
+        else if (code==CompressionMethod.IBM_CMPSC.getCode()) method_name="IBM_CMPSC";
+        else if (code==CompressionMethod.IBM_LZ77.getCode()) method_name="IBM_LZ77";
+        else if (code==CompressionMethod.IBM_TERE.getCode()) method_name="IBM_TERSE";
+        else if (code==CompressionMethod.JPEG.getCode()) method_name="JPEG";
+        else if (code==CompressionMethod.WAVPACK.getCode()) method_name="WavPack";
+        else if (code==CompressionMethod.LZMA.getCode()) method_name="LZMA";
+        else if (code==CompressionMethod.PKWARE_IMPLODING.getCode()) method_name="PKWARE_IMPLOD";
+        else if (code==CompressionMethod.IMPLOD.getCode()) method_name="IMPLOD";
+        else if (code==CompressionMethod.PPMD.getCode()) method_name="PPMD";
+        else if (code==CompressionMethod.SHRUNK.getCode()) method_name="SHRINK";
+        return method_name;
+    }
 
     private void showToast(Activity a, String msg) {
         mUiHandler.post(new Runnable() {
