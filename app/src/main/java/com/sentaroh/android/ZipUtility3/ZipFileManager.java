@@ -101,6 +101,7 @@ import org.tukaani.xz.ArrayCache;
 import org.tukaani.xz.LZMA2InputStream;
 import org.tukaani.xz.LZMAInputStream;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Externalizable;
@@ -114,6 +115,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.StreamCorruptedException;
+import java.nio.Buffer;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -2826,9 +2828,11 @@ public class ZipFileManager {
 			}
 			@Override
 			public void afterTextChanged(Editable s) {
-			    if (s.toString().length()>0) {
-			        verifyZipPassword(zf, fh, s.toString(), dlg_ok, dlg_msg);
-                }
+//			    if (s.toString().length()>0) {
+//			        verifyZipPassword(zf, fh, s.toString(), dlg_ok, dlg_msg);
+//                }
+                if (s.length()>0) dlg_ok.setEnabled(true);
+                else dlg_ok.setEnabled(false);
 			}
     	});
 
@@ -3641,30 +3645,37 @@ public class ZipFileManager {
 //		long b_time=System.currentTimeMillis();
 		try {
 			if (tc.isEnabled()) {
-				FileHeader fh=zf.getFileHeader(zip_file_name);
                 InputStream is=null;
-                SeekableInputStream sis=null;
-                if (zf.getSafFile().isSafFile()) sis=new SeekableInputStream(mContext, zf.getSafFile().getUri());
-                else sis=new SeekableInputStream(mContext, zf.getSafFile().getFile());
-                sis.seek(fh.getOffsetLocalHeader());
-                HeaderReader hr=new HeaderReader();
-                LocalFileHeader lh=hr.readLocalFileHeader(sis, Charset.forName(zf.getEncoding()));
-                if (fh.getCompressionMethod()==CompressionMethod.BZIP2) {
-                    is = new BZip2CompressorInputStream(sis);
-//                } else if (fh.getCompressionMethod()==CompressionMethod.LZMA) {
-//                    byte[] buff1=new byte[1];
-//                    byte[] buff2=new byte[4];
-//                    byte[] buff3=new byte[8];
-//                    sis.read(buff1);
-//                    sis.read(buff2);
-//                    sis.read(buff3);
-//                    mUtil.addDebugMsg(1, "I", "props="+StringUtil.getHexString(buff1, 0, 1)+
-//                            ", dict="+StringUtil.getHexString(buff2, 0, 4)+
-//                            ", uncsz="+StringUtil.getHexString(buff3, 0, 8));
-//                    sis.seek(fh.getOffsetLocalHeader()+4);
-//                    is=new LZMAInputStream(sis);
+				FileHeader fh=zf.getFileHeader(zip_file_name);
+                CompressionMethod cm=null;
+                if (fh.getCompressionMethod()==CompressionMethod.AES_INTERNAL_ONLY) cm=fh.getAesExtraDataRecord().getCompressionMethod();
+                else cm=fh.getCompressionMethod();
+                if (cm!=CompressionMethod.AES_INTERNAL_ONLY  && cm!=CompressionMethod.DEFLATE && cm!=CompressionMethod.STORE && cm!=CompressionMethod.BZIP2) {
+                    throw new ZipException("Unsupported compression method. code="+cm.getCode());
                 } else {
-                    is=zf.getInputStream(fh);
+                    if (cm==CompressionMethod.BZIP2) {
+//                        if (fh.isEncrypted()) {
+////                            throw new ZipException("Encrypted data cannot be extracted with BZIP2 compression.");
+//                            InputStream tis=zf.getInputStream(fh);
+//                            BufferedInputStream bis=new BufferedInputStream(tis, 1024*1024);
+//                            is = new BZip2CompressorInputStream(bis);
+//                        } else {
+////                            SeekableInputStream sis=null;
+////                            if (zf.getSafFile().isSafFile()) sis=new SeekableInputStream(mContext, zf.getSafFile().getUri());
+////                            else sis=new SeekableInputStream(mContext, zf.getSafFile().getFile());
+////                            HeaderReader hr=new HeaderReader();
+////                            sis.seek(fh.getOffsetLocalHeader());
+////                            LocalFileHeader lh=hr.readLocalFileHeader(sis, Charset.forName(zf.getEncoding()));
+////                            sis.seek(lh.getOffsetStartOfData()+30+lh.getFileNameLength()+lh.getExtraFieldLength());
+////                            mUtil.addDebugMsg(1,"I","pos="+sis.getPosition());
+////                            is = new BZip2CompressorInputStream(sis);
+//                        }
+                        InputStream tis=zf.getInputStream(fh);
+                        BufferedInputStream bis=new BufferedInputStream(tis, 1024*1024);
+                        is = new BZip2CompressorInputStream(bis);
+                    } else {
+                        is=zf.getInputStream(fh);
+                    }
                 }
 
 				String w_path=dest_path.endsWith("/")?dest_path+dest_file_name:dest_path+"/"+dest_file_name;
@@ -3700,10 +3711,6 @@ public class ZipFileManager {
 				if (!tc.isEnabled()) out_file_sf.delete();
 			}
 			result=true;
-		} catch (ZipException e) {
-			mUtil.addLogMsg("I", e.getMessage());
-			CommonUtilities.printStackTraceElement(mUtil, e.getStackTrace());
-			tc.setThreadMessage(e.getMessage());
 		} catch (Exception e) {
 			mUtil.addLogMsg("I", e.getMessage());
 			CommonUtilities.printStackTraceElement(mUtil, e.getStackTrace());
