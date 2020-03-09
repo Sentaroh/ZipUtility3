@@ -94,9 +94,6 @@ import org.apache.commons.compress.compressors.lzma.LZMACompressorInputStream;
 import org.apache.commons.compress.compressors.lzma.LZMACompressorOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tukaani.xz.LZMA2InputStream;
-import org.tukaani.xz.LZMAInputStream;
-import org.tukaani.xz.XZInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

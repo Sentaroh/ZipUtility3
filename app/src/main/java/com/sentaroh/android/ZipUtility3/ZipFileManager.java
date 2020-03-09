@@ -95,9 +95,9 @@ import net.lingala.zip4j.model.enums.CompressionLevel;
 import net.lingala.zip4j.model.enums.CompressionMethod;
 import net.lingala.zip4j.model.enums.EncryptionMethod;
 
+import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.lzma.LZMACompressorInputStream;
-import org.tukaani.xz.ArrayCache;
 import org.tukaani.xz.LZMA2InputStream;
 import org.tukaani.xz.LZMAInputStream;
 
@@ -2827,7 +2827,7 @@ public class ZipFileManager {
 
     	dlg_pswd.setText(mMainPassword);
         dlg_pswd.setEnabled(true);
-//    	verifyZipPassword(zf, fh, mMainPassword, dlg_ok, dlg_msg);
+    	verifyZipPassword(mActivity, zf, fh, mMainPassword, dlg_ok, dlg_msg);
     	dlg_pswd.addTextChangedListener(new TextWatcher(){
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -2837,29 +2837,35 @@ public class ZipFileManager {
 			}
 			@Override
 			public void afterTextChanged(Editable s) {
-//			    if (s.toString().length()>0) {
-//			        verifyZipPassword(zf, fh, s.toString(), dlg_ok, dlg_msg);
-//                }
-                if (s.length()>0) dlg_ok.setEnabled(true);
-                else dlg_ok.setEnabled(false);
+			    if (s.toString().length()>0) {
+//			        verifyZipPassword(mActivity, zf, fh, s.toString(), dlg_ok, dlg_msg);
+                    CommonDialog.setViewEnabled(mActivity, dlg_ok, true);
+                    dlg_msg.setText("");
+                } else {
+			        CommonDialog.setViewEnabled(mActivity, dlg_ok, false);
+                }
 			}
     	});
 
 		dlg_ok.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				dialog.dismiss();
-				if (thread_resp) {
-					Thread th=new Thread(){
-						@Override
-						public void run() {
-							p_ntfy.notifyToListener(true, new Object[]{dlg_pswd.getText().toString()});
-						}
-					};
-					th.start();
-				} else {
-					p_ntfy.notifyToListener(true, new Object[]{dlg_pswd.getText().toString()});
-				}
+			    if (isCorrectZipFilePassword(zf, fh, dlg_pswd.getText().toString())) {
+                    dialog.dismiss();
+                    if (thread_resp) {
+                        Thread th=new Thread(){
+                            @Override
+                            public void run() {
+                                p_ntfy.notifyToListener(true, new Object[]{dlg_pswd.getText().toString()});
+                            }
+                        };
+                        th.start();
+                    } else {
+                        p_ntfy.notifyToListener(true, new Object[]{dlg_pswd.getText().toString()});
+                    }
+                } else {
+                    dlg_msg.setText(R.string.msgs_zip_extract_zip_password_wrong);
+                }
 			}
 		});
 
@@ -2883,17 +2889,17 @@ public class ZipFileManager {
     	dialog.show();
 	};
 
-	private static void verifyZipPassword(final CustomZipFile zf, final FileHeader fh, String pswd, Button dlg_ok, TextView dlg_msg) {
+	private static void verifyZipPassword(final Activity a, final CustomZipFile zf, final FileHeader fh, String pswd, Button dlg_ok, TextView dlg_msg) {
 		if (pswd.length()>0) {
 			if (isCorrectZipFilePassword(zf, fh, pswd)) {
-				dlg_ok.setEnabled(true);
+			    CommonDialog.setViewEnabled(a, dlg_ok, true);
 				dlg_msg.setText("");
 			} else {
-				dlg_ok.setEnabled(false);
+                CommonDialog.setViewEnabled(a, dlg_ok, false);
 				dlg_msg.setText(R.string.msgs_zip_extract_zip_password_wrong);
 			}
 		} else {
-			dlg_ok.setEnabled(false);
+            CommonDialog.setViewEnabled(a, dlg_ok, false);
 			dlg_msg.setText(R.string.msgs_zip_extract_zip_password_not_specified);
 		}
 	}
@@ -3656,8 +3662,8 @@ public class ZipFileManager {
                     throw new ZipException("Unsupported compression method. code="+getCompressionMethodName(fh));
                 } else {
                     if (cm==CompressionMethod.BZIP2) {
-                        InputStream tis=(InputStream)zf.getInputStream(fh);
-                        BufferedInputStream bis=new BufferedInputStream(tis, IO_AREA_SIZE*4);
+                        InputStream tis = (InputStream) zf.getInputStream(fh);
+                        BufferedInputStream bis = new BufferedInputStream(tis, IO_AREA_SIZE * 4);
                         is = new BZip2CompressorInputStream(bis);
 //                        if (fh.isEncrypted()) {
 //                            BufferedInputStream bis=new BufferedInputStream(tis, 1024*1024*4);
@@ -3674,6 +3680,16 @@ public class ZipFileManager {
 //                            BufferedInputStream bis=new BufferedInputStream(sis, 1024*1024*4);
 //                            is = new BZip2CompressorInputStream(bis);
 //                        }
+                    } else if (cm==CompressionMethod.LZMA) {
+//                        InputStream wis = (InputStream) zf.getInputStream(fh);
+//                        BufferedInputStream dis = new BufferedInputStream(wis, IO_AREA_SIZE * 4);
+//                        byte[] buff=new byte[100];
+//                        int rc=dis.read(buff);
+//                        mUtil.addDebugMsg(1,"I","data="+StringUtil.getDumpFormatHexString(buff, 0, rc));
+
+                        InputStream tis = (InputStream) zf.getInputStream(fh);
+                        BufferedInputStream bis = new BufferedInputStream(tis, IO_AREA_SIZE * 4);
+                        is = new LZMA2InputStream(bis, 4096);
                     } else {
                         is=zf.getInputStream(fh);
                     }
@@ -3757,19 +3773,19 @@ public class ZipFileManager {
                         public void run() {
                             putProgressMessage(String.format(mContext.getString(R.string.msgs_zip_specific_extract_file_extracting),f_name));
                             File ef=new File(work_dir+"/"+f_name);
-                            boolean extract_required=true;
-                            if (ef.exists()) {
-                                if (ef.lastModified()==tfli.getLastModified() &&
-                                        ef.length()==tfli.getLength()) {
-                                    extract_required=false;
-                                }
-                            }
-                            boolean extract_rc=true;
-                            if (extract_required) {
-                                extract_rc=extractSpecificFile(tc, zf, e_name, work_dir, f_name, false);
-                                ef.setLastModified(tfli.getLastModified());
-                            }
-                            final boolean rc=extract_rc;
+//                            boolean extract_required=true;
+//                            if (ef.exists()) {
+//                                if (ef.lastModified()==tfli.getLastModified() && ef.length()==tfli.getLength()) {
+//                                    extract_required=false;
+//                                }
+//                            }
+//                            boolean extract_rc=true;
+//                            if (extract_required) {
+//                                extract_rc=extractSpecificFile(tc, zf, e_name, work_dir, f_name, false);
+//                                ef.setLastModified(tfli.getLastModified());
+//                            }
+                            final boolean rc=extractSpecificFile(tc, zf, e_name, work_dir, f_name, false);
+                            ef.setLastModified(tfli.getLastModified());
                             mUiHandler.post(new Runnable(){
                                 @Override
                                 public void run() {
@@ -3837,7 +3853,8 @@ public class ZipFileManager {
 	    boolean result=false;
         CompressionMethod cm=getCompressionMethod(fh);
 
-        if (cm==CompressionMethod.STORE || cm==CompressionMethod.DEFLATE || cm==CompressionMethod.AES_INTERNAL_ONLY || cm==CompressionMethod.BZIP2) {
+        if (cm==CompressionMethod.STORE || cm==CompressionMethod.DEFLATE || cm==CompressionMethod.AES_INTERNAL_ONLY ||
+                cm==CompressionMethod.BZIP2 ) {//|| cm==CompressionMethod.LZMA) {
 	        result=true;
         }
 
