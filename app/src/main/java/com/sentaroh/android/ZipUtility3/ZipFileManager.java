@@ -3444,13 +3444,6 @@ public class ZipFileManager {
 		  		.setOnClickListener(new CustomContextMenuOnClickListener() {
 				@Override
 				public void onClick(CharSequence menuTitle) {
-//					CustomZipFile zf=createZipFile(mCurrentFilePath,mZipFileNameEncodingSelected);
-//					try {
-//					} catch (ZipException e) {
-//						e.printStackTrace();
-//						mCommonDlg.showCommonDialog(false, "E", n_tfl.get(0).getName(),
-//								"ZipException\n"+e.getMessage(), null);
-//					}
 					if (tfi.isDirectory()) {
 						long item_cnt=-1, item_comp_size=0, item_uncomp_size=0;
 						for(ZipFileListItem zfli:mZipFileList) {
@@ -3471,10 +3464,6 @@ public class ZipFileManager {
 							if (zfli.getEncryptionMethod()==ZipFileListItem.ENCRPTION_METHOD_AES) enc_method="AES";
 							else if (zfli.getEncryptionMethod()==ZipFileListItem.ENCRPTION_METHOD_ZIP) enc_method="ZIP";
 							long comp_size=zfli.getCompressedFileLength();
-//							long last_mod=fh.getLastModFileTime();
-//							Log.v("","enc="+fh.getEncryptionMethod());
-//							if (fh.getAesExtraDataRecord()!=null)
-//								Log.v("","aes="+fh.getAesExtraDataRecord().getAesStrength());
 							long uncomp_size=zfli.getFileLength();
 							long last_mod=zfli.getLastModifiedTime();
 							String enc_yes_no=zfli.isEncrypted()?
@@ -3591,68 +3580,58 @@ public class ZipFileManager {
 		mCcMenu.createMenu();
 	};
 
-	private boolean extractSpecificFile(ThreadCtrl tc, CustomZipFile zf, String zip_file_name,
+	private InputStream buildBzip2InputStream(CustomZipFile zf, FileHeader fh) throws Exception {
+        if (mUtil.getSettingLogLevel()>=2) {
+            InputStream wis = (InputStream) zf.getInputStream(fh);
+            BufferedInputStream dis = new BufferedInputStream(wis, IO_AREA_SIZE * 4);
+            byte[] buff=new byte[100];
+            int rc=dis.read(buff);
+            mUtil.addDebugMsg(2,"I","BZIP2 Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
+            dis.close();
+        }
+
+        InputStream tis = (InputStream) zf.getInputStream(fh);
+        BufferedInputStream bis = new BufferedInputStream(tis, IO_AREA_SIZE * 4);
+        return new BZip2CompressorInputStream(bis);
+    }
+
+    private InputStream buildLZMAInputStream(CustomZipFile zf, FileHeader fh) throws Exception {
+        if (mUtil.getSettingLogLevel()>=2) {
+            InputStream wis = (InputStream) zf.getInputStream(fh);
+            BufferedInputStream dis = new BufferedInputStream(wis, IO_AREA_SIZE * 4);
+            byte[] buff=new byte[100];
+            int rc=dis.read(buff);
+            mUtil.addDebugMsg(2,"I","LZMA Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
+            dis.close();
+        }
+
+        InputStream tis = (InputStream) zf.getInputStream(fh);
+        BufferedInputStream bis = new BufferedInputStream(tis, IO_AREA_SIZE * 4);
+        int rc=0;
+        byte[] buff=new byte[100];
+        // Read Header
+        byte[] lzma_ver=new byte[2];
+        rc=bis.read(lzma_ver);
+        rc=bis.read(buff, 0, 2);
+        int lzma_prop_size=getIntFromLittleEndian(buff, 0, rc);
+
+        // Read prop byte
+        byte props=(byte)bis.read();
+
+        // Read dictionary size is an unsigned 32-bit little endian integer.
+        rc=bis.read(buff, 0, 4);
+        int dict_size = getIntFromLittleEndian(buff, 0, rc);
+        if (mUtil.getSettingLogLevel()>=2)
+            mUtil.addDebugMsg(2,"I", "lzma_ver=0x"+StringUtil.getHexString(lzma_ver, 0, 2)+", lzma_prop_size="+lzma_prop_size+
+                    ", propCode="+String.format("0x%h", props)+", uncomp_size="+fh.getUncompressedSize()+", dict_size="+dict_size);
+
+        return new LZMAInputStream(bis, fh.getUncompressedSize(), props, dict_size);
+    }
+
+    private boolean extractSpecificFile(ThreadCtrl tc, CustomZipFile zf, String zip_file_name,
                                         String dest_path, String dest_file_name, boolean scan_media) {
-//		if (dest_path.startsWith(mGp.internalRootDirectory)) return extractSpecificFileByInternal(tc, zf,zip_file_name, dest_path, dest_file_name, scan_media);
-//		else return extractSpecificFileByExternal(tc, zf,zip_file_name, dest_path, dest_file_name, scan_media);
-        return extractSpecificFileByExternal(tc, zf,zip_file_name, dest_path, dest_file_name, scan_media);
-	};
-
-
-//	private boolean extractSpecificFileByInternal(ThreadCtrl tc, CustomZipFile zf, String zip_file_name,
-//                                                  String dest_path, String dest_file_name, boolean scan_media) {
-//		mUtil.addDebugMsg(1,"I",
-//				"extractSpecificFile entered, zip file name="+zip_file_name+", dest="+dest_path+", dest file name="+dest_file_name);
-//		boolean result=false;
-//		String w_path=dest_path.endsWith("/")?dest_path+dest_file_name:dest_path+"/"+dest_file_name;
-//		File to=new File(w_path);
-//		try {
-//			if (tc.isEnabled()) {
-//				FileHeader fh=zf.getFileHeader(zip_file_name);
-//				InputStream is=zf.getInputStream(fh);
-//				File lf=new File(dest_path);
-//				lf.mkdirs();
-//				FileOutputStream os=new FileOutputStream(to);
-//				long fsz=fh.getUncompressedSize();
-//				long frc=0;
-//				byte[] buff=new byte[IO_AREA_SIZE];
-//				int rc=is.read(buff);
-//				while(rc>0) {
-//					if (!tc.isEnabled()) break;
-//					os.write(buff,0,rc);
-//					frc+=rc;
-//					long progress=(frc*100)/(fsz);
-//					putProgressMessage(String.format(mContext.getString(R.string.msgs_zip_extract_file_extracting), zip_file_name, progress));
-//					rc=is.read(buff);
-//				}
-//				os.flush();
-//				os.close();
-//				is.close();
-//				to.setLastModified(ZipUtil.dosToJavaTme(fh.getLastModFileTime()));
-//				if (!tc.isEnabled()) to.delete();
-//				else if (scan_media) CommonUtilities.scanMediaFile(mGp, mUtil, w_path);
-//			}
-//			result=true;
-//		} catch (ZipException e) {
-//			mUtil.addLogMsg("I", e.getMessage());
-//			CommonUtilities.printStackTraceElement(mUtil, e.getStackTrace());
-//			tc.setThreadMessage(e.getMessage());
-//			to.delete();
-//		} catch (IOException e) {
-//			mUtil.addLogMsg("I", e.getMessage());
-//			CommonUtilities.printStackTraceElement(mUtil, e.getStackTrace());
-//			tc.setThreadMessage(e.getMessage());
-//			to.delete();
-//		}
-//		mUtil.addDebugMsg(1,"I",
-//				"extractSpecificFile result="+result+", zip file name="+zip_file_name+", dest="+dest_path+", dest file name="+dest_file_name);
-//		return result;
-//	};
-
-	private boolean extractSpecificFileByExternal(ThreadCtrl tc, CustomZipFile zf, String zip_file_name,
-                                                  String dest_path, String dest_file_name, boolean scan_media) {
 		boolean result=false;
-//		long b_time=System.currentTimeMillis();
+		long b_time=System.currentTimeMillis();
 		try {
 			if (tc.isEnabled()) {
                 InputStream is=null;
@@ -3662,35 +3641,10 @@ public class ZipFileManager {
                     throw new ZipException("Unsupported compression method. code="+getCompressionMethodName(fh));
                 } else {
                     if (cm==CompressionMethod.BZIP2) {
-                        InputStream tis = (InputStream) zf.getInputStream(fh);
-                        BufferedInputStream bis = new BufferedInputStream(tis, IO_AREA_SIZE * 4);
-                        is = new BZip2CompressorInputStream(bis);
-//                        if (fh.isEncrypted()) {
-//                            BufferedInputStream bis=new BufferedInputStream(tis, 1024*1024*4);
-//                            is = new BZip2CompressorInputStream(bis);
-//                        } else {
-//                            SeekableInputStream sis=null;
-//                            if (zf.getSafFile().isSafFile()) sis=new SeekableInputStream(mContext, zf.getSafFile().getUri());
-//                            else sis=new SeekableInputStream(mContext, zf.getSafFile().getFile());
-//                            HeaderReader hr=new HeaderReader();
-//                            sis.seek(fh.getOffsetLocalHeader());
-//                            LocalFileHeader lh=hr.readLocalFileHeader(sis, Charset.forName(zf.getEncoding()));
-//                            sis.seek(lh.getOffsetStartOfData()+30+lh.getFileNameLength()+lh.getExtraFieldLength());
-//                            mUtil.addDebugMsg(1,"I","pos="+sis.getPosition());
-//                            BufferedInputStream bis=new BufferedInputStream(sis, 1024*1024*4);
-//                            is = new BZip2CompressorInputStream(bis);
-//                        }
+                        is=buildBzip2InputStream(zf, fh);
                     } else if (cm==CompressionMethod.LZMA) {
-//                        InputStream wis = (InputStream) zf.getInputStream(fh);
-//                        BufferedInputStream dis = new BufferedInputStream(wis, IO_AREA_SIZE * 4);
-//                        byte[] buff=new byte[100];
-//                        int rc=dis.read(buff);
-//                        mUtil.addDebugMsg(1,"I","data="+StringUtil.getDumpFormatHexString(buff, 0, rc));
-
-                        InputStream tis = (InputStream) zf.getInputStream(fh);
-                        BufferedInputStream bis = new BufferedInputStream(tis, IO_AREA_SIZE * 4);
-                        is = new LZMA2InputStream(bis, 4096);
-                    } else {
+                        is=buildLZMAInputStream(zf, fh);
+                    } else {// STORE/DEFLATE/AE-x
                         is=zf.getInputStream(fh);
                     }
                 }
@@ -3708,11 +3662,10 @@ public class ZipFileManager {
 				byte[] buff=new byte[IO_AREA_SIZE];
 				int rc=0;
 				String msg_txt=mContext.getString(R.string.msgs_zip_extract_file_extracting);
-				boolean prog_enable=fsz>(1024*1024*4);
+				boolean prog_enable=fsz>(1024*1024);
 				int prog_value=0, prev_prog_value=-1;
 				while((rc=is.read(buff))>0) {
 					if (!tc.isEnabled()) break;
-//					mUtil.addDebugMsg(1, "I", "name="+zip_file_name+", rc="+rc+", size="+buff.length);
 					os.write(buff,0,rc);
 					frc+=rc;
 					prog_value=(int)((frc*100)/(fsz));
@@ -3734,10 +3687,18 @@ public class ZipFileManager {
 			tc.setThreadMessage(e.getMessage());
 		}
 		mUtil.addDebugMsg(1,"I",
-				"extractSpecificFile result="+result+", zip file name="+zip_file_name+", dest="+dest_path+", dest file name="+dest_file_name);
+				"extractSpecificFile result="+result+", zip file name="+zip_file_name+", dest="+dest_path+
+                        ", dest file name="+dest_file_name+", elapsed="+(System.currentTimeMillis()-b_time));
 		return result;
 	};
 
+	private int getIntFromLittleEndian(byte[] buff, int offset, int length) {
+        int dict_size = 0;
+        for (int i = 0; i < length; ++i) {
+            dict_size |= buff[i] << (8 * i);
+        }
+	    return dict_size;
+    }
 
 	private void invokeBrowser(boolean encrypted, final TreeFilelistItem tfli,
                                final String p_dir, final String f_name, String mime_type) {
@@ -3773,19 +3734,17 @@ public class ZipFileManager {
                         public void run() {
                             putProgressMessage(String.format(mContext.getString(R.string.msgs_zip_specific_extract_file_extracting),f_name));
                             File ef=new File(work_dir+"/"+f_name);
-//                            boolean extract_required=true;
-//                            if (ef.exists()) {
-//                                if (ef.lastModified()==tfli.getLastModified() && ef.length()==tfli.getLength()) {
-//                                    extract_required=false;
-//                                }
-//                            }
-//                            boolean extract_rc=true;
-//                            if (extract_required) {
-//                                extract_rc=extractSpecificFile(tc, zf, e_name, work_dir, f_name, false);
-//                                ef.setLastModified(tfli.getLastModified());
-//                            }
-                            final boolean rc=extractSpecificFile(tc, zf, e_name, work_dir, f_name, false);
-                            ef.setLastModified(tfli.getLastModified());
+                            boolean extract_rc=true;
+                            if (ef.exists()) {
+                                if (ef.lastModified()!=tfli.getLastModified() || ef.length()!=tfli.getLength()) {
+                                    extract_rc=extractSpecificFile(tc, zf, e_name, work_dir, f_name, false);
+                                    ef.setLastModified(tfli.getLastModified());
+                                }
+                            } else {
+                                extract_rc=extractSpecificFile(tc, zf, e_name, work_dir, f_name, false);
+                                ef.setLastModified(tfli.getLastModified());
+                            }
+                            final boolean rc=extract_rc;
                             mUiHandler.post(new Runnable(){
                                 @Override
                                 public void run() {
@@ -3796,12 +3755,12 @@ public class ZipFileManager {
                                             String fp=(work_dir+"/"+f_name).replaceAll("//","/");
                                             sf=new SafFile3(mContext, fp);
                                             Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
-                                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION |Intent.FLAG_GRANT_WRITE_URI_PERMISSION);// | Intent.FLAG_ACTIVITY_NEW_TASK);
                                             Uri uri=null;
                                             if (sf.isSafFile()) {
                                                 uri=sf.getUri();
                                             } else {
-                                                uri= FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID + ".provider", new File(fp));
+                                                uri= FileProvider.getUriForFile(mContext, PACKAGE_NAME+".provider", new File(fp));
                                             }
                                             if (mt==null) intent.setDataAndType(uri, "*/*");
                                             else intent.setDataAndType(uri, mt);
@@ -3854,7 +3813,7 @@ public class ZipFileManager {
         CompressionMethod cm=getCompressionMethod(fh);
 
         if (cm==CompressionMethod.STORE || cm==CompressionMethod.DEFLATE || cm==CompressionMethod.AES_INTERNAL_ONLY ||
-                cm==CompressionMethod.BZIP2 ) {//|| cm==CompressionMethod.LZMA) {
+                cm==CompressionMethod.BZIP2 || (mGp.debuggable && cm==CompressionMethod.LZMA)) {
 	        result=true;
         }
 
@@ -3881,7 +3840,7 @@ public class ZipFileManager {
         else if (code==CompressionMethod.COMP_FACTOR4.getCode()) method_name="REDUCE4";
         else if (code==CompressionMethod.DEFLATE.getCode()) method_name="DEFLATE";
         else if (code==CompressionMethod.DEFLATE64.getCode()) method_name="DEFLATE64";
-        else if (code==CompressionMethod.AES_INTERNAL_ONLY.getCode()) method_name="AES_INTERNAL_ONLY";
+        else if (code==CompressionMethod.AES_INTERNAL_ONLY.getCode()) method_name="AE-x";
         else if (code==CompressionMethod.BZIP2.getCode()) method_name="BZIP2";
         else if (code==CompressionMethod.IBM_CMPSC.getCode()) method_name="IBM_CMPSC";
         else if (code==CompressionMethod.IBM_LZ77.getCode()) method_name="IBM_LZ77";
@@ -3892,7 +3851,7 @@ public class ZipFileManager {
         else if (code==CompressionMethod.PKWARE_IMPLODING.getCode()) method_name="PKWARE_IMPLOD";
         else if (code==CompressionMethod.IMPLOD.getCode()) method_name="IMPLOD";
         else if (code==CompressionMethod.PPMD.getCode()) method_name="PPMD";
-        else if (code==CompressionMethod.SHRUNK.getCode()) method_name="SHRINK";
+        else if (code==CompressionMethod.SHRUNK.getCode()) method_name="SHRUNK";
         return method_name;
     }
 

@@ -29,7 +29,7 @@ public class Constants {
 	public static final String APPLICATION_TAG="ZipUtility3";
 	public static final String PACKAGE_NAME="com.sentaroh.android."+APPLICATION_TAG;
 	public static final String APP_SPECIFIC_DIRECTORY="Android/data/com.sentaroh.android."+APPLICATION_TAG;
-	public static long SERIALIZABLE_NUMBER=1L;
+//	public static long SERIALIZABLE_NUMBER=1L;
 	public static final String LOG_FILE_NAME=APPLICATION_TAG+"_log";
 
 	public static final String DEFAULT_PREFS_FILENAME="default_preferences";

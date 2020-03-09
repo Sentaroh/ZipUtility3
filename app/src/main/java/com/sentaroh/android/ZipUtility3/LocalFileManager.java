@@ -3575,7 +3575,7 @@ public class LocalFileManager {
         else {
             try {
                 Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION |Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION |Intent.FLAG_GRANT_WRITE_URI_PERMISSION);// | Intent.FLAG_ACTIVITY_NEW_TASK);
                 Uri uri=null;
                 if (sf.isSafFile()) {
                     uri=sf.getUri();
