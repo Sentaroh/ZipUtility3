@@ -558,12 +558,18 @@ public class ActivityMain extends AppCompatActivity {
 			case KeyEvent.KEYCODE_BACK:
 				if (isUiEnabled()) {
 					if (mMainTabHost.getCurrentTab()==0) {//Local tab
-						if (mLocalFileMgr.isUpButtonEnabled()) {
+					    if (mLocalFileMgr.isFileListSelected()) {
+					        mLocalFileMgr.setFileListAllItemUnselected();
+                            return true;
+                        } else if (mLocalFileMgr.isUpButtonEnabled()) {
 							mLocalFileMgr.performClickUpButton();
 							return true;
 						}
 					} else {//Zip folder
-						if (mZipFileMgr.isUpButtonEnabled()) {
+                        if (mLocalFileMgr.isFileListSelected()) {
+                            mLocalFileMgr.setFileListAllItemUnselected();
+                            return true;
+                        } else if (mZipFileMgr.isUpButtonEnabled()) {
 							mZipFileMgr.performClickUpButton();
 							return true;
 						} else {

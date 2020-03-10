@@ -121,6 +121,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.InputMismatchException;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -3359,7 +3360,17 @@ public class ZipFileManager {
 	public boolean isUpButtonEnabled() {
 		return mFileListUp.isEnabled();
 	};
-	public void performClickUpButton() {
+
+    public boolean isFileListSelected() {
+        return mTreeFilelistAdapter.isItemSelected();
+    }
+
+    public void setFileListAllItemUnselected() {
+        mTreeFilelistAdapter.setAllItemUnchecked();
+        mTreeFilelistAdapter.notifyDataSetChanged();
+    }
+
+    public void performClickUpButton() {
 		mFileListUp.setSoundEffectsEnabled(false);
 		mFileListUp.performClick();
 		mFileListUp.setSoundEffectsEnabled(true);
@@ -3628,26 +3639,31 @@ public class ZipFileManager {
         return new LZMAInputStream(bis, fh.getUncompressedSize(), props, dict_size);
     }
 
+    private InputStream getZipInputStream(ThreadCtrl tc, CustomZipFile zf, FileHeader fh) throws Exception {
+        InputStream is=null;
+        CompressionMethod cm=getCompressionMethod(fh);
+        if (!isSupportedCompressionMethod(fh)) {
+            throw new ZipException("Unsupported compression method. code="+getCompressionMethodName(fh));
+        } else {
+            if (cm==CompressionMethod.BZIP2) {
+                is=buildBzip2InputStream(zf, fh);
+            } else if (cm==CompressionMethod.LZMA) {
+                is=buildLZMAInputStream(zf, fh);
+            } else {// STORE/DEFLATE/AE-x
+                is=zf.getInputStream(fh);
+            }
+        }
+        return is;
+    }
+
     private boolean extractSpecificFile(ThreadCtrl tc, CustomZipFile zf, String zip_file_name,
                                         String dest_path, String dest_file_name, boolean scan_media) {
 		boolean result=false;
 		long b_time=System.currentTimeMillis();
 		try {
 			if (tc.isEnabled()) {
-                InputStream is=null;
-				FileHeader fh=zf.getFileHeader(zip_file_name);
-                CompressionMethod cm=getCompressionMethod(fh);
-                if (!isSupportedCompressionMethod(fh)) {
-                    throw new ZipException("Unsupported compression method. code="+getCompressionMethodName(fh));
-                } else {
-                    if (cm==CompressionMethod.BZIP2) {
-                        is=buildBzip2InputStream(zf, fh);
-                    } else if (cm==CompressionMethod.LZMA) {
-                        is=buildLZMAInputStream(zf, fh);
-                    } else {// STORE/DEFLATE/AE-x
-                        is=zf.getInputStream(fh);
-                    }
-                }
+                FileHeader fh=zf.getFileHeader(zip_file_name);
+                InputStream is=getZipInputStream(tc, zf, fh);
 
 				String w_path=dest_path.endsWith("/")?dest_path+dest_file_name:dest_path+"/"+dest_file_name;
 				SafFile3 out_dir_sf=new SafFile3(mContext, dest_path);

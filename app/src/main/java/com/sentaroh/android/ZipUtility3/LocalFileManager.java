@@ -3015,6 +3015,15 @@ public class LocalFileManager {
 		return mFileListUp.isEnabled();
 	}
 
+    public boolean isFileListSelected() {
+        return mTreeFilelistAdapter.isItemSelected();
+    }
+
+    public void setFileListAllItemUnselected() {
+        mTreeFilelistAdapter.setAllItemUnchecked();
+        mTreeFilelistAdapter.notifyDataSetChanged();
+    }
+
 //    private void setContextButtonViewVisibility(LinearLayout cbv) {
 //        if (mMainFilePath.startsWith(mGp.internalRootDirectory)) {
 //        } else {
