@@ -3595,45 +3595,42 @@ public class ZipFileManager {
 	private InputStream buildBzip2InputStream(CustomZipFile zf, FileHeader fh) throws Exception {
         if (mUtil.getSettingLogLevel()>=2) {
             InputStream wis = (InputStream) zf.getInputStream(fh);
-            BufferedInputStream dis = new BufferedInputStream(wis, IO_AREA_SIZE * 4);
             byte[] buff=new byte[100];
-            int rc=dis.read(buff);
+            int rc=wis.read(buff);
             mUtil.addDebugMsg(2,"I","BZIP2 Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
-            dis.close();
+            wis.close();
         }
 
-        InputStream tis = (InputStream) zf.getInputStream(fh);
-        BufferedInputStream bis = new BufferedInputStream(tis, IO_AREA_SIZE * 4);
+        final InputStream zis = (InputStream) zf.getInputStream(fh);
+        BufferedInputStream bis = new BufferedInputStream(zis, IO_AREA_SIZE * 8);
         return new BZip2CompressorInputStream(bis);
     }
 
     private InputStream buildDEFLATE64InputStream(CustomZipFile zf, FileHeader fh) throws Exception {
         if (mUtil.getSettingLogLevel()>=2) {
             InputStream wis = (InputStream) zf.getInputStream(fh);
-            BufferedInputStream dis = new BufferedInputStream(wis, IO_AREA_SIZE * 4);
             byte[] buff=new byte[100];
-            int rc=dis.read(buff);
+            int rc=wis.read(buff);
             mUtil.addDebugMsg(2,"I","DEFLATE64 Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
-            dis.close();
+            wis.close();
         }
 
-        InputStream tis = (InputStream) zf.getInputStream(fh);
-        BufferedInputStream bis = new BufferedInputStream(tis, IO_AREA_SIZE * 4);
-        return new Deflate64CompressorInputStream(bis);
+        final ZipInputStream zis = zf.getInputStream(fh);
+        BufferedInputStream bis = new BufferedInputStream(zis, IO_AREA_SIZE * 8);
+        return new Deflate64CompressorInputStream(zis);
     }
 
     private InputStream buildLZMAInputStream(CustomZipFile zf, FileHeader fh) throws Exception {
         if (mUtil.getSettingLogLevel()>=2) {
             InputStream wis = (InputStream) zf.getInputStream(fh);
-            BufferedInputStream dis = new BufferedInputStream(wis, IO_AREA_SIZE * 4);
             byte[] buff=new byte[100];
-            int rc=dis.read(buff);
+            int rc=wis.read(buff);
             mUtil.addDebugMsg(2,"I","LZMA Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
-            dis.close();
+            wis.close();
         }
 
         InputStream tis = (InputStream) zf.getInputStream(fh);
-        BufferedInputStream bis = new BufferedInputStream(tis, IO_AREA_SIZE * 4);
+        BufferedInputStream bis = new BufferedInputStream(tis, IO_AREA_SIZE * 8);
         int rc=0;
         byte[] buff=new byte[100];
         // Read Header
@@ -3699,6 +3696,7 @@ public class ZipFileManager {
 				boolean prog_enable=fsz>(1024*1024);
 				int prog_value=0, prev_prog_value=-1;
 				while((rc=is.read(buff))>0) {
+//				    mUtil.addDebugMsg(1,"I","size="+rc);
 					if (!tc.isEnabled()) break;
 					os.write(buff,0,rc);
 					frc+=rc;

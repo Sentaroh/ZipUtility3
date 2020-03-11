@@ -35,7 +35,9 @@ import net.lingala.zip4j.model.FileHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
@@ -99,43 +101,23 @@ public class CustomZipFile {
         return mPassword;
     }
 
-    private SeekableInputStream mSeekableInputStream=null;
-    private SeekableInputStream createSeekableInputStream() {
-        SeekableInputStream sis=null;
-        try {
-            if (mSafFile.isSafFile()) sis=new SeekableInputStream(mContext, mSafFile.getUri());
-            else sis=new SeekableInputStream(mContext, mSafFile.getFile());
-        } catch (IOException e) {
-            sis=null;
-        }
-        return sis;
-    }
-
 
     public ZipInputStream getInputStream(FileHeader fh) throws Exception {
 //        SplitInputStream splitInputStream = null;
         long b_time=System.currentTimeMillis();
         try {
-            if (mSeekableInputStream==null) {
-                mSeekableInputStream=createSeekableInputStream();
-                if(mSeekableInputStream==null) {
-                    throw new Exception("SeekableInputStream creation error");
-                }
-            }
-//            if (mSeekableInputStream.getPosition()>fh.getOffsetLocalHeader()) log.info("pointer="+mSeekableInputStream.getPosition()+", header="+fh.getOffsetLocalHeader());
-//            else log.info("not closed");
-            mSeekableInputStream.seek(fh.getOffsetLocalHeader());
+            InputStream is=null;
+            if (mSafFile.isSafFile()) is=mSafFile.getInputStream();
+            else is=new FileInputStream(mSafFile.getFile());
+
+            is.skip(fh.getOffsetLocalHeader());
             ZipInputStream zipInputStream = null;
-            if (getPassword()==null) zipInputStream =new ZipInputStream(mSeekableInputStream, Charset.forName(mEncoding));
-            else zipInputStream =new ZipInputStream(mSeekableInputStream, mPassword.toCharArray(), Charset.forName(mEncoding));
+            if (getPassword()==null) zipInputStream =new ZipInputStream(is, Charset.forName(mEncoding));
+            else zipInputStream =new ZipInputStream(is, mPassword.toCharArray(), Charset.forName(mEncoding));
             zipInputStream.getNextEntry();
 
             return zipInputStream;
         } catch (IOException e) {
-            if (mSeekableInputStream != null) {
-                mSeekableInputStream.close();
-                mSeekableInputStream=null;
-            }
             throw e;
         }
 
