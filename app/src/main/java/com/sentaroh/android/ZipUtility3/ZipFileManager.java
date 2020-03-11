@@ -97,6 +97,7 @@ import net.lingala.zip4j.model.enums.EncryptionMethod;
 
 import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.compress.compressors.deflate64.Deflate64CompressorInputStream;
 import org.apache.commons.compress.compressors.lzma.LZMACompressorInputStream;
 import org.tukaani.xz.LZMA2InputStream;
 import org.tukaani.xz.LZMAInputStream;
@@ -3606,6 +3607,21 @@ public class ZipFileManager {
         return new BZip2CompressorInputStream(bis);
     }
 
+    private InputStream buildDEFLATE64InputStream(CustomZipFile zf, FileHeader fh) throws Exception {
+        if (mUtil.getSettingLogLevel()>=2) {
+            InputStream wis = (InputStream) zf.getInputStream(fh);
+            BufferedInputStream dis = new BufferedInputStream(wis, IO_AREA_SIZE * 4);
+            byte[] buff=new byte[100];
+            int rc=dis.read(buff);
+            mUtil.addDebugMsg(2,"I","DEFLATE64 Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
+            dis.close();
+        }
+
+        InputStream tis = (InputStream) zf.getInputStream(fh);
+        BufferedInputStream bis = new BufferedInputStream(tis, IO_AREA_SIZE * 4);
+        return new Deflate64CompressorInputStream(bis);
+    }
+
     private InputStream buildLZMAInputStream(CustomZipFile zf, FileHeader fh) throws Exception {
         if (mUtil.getSettingLogLevel()>=2) {
             InputStream wis = (InputStream) zf.getInputStream(fh);
@@ -3649,6 +3665,8 @@ public class ZipFileManager {
                 is=buildBzip2InputStream(zf, fh);
             } else if (cm==CompressionMethod.LZMA) {
                 is=buildLZMAInputStream(zf, fh);
+            } else if (cm==CompressionMethod.DEFLATE64) {
+                is=buildDEFLATE64InputStream(zf, fh);
             } else {// STORE/DEFLATE/AE-x
                 is=zf.getInputStream(fh);
             }
@@ -3829,7 +3847,9 @@ public class ZipFileManager {
         CompressionMethod cm=getCompressionMethod(fh);
 
         if (cm==CompressionMethod.STORE || cm==CompressionMethod.DEFLATE || cm==CompressionMethod.AES_INTERNAL_ONLY ||
-                cm==CompressionMethod.BZIP2 || (mGp.debuggable && cm==CompressionMethod.LZMA)) {
+                cm==CompressionMethod.BZIP2 || cm==CompressionMethod.LZMA
+                || cm==CompressionMethod.DEFLATE64
+                ) {
 	        result=true;
         }
 
