@@ -3465,8 +3465,10 @@ public class ZipFileManager {
 								item_comp_size+=zfli.getCompressedFileLength();
 							}
 						}
+                        long comp_ratio=0;
+                        if (item_uncomp_size!=0) comp_ratio=(item_comp_size*100)/item_uncomp_size;
 						String prop= String.format(mContext.getString(R.string.msgs_zip_zip_item_property_directory),
-								 item_cnt, item_comp_size, item_uncomp_size);
+								 item_cnt, item_comp_size, item_uncomp_size, comp_ratio);
 						mCommonDlg.showCommonDialog(false, "I", "/"+tfi.getZipFileName()+"/", prop, null);
 					} else {
 						ZipFileListItem zfli=getZipFileListItem(tfi.getZipFileName());
@@ -3477,13 +3479,15 @@ public class ZipFileManager {
 							else if (zfli.getEncryptionMethod()==ZipFileListItem.ENCRPTION_METHOD_ZIP) enc_method="ZIP";
 							long comp_size=zfli.getCompressedFileLength();
 							long uncomp_size=zfli.getFileLength();
+							long comp_ratio=0;
+							if (uncomp_size!=0) comp_ratio=(comp_size*100)/uncomp_size;
 							long last_mod=zfli.getLastModifiedTime();
 							String enc_yes_no=zfli.isEncrypted()?
 									mContext.getString(R.string.msgs_zip_zip_item_property_encrypted_yes):
 									mContext.getString(R.string.msgs_zip_zip_item_property_encrypted_no);
 							String prop= String.format(mContext.getString(R.string.msgs_zip_zip_item_property_file),
 									 StringUtil.convDateTimeTo_YearMonthDayHourMinSec(last_mod),
-									 comp_method, enc_method, comp_size, uncomp_size);
+									 comp_method, enc_method, comp_size, uncomp_size, comp_ratio);
 							mCommonDlg.showCommonDialog(false, "I", "/"+zfli.getFileName(), prop, null);
 						}
 					}
@@ -3860,12 +3864,12 @@ public class ZipFileManager {
 	    return cm;
     }
 
-    private static String getCompressionMethodName(FileHeader fh) {
+    public static String getCompressionMethodName(FileHeader fh) {
 	    CompressionMethod cm=getCompressionMethod(fh);
         return getCompressionMethodName(cm.getCode());
     }
 
-    private static String getCompressionMethodName(int code) {
+    public static String getCompressionMethodName(int code) {
         String method_name="Unknown("+String.valueOf(code)+")";
         if (code==CompressionMethod.STORE.getCode()) method_name="STORE";
         else if (code==CompressionMethod.COMP_FACTOR1.getCode()) method_name="REDUCE1";

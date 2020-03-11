@@ -385,6 +385,7 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
             	holder.tv_name=(NonWordwrapTextView)v.findViewById(R.id.tree_file_list_name);
             	holder.tv_size=(TextView)v.findViewById(R.id.tree_file_list_size);
                 holder.tv_count=(TextView)v.findViewById(R.id.tree_file_list_count);
+                holder.tv_comp_info=(TextView)v.findViewById(R.id.tree_file_list_zip_comp_info);
             	holder.tv_moddate=(TextView)v.findViewById(R.id.tree_file_list_date);
             	holder.tv_modtime=(TextView)v.findViewById(R.id.tree_file_list_time);
         		holder.ll_view=(LinearLayout)v.findViewById(R.id.tree_file_list_view);
@@ -496,12 +497,14 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
                            		holder.tv_name.setTextColor(mThemeColorList.text_color_warning);//normal_text_color);
         		            	holder.tv_size.setTextColor(mThemeColorList.text_color_warning);//normal_text_color);
                                 holder.tv_count.setTextColor(mThemeColorList.text_color_warning);//Color.GRAY);
+                                holder.tv_comp_info.setTextColor(mThemeColorList.text_color_warning);//Color.GRAY);
         		            	holder.tv_moddate.setTextColor(mThemeColorList.text_color_warning);//normal_text_color);
         		            	holder.tv_modtime.setTextColor(mThemeColorList.text_color_warning);//normal_text_color);
                    			} else {
                            		holder.tv_name.setTextColor(mDefaultTextColor);//normal_text_color);
         		            	holder.tv_size.setTextColor(mDefaultTextColor);//normal_text_color);
                                 holder.tv_count.setTextColor(mDefaultTextColor);//Color.GRAY);
+                                holder.tv_comp_info.setTextColor(mDefaultTextColor);//Color.GRAY);
         		            	holder.tv_moddate.setTextColor(mDefaultTextColor);//normal_text_color);
         		            	holder.tv_modtime.setTextColor(mDefaultTextColor);//normal_text_color);
                    			}
@@ -509,6 +512,7 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
                        		holder.tv_name.setTextColor(disabled_color);//Color.GRAY);
     		            	holder.tv_size.setTextColor(disabled_color);//Color.GRAY);
                             holder.tv_count.setTextColor(disabled_color);//Color.GRAY);
+                            holder.tv_comp_info.setTextColor(disabled_color);//Color.GRAY);
     		            	holder.tv_moddate.setTextColor(disabled_color);//Color.GRAY);
     		            	holder.tv_modtime.setTextColor(disabled_color);//Color.GRAY);
                    		}
@@ -516,10 +520,12 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
                         holder.tv_name.setTextColor(disabled_color);//Color.GRAY);
                         holder.tv_size.setTextColor(disabled_color);//Color.GRAY);
                         holder.tv_count.setTextColor(disabled_color);//Color.GRAY);
+                        holder.tv_comp_info.setTextColor(disabled_color);//Color.GRAY);
                         holder.tv_moddate.setTextColor(disabled_color);//Color.GRAY);
                         holder.tv_modtime.setTextColor(disabled_color);//Color.GRAY);
                    	}
                    	if(o.isDirectory()) {
+                        holder.tv_comp_info.setText("");
                         if (o.getLength()!=-1) holder.tv_count.setVisibility(TextView.VISIBLE);
                    		if (o.getSubDirItemCount()>0) {
                    			if (o.isEnableItem()) {
@@ -532,6 +538,14 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
                    		}
                    		holder.iv_image1.setImageResource(mIconImage[2]); //folder
                    	} else {
+                        if (o.isZipFileItem()) {
+                            String cm=ZipFileManager.getCompressionMethodName(o.getZipFileCompressionMethod());
+                            String comp_ratio="";
+                            if (o.getLength()>0) comp_ratio=(o.getZipFileCompressedSize()*100)/o.getLength()+"%";
+                            holder.tv_comp_info.setText(comp_ratio+" "+cm);
+                        } else {
+                            holder.tv_comp_info.setText("");
+                        }
                         holder.tv_count.setVisibility(TextView.GONE);
                			if (o.getMimeType().startsWith("image")) {
                				holder.iv_image1.setImageResource(R.drawable.ic_32_file_image);
@@ -659,7 +673,7 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
     
 	static class ViewHolder {
 		 NonWordwrapTextView tv_name;
-         TextView tv_moddate, tv_modtime, tv_size, tv_spacer, tv_count;
+         TextView tv_moddate, tv_modtime, tv_size, tv_spacer, tv_count, tv_comp_info;
 		 ImageView iv_image1;
 		 ImageView iv_expand;
 		 LinearLayout ll_view, ll_date_time_view, ll_expand_view, ll_select_view;
