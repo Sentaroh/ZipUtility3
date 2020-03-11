@@ -3592,12 +3592,12 @@ public class ZipFileManager {
 		mCcMenu.createMenu();
 	};
 
-	private InputStream buildBzip2InputStream(CustomZipFile zf, FileHeader fh) throws Exception {
-        if (mUtil.getSettingLogLevel()>=2) {
+	private static InputStream buildBzip2InputStream(CustomZipFile zf, FileHeader fh, CommonUtilities cu) throws Exception {
+        if (cu.getSettingLogLevel()>=2) {
             InputStream wis = (InputStream) zf.getInputStream(fh);
             byte[] buff=new byte[100];
             int rc=wis.read(buff);
-            mUtil.addDebugMsg(2,"I","BZIP2 Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
+            cu.addDebugMsg(2,"I","BZIP2 Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
             wis.close();
         }
 
@@ -3606,12 +3606,12 @@ public class ZipFileManager {
         return new BZip2CompressorInputStream(bis);
     }
 
-    private InputStream buildDEFLATE64InputStream(CustomZipFile zf, FileHeader fh) throws Exception {
-        if (mUtil.getSettingLogLevel()>=2) {
+    private static InputStream buildDEFLATE64InputStream(CustomZipFile zf, FileHeader fh, CommonUtilities cu) throws Exception {
+        if (cu.getSettingLogLevel()>=2) {
             InputStream wis = (InputStream) zf.getInputStream(fh);
             byte[] buff=new byte[100];
             int rc=wis.read(buff);
-            mUtil.addDebugMsg(2,"I","DEFLATE64 Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
+            cu.addDebugMsg(2,"I","DEFLATE64 Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
             wis.close();
         }
 
@@ -3620,12 +3620,12 @@ public class ZipFileManager {
         return new Deflate64CompressorInputStream(zis);
     }
 
-    private InputStream buildLZMAInputStream(CustomZipFile zf, FileHeader fh) throws Exception {
-        if (mUtil.getSettingLogLevel()>=2) {
+    private static InputStream buildLZMAInputStream(CustomZipFile zf, FileHeader fh, CommonUtilities cu) throws Exception {
+        if (cu.getSettingLogLevel()>=2) {
             InputStream wis = (InputStream) zf.getInputStream(fh);
             byte[] buff=new byte[100];
             int rc=wis.read(buff);
-            mUtil.addDebugMsg(2,"I","LZMA Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
+            cu.addDebugMsg(2,"I","LZMA Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
             wis.close();
         }
 
@@ -3645,25 +3645,25 @@ public class ZipFileManager {
         // Read dictionary size is an unsigned 32-bit little endian integer.
         rc=bis.read(buff, 0, 4);
         int dict_size = getIntFromLittleEndian(buff, 0, rc);
-        if (mUtil.getSettingLogLevel()>=2)
-            mUtil.addDebugMsg(2,"I", "lzma_ver=0x"+StringUtil.getHexString(lzma_ver, 0, 2)+", lzma_prop_size="+lzma_prop_size+
+        if (cu.getSettingLogLevel()>=2)
+            cu.addDebugMsg(2,"I", "lzma_ver=0x"+StringUtil.getHexString(lzma_ver, 0, 2)+", lzma_prop_size="+lzma_prop_size+
                     ", propCode="+String.format("0x%h", props)+", uncomp_size="+fh.getUncompressedSize()+", dict_size="+dict_size);
 
         return new LZMAInputStream(bis, fh.getUncompressedSize(), props, dict_size);
     }
 
-    private InputStream getZipInputStream(ThreadCtrl tc, CustomZipFile zf, FileHeader fh) throws Exception {
+    public static InputStream getZipInputStream(ThreadCtrl tc, CustomZipFile zf, FileHeader fh, CommonUtilities cu) throws Exception {
         InputStream is=null;
         CompressionMethod cm=getCompressionMethod(fh);
         if (!isSupportedCompressionMethod(fh)) {
             throw new ZipException("Unsupported compression method. code="+getCompressionMethodName(fh));
         } else {
             if (cm==CompressionMethod.BZIP2) {
-                is=buildBzip2InputStream(zf, fh);
+                is=buildBzip2InputStream(zf, fh, cu);
             } else if (cm==CompressionMethod.LZMA) {
-                is=buildLZMAInputStream(zf, fh);
+                is=buildLZMAInputStream(zf, fh, cu);
             } else if (cm==CompressionMethod.DEFLATE64) {
-                is=buildDEFLATE64InputStream(zf, fh);
+                is=buildDEFLATE64InputStream(zf, fh, cu);
             } else {// STORE/DEFLATE/AE-x
                 is=zf.getInputStream(fh);
             }
@@ -3671,14 +3671,14 @@ public class ZipFileManager {
         return is;
     }
 
-    private boolean extractSpecificFile(ThreadCtrl tc, CustomZipFile zf, String zip_file_name,
+    public boolean extractSpecificFile(ThreadCtrl tc, CustomZipFile zf, String zip_file_name,
                                         String dest_path, String dest_file_name, boolean scan_media) {
 		boolean result=false;
 		long b_time=System.currentTimeMillis();
 		try {
 			if (tc.isEnabled()) {
                 FileHeader fh=zf.getFileHeader(zip_file_name);
-                InputStream is=getZipInputStream(tc, zf, fh);
+                InputStream is=getZipInputStream(tc, zf, fh, mUtil);
 
 				String w_path=dest_path.endsWith("/")?dest_path+dest_file_name:dest_path+"/"+dest_file_name;
 				SafFile3 out_dir_sf=new SafFile3(mContext, dest_path);
@@ -3724,7 +3724,7 @@ public class ZipFileManager {
 		return result;
 	};
 
-	private int getIntFromLittleEndian(byte[] buff, int offset, int length) {
+	private static int getIntFromLittleEndian(byte[] buff, int offset, int length) {
         int dict_size = 0;
         for (int i = 0; i < length; ++i) {
             dict_size |= buff[i] << (8 * i);
@@ -3840,7 +3840,7 @@ public class ZipFileManager {
 
 	};
 
-	private boolean isSupportedCompressionMethod(FileHeader fh) {
+	private static boolean isSupportedCompressionMethod(FileHeader fh) {
 	    boolean result=false;
         CompressionMethod cm=getCompressionMethod(fh);
 
@@ -3854,18 +3854,18 @@ public class ZipFileManager {
 	    return result;
     }
 
-    private CompressionMethod getCompressionMethod(FileHeader fh) {
+    private static CompressionMethod getCompressionMethod(FileHeader fh) {
         CompressionMethod cm=fh.getCompressionMethod();
         if (fh.getCompressionMethod()==CompressionMethod.AES_INTERNAL_ONLY) cm=fh.getAesExtraDataRecord().getCompressionMethod();
 	    return cm;
     }
 
-    private String getCompressionMethodName(FileHeader fh) {
+    private static String getCompressionMethodName(FileHeader fh) {
 	    CompressionMethod cm=getCompressionMethod(fh);
         return getCompressionMethodName(cm.getCode());
     }
 
-    private String getCompressionMethodName(int code) {
+    private static String getCompressionMethodName(int code) {
         String method_name="Unknown("+String.valueOf(code)+")";
         if (code==CompressionMethod.STORE.getCode()) method_name="STORE";
         else if (code==CompressionMethod.COMP_FACTOR1.getCode()) method_name="REDUCE1";

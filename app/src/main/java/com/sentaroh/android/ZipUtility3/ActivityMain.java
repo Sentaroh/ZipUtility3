@@ -225,45 +225,30 @@ public class ActivityMain extends AppCompatActivity {
 //        Thread th=new Thread(){
 //          @Override
 //          public void run() {
-//              File lf=new File("/storage/emulated/0/lzma.lzma");
+//              File out_file=new File("/storage/emulated/0/dec_test");
+//              File in_file=new File("/storage/emulated/0/enc_test");
 //              try {
-//                  LZMACompressorOutputStream os=new LZMACompressorOutputStream(new FileOutputStream(lf));
-//                  os.write("lzma".getBytes());
-//                  os.finish();
-//                  os.flush();
-//                  os.close();
-//
-//                  FileInputStream fis=new FileInputStream(new File("/storage/emulated/0/lzma.zip"));
-//                  byte[] buff=new byte[100];
-//                  int rc=fis.read(buff, 0, 52);
-//                  mUtil.addDebugMsg(1,"I", "cnt="+rc+", data="+ StringUtil.getHexString(buff, 0, rc));
-//                  rc=fis.read(buff, 0, 9);
-//                  mUtil.addDebugMsg(1,"I", "cnt="+rc+", data="+StringUtil.getHexString(buff, 0, rc));
-//                  fis.close();
-//
-//
-//                  byte[] in_buff=new byte[]{(byte)0x00, (byte)0x36, (byte)0x1e, (byte)0x89, (byte)0xdd, (byte)0x86, 0x7B,
-//                                            (byte)0xCB, (byte)0x9F, (byte)0xFF, (byte)0xFB, (byte)0x39, (byte)0x80, (byte)0x00};
-////                  byte[] in_buff=new byte[]{(byte)0x5d, (byte)0x00, (byte)0x00, (byte)0x80, (byte)0x00,
-////                          (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff,
-////                          (byte)0x00, (byte)0x36, (byte)0x1e, (byte)0x89, (byte)0xdd, (byte)0x86, 0x7B,
-////                          (byte)0xCB, (byte)0x9F, (byte)0xFF, (byte)0xFB, (byte)0x39, (byte)0x80, (byte)0x00};
-////                  LZMACompressorInputStream lis=new LZMACompressorInputStream(new ByteArrayInputStream(buff));
-//                  mUtil.addDebugMsg(1,"I", "in_buff cnt="+ in_buff.length+", data="+StringUtil.getHexString(in_buff, 0, in_buff.length));
-////                  InputStream bis=new ByteArrayInputStream(buff,0, rc);
-//                  InputStream bis=new ByteArrayInputStream(in_buff,0, in_buff.length);
-//                  LZMAInputStream lis=new LZMAInputStream(bis, -1, (byte)0x5d, 4096);
-////                  LZMACompressorInputStream lis=new LZMACompressorInputStream(new FileInputStream(new File("/storage/emulated/0/lzma.lzma")));
-//                  byte[] lbuff=new byte[100];
-//                  rc=lis.read(lbuff);
-//                  mUtil.addDebugMsg(1,"I", "cnt="+rc+", data="+StringUtil.getHexString(lbuff, 0, rc)+", string="+new String(lbuff, 0, rc, "UTF-8"));
-//                  lis.close();
-//
-//                  byte[] mbuff=new byte[100];
-//                  LZMACompressorInputStream mis=new LZMACompressorInputStream(new FileInputStream(new File("/storage/emulated/0/lzma.lzma")));
-//                  rc=mis.read(mbuff);
-//                  mUtil.addDebugMsg(1,"I", "cnt="+rc+", data="+StringUtil.getHexString(mbuff, 0, rc)+", string="+new String(mbuff, 0, rc));
-//                  mis.close();
+//                  mUtil.addDebugMsg(1, "I", "encode started");
+//                  long b_time=System.currentTimeMillis();
+//                  InputStream is=new FileInputStream(in_file);
+//                  BufferedInputStream bis=new BufferedInputStream(is, 1024*1024*4);
+//                  OutputStream fos=new FileOutputStream(out_file);
+//                  BufferedOutputStream bos=new BufferedOutputStream(fos, 1024*1024*4);
+////                  LZMACompressorOutputStream zos=new LZMACompressorOutputStream(bos);
+////                  DeflaterOutputStream zos=new DeflaterOutputStream(bos);
+////                  BZip2CompressorOutputStream zos=new BZip2CompressorOutputStream(bos);
+//                  XZCompressorOutputStream zos=new XZCompressorOutputStream(bos);
+//                  int rc=0;
+//                  byte[] buff=new byte[1024*1024*4];
+//                  while((rc=bis.read(buff))>0) {
+//                      zos.write(buff, 0, rc);
+//                      mUtil.addDebugMsg(1, "I", "size="+rc);
+//                  }
+//                  zos.finish();
+//                  zos.flush();
+//                  zos.close();
+//                  bis.close();
+//                  mUtil.addDebugMsg(1, "I", "Encode ended, elapsed="+(System.currentTimeMillis()-b_time));
 //
 //              } catch (IOException e) {
 //                  e.printStackTrace();
@@ -591,6 +576,14 @@ public class ActivityMain extends AppCompatActivity {
 				// break;
 		}
 	};
+
+	public ZipFileManager getZipFileManager() {
+	    return mZipFileMgr;
+    }
+
+    public LocalFileManager getLocalFileManager() {
+        return mLocalFileMgr;
+    }
 
     private void cleanupCacheFile() {
         File[] fl=mContext.getExternalCacheDirs();

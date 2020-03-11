@@ -1895,10 +1895,10 @@ public class LocalFileManager {
                 result = false;
                 mCommonDlg.showCommonDialog(false, "E",
                         mContext.getString(R.string.msgs_zip_extract_file_was_failed), tc.getThreadMessage(), null);
-                refreshFileList();
                 mUiHandler.post(new Runnable() {
                     @Override
                     public void run() {
+                        refreshFileList();
                         setUiEnabled();
                         hideDialog();
                     }
@@ -1932,76 +1932,12 @@ public class LocalFileManager {
 
     private boolean extractSpecificFile(ThreadCtrl tc, CustomZipFile zf, String zip_file_name,
                                         String dest_path, String dest_file_name) {
-//        if (dest_path.startsWith(mGp.internalRootDirectory))
-//            return extractSpecificFileByInternal(tc, zf, zip_file_name, dest_path, dest_file_name);
-//        else return extractSpecificFileByExternal(tc, zf, zip_file_name, dest_path, dest_file_name);
-        return extractSpecificFileByLocal(tc, zf, zip_file_name, dest_path, dest_file_name);
-    }
-
-//    private boolean extractSpecificFileByInternal(ThreadCtrl tc, CustomZipFile zf, String zip_file_name,
-//                                                  String dest_path, String dest_file_name) {
-//        mUtil.addDebugMsg(1, "I",
-//                "extractSpecificFile entered, zip file name=" + zip_file_name + ", dest=" + dest_path + ", dest file name=" + dest_file_name);
-//        boolean result = false;
-//        String w_path = dest_path.endsWith("/") ? dest_path + dest_file_name : dest_path + "/" + dest_file_name;
-//        File to = new File(w_path);
-//        try {
-//            if (tc.isEnabled()) {
-//                FileHeader fh = zf.getFileHeader(zip_file_name);
-//                InputStream is = zf.getInputStream(fh);
-//                File lf = new File(dest_path);
-//                lf.mkdirs();
-//                String temp_path = mGp.internalRootDirectory + "/" + APP_SPECIFIC_DIRECTORY + "/files/temp_file.tmp";
-//                File temp_to_file = new File(temp_path);
-//                FileOutputStream os = new FileOutputStream(temp_to_file);
-//                long fsz = fh.getUncompressedSize();
-//                long frc = 0;
-//                byte[] buff = new byte[IO_AREA_SIZE];
-//                int rc = is.read(buff);
-//                while (rc > 0) {
-//                    if (!tc.isEnabled()) break;
-//                    os.write(buff, 0, rc);
-//                    frc += rc;
-//                    long progress = (frc * 100) / (fsz);
-//                    putProgressMessage(String.format(mContext.getString(R.string.msgs_zip_extract_file_extracting),
-//                            zip_file_name, progress));
-//                    rc = is.read(buff);
-//                }
-//                os.flush();
-//                os.close();
-//                is.close();
-//                temp_to_file.setLastModified(ZipUtil.dosToJavaTme(fh.getLastModFileTime()));
-//                if (to.exists()) to.delete();
-//                temp_to_file.renameTo(to);
-//                if (!tc.isEnabled()) to.delete();
-//                else {
-//                    CommonUtilities.scanMediaFile(mGp, mUtil, to.getAbsolutePath());
-//                }
-//            }
-//            result = true;
-//        } catch (ZipException e) {
-//            mUtil.addLogMsg("I", e.getMessage());
-//            CommonUtilities.printStackTraceElement(mUtil, e.getStackTrace());
-//            tc.setThreadMessage(e.getMessage());
-//            to.delete();
-//        } catch (IOException e) {
-//            mUtil.addLogMsg("I", e.getMessage());
-//            CommonUtilities.printStackTraceElement(mUtil, e.getStackTrace());
-//            tc.setThreadMessage(e.getMessage());
-//            to.delete();
-//        }
-//        mUtil.addDebugMsg(1, "I",
-//                "extractSpecificFile result=" + result + ", zip file name=" + zip_file_name + ", dest=" + dest_path + ", dest file name=" + dest_file_name);
-//        return result;
-//    }
-
-    private boolean extractSpecificFileByLocal(ThreadCtrl tc, CustomZipFile zf, String zip_file_name,
-                                                  String dest_path, String dest_file_name) {
         boolean result = false;
         try {
             if (tc.isEnabled()) {
                 FileHeader fh = zf.getFileHeader(zip_file_name);
-                InputStream is = zf.getInputStream(fh);
+
+                InputStream is = ZipFileManager.getZipInputStream(tc, zf, fh, mUtil);
 
                 String w_path = dest_path.endsWith("/") ? dest_path + dest_file_name : dest_path + "/" + dest_file_name;
                 SafFile3 out_dir_sf = new SafFile3(mContext, dest_path);
