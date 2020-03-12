@@ -551,8 +551,8 @@ public class ActivityMain extends AppCompatActivity {
 							return true;
 						}
 					} else {//Zip folder
-                        if (mLocalFileMgr.isFileListSelected()) {
-                            mLocalFileMgr.setFileListAllItemUnselected();
+                        if (mZipFileMgr.isFileListSelected()) {
+                            mZipFileMgr.setFileListAllItemUnselected();
                             return true;
                         } else if (mZipFileMgr.isUpButtonEnabled()) {
 							mZipFileMgr.performClickUpButton();

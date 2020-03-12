@@ -45,6 +45,7 @@ import com.sentaroh.android.Utilities3.NotifyEvent;
 import com.sentaroh.android.Utilities3.ThemeColorList;
 import com.sentaroh.android.Utilities3.ThemeUtil;
 import com.sentaroh.android.Utilities3.Widget.NonWordwrapTextView;
+import com.sentaroh.android.Utilities3.Zip.ZipUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -539,7 +540,7 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
                    		holder.iv_image1.setImageResource(mIconImage[2]); //folder
                    	} else {
                         if (o.isZipFileItem()) {
-                            String cm=ZipFileManager.getCompressionMethodName(o.getZipFileCompressionMethod());
+                            String cm= ZipUtil.getCompressionMethodName(o.getZipFileCompressionMethod());
                             String comp_ratio="";
                             if (o.getLength()>0) comp_ratio=(o.getZipFileCompressedSize()*100)/o.getLength()+"%";
                             holder.tv_comp_info.setText(comp_ratio+" "+cm);

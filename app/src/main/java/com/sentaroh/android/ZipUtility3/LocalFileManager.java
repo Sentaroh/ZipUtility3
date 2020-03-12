@@ -1738,7 +1738,8 @@ public class LocalFileManager {
                         }
                         if (tc.isEnabled()) {
                             try {
-                                bzf.close();
+                                CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, mContext.getString(R.string.msgs_zip_zip_file_being_updated));
+                                bzf.close(cbl);
                                 zf.getSafFile().deleteIfExists();
                                 out_temp.renameTo(zf.getSafFile());
                             } catch (Exception e) {
@@ -1870,7 +1871,7 @@ public class LocalFileManager {
         }
 //		Log.v("","dir="+dir+", fn="+fn+", cd="+mGp.copyCutCurrentFilePath);
         if (confirmReplace(tc, (dest_path + dir + "/" + fn).replaceAll("//","/").replaceAll("//","/"))) {
-            if (extractSpecificFile(tc, zf, fh_item.getFileName(), dest_path + dir, fn)) {
+            if (extractSpecificFile(tc, zf, fh_item, fh_item.getFileName(), dest_path + dir, fn)) {
                 if (tc.isEnabled()) {
                     putProgressMessage(
                             String.format(mContext.getString(R.string.msgs_zip_extract_file_was_extracted), fh_item.getFileName()));
@@ -1930,52 +1931,10 @@ public class LocalFileManager {
         return result;
     }
 
-    private boolean extractSpecificFile(ThreadCtrl tc, CustomZipFile zf, String zip_file_name,
+    private boolean extractSpecificFile(ThreadCtrl tc, CustomZipFile zf, FileHeader fh, String zip_file_name,
                                         String dest_path, String dest_file_name) {
         boolean result = false;
-        try {
-            if (tc.isEnabled()) {
-                FileHeader fh = zf.getFileHeader(zip_file_name);
-
-                InputStream is = ZipFileManager.getZipInputStream(tc, zf, fh, mUtil);
-
-                String w_path = dest_path.endsWith("/") ? dest_path + dest_file_name : dest_path + "/" + dest_file_name;
-                SafFile3 out_dir_sf = new SafFile3(mContext, dest_path);
-                if (!out_dir_sf.exists()) out_dir_sf.mkdirs();
-                SafFile3 out_file_sf = new SafFile3(mContext, w_path);
-                if (!out_file_sf.exists()) out_file_sf.createNewFile();
-                OutputStream os = out_file_sf.getOutputStream();
-
-                long fsz = fh.getUncompressedSize();
-                long frc = 0;
-                byte[] buff = new byte[IO_AREA_SIZE];
-                int rc = is.read(buff);
-                while (rc > 0) {
-                    if (!tc.isEnabled()) break;
-                    os.write(buff, 0, rc);
-                    frc += rc;
-                    long progress = (frc * 100) / (fsz);
-                    putProgressMessage(String.format(mContext.getString(R.string.msgs_zip_extract_file_extracting),
-                            zip_file_name, progress));
-                    rc = is.read(buff);
-                }
-                os.flush();
-                os.close();
-                is.close();
-                if (!tc.isEnabled()) out_file_sf.delete();
-            }
-            result = true;
-        } catch (ZipException e) {
-            mUtil.addLogMsg("I", e.getMessage());
-            CommonUtilities.printStackTraceElement(mUtil, e.getStackTrace());
-            tc.setThreadMessage(e.getMessage());
-        } catch (Exception e) {
-            mUtil.addLogMsg("I", e.getMessage());
-            CommonUtilities.printStackTraceElement(mUtil, e.getStackTrace());
-            tc.setThreadMessage(e.getMessage());
-        }
-        mUtil.addDebugMsg(1, "I",
-                "extractSpecificFile result=" + result + ", zip file name=" + zip_file_name + ", dest=" + dest_path + ", dest file name=" + dest_file_name);
+        result=mActivity.getZipFileManager().extractSpecificFile(tc, zf, fh, zip_file_name, dest_path, dest_file_name, mDialogProgressSpinMsg2);
         return result;
     }
 
@@ -2309,15 +2268,19 @@ public class LocalFileManager {
 	}
 
 	private void putProgressMessage(final String msg) {
-		mUiHandler.post(new Runnable(){
-			@Override
-			public void run() {
-				mDialogProgressSpinMsg2.setText(msg);
-			}
-		});
+        putProgressMessage(mDialogProgressSpinMsg2, msg);
 	}
 
-	@SuppressWarnings("unused")
+    private void putProgressMessage(final TextView tv, final String msg) {
+        mUiHandler.post(new Runnable(){
+            @Override
+            public void run() {
+                tv.setText(msg);
+            }
+        });
+    }
+
+    @SuppressWarnings("unused")
 	private void putDialogMessage(final boolean negative, final String msg_type, final String msg_title,
                                   final String msg_body, final NotifyEvent ntfy) {
 		mUiHandler.post(new Runnable(){
