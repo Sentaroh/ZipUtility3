@@ -1758,10 +1758,12 @@ public class ZipFileManager {
                             lf.deleteIfExists();
                             try {
                                 lf.createNewFile();
+                                ZipUtil.writeEmptyZipHeader(lf);
+                                showZipFile(false, lf);
                             } catch (Exception e) {
                                 e.printStackTrace();
+                                mCommonDlg.showCommonDialog(false, "E", "ZIP file creation error", e.getMessage(), null);
                             }
-							showZipFile(false, lf);
 						}
 						@Override
 						public void negativeResponse(Context c, Object[] o) {}
