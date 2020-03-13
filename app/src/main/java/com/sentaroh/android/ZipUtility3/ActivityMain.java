@@ -87,6 +87,7 @@ import com.sentaroh.android.Utilities3.Widget.CustomTabContentView;
 import com.sentaroh.android.Utilities3.Widget.CustomViewPager;
 import com.sentaroh.android.Utilities3.Widget.CustomViewPagerAdapter;
 import com.sentaroh.android.Utilities3.Widget.NonWordwrapTextView;
+import com.sentaroh.android.Utilities3.Zip.ZipUtil;
 import com.sentaroh.android.ZipUtility3.Log.LogManagementFragment;
 
 import org.apache.commons.compress.archivers.ArchiveInputStream;
@@ -1007,22 +1008,21 @@ public class ActivityMain extends AppCompatActivity {
 
 	public void showZipFile(boolean read_only, final SafFile3 in_file) {
 		if (!isUiEnabled()) return;
-		mZipFileMgr.showZipFile(read_only, in_file);
-		mMainViewPager.setUseFastScroll(true);
-		mMainTabHost.setCurrentTabByTag(mContext.getString(R.string.msgs_main_tab_name_zip));
-		Handler hndl=new Handler();
-		hndl.post(new Runnable() {
-            @Override
-            public void run() {
-                mMainViewPager.setUseFastScroll(false);
-            }
-        });
-//		Handler hndl=new Handler();
-//		hndl.postDelayed(new Runnable(){
-//			@Override
-//			public void run() {
-//			}
-//		},1);
+        String err_msg=ZipUtil.isZipFile(mContext, in_file);
+        if (err_msg==null) {
+            mZipFileMgr.showZipFile(read_only, in_file);
+            mMainViewPager.setUseFastScroll(true);
+            mMainTabHost.setCurrentTabByTag(mContext.getString(R.string.msgs_main_tab_name_zip));
+            Handler hndl=new Handler();
+            hndl.post(new Runnable() {
+                @Override
+                public void run() {
+                    mMainViewPager.setUseFastScroll(false);
+                }
+            });
+        } else {
+            mCommonDlg.showCommonDialog(false, "W", "Invalid ZIP file", "File="+in_file.getPath()+"\n"+err_msg, null);
+        }
 	};
 	
 	private void invokeSettingsActivity() {

@@ -565,12 +565,17 @@ public class ZipFileManager {
 						refreshZipFileSpinner(in_file);
 					}
 				} else {
-                    mCurretnFileIsReadOnly=read_only;
-					addZipFileViewerItem(read_only, in_file.getPath());
-					mCurrentFilePath=in_file.getPath();
-					mCurrentDirectory.setText("/");
-					refreshFileList(true);
-					refreshZipFileSpinner(in_file);
+				    String err_msg=ZipUtil.isZipFile(mContext, in_file);
+                    if (err_msg==null) {
+                        mCurretnFileIsReadOnly=read_only;
+                        addZipFileViewerItem(read_only, in_file.getPath());
+                        mCurrentFilePath=in_file.getPath();
+                        mCurrentDirectory.setText("/");
+                        refreshFileList(true);
+                        refreshZipFileSpinner(in_file);
+                    } else {
+                        mCommonDlg.showCommonDialog(false, "W", "Invalid ZIP file", "File="+in_file.getPath()+"\n"+err_msg, null);
+                    }
 				}
 				mZipFileSpinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 					@Override
@@ -1809,8 +1814,14 @@ public class ZipFileManager {
                     mCommonDlg.showCommonDialog(false, "W",
                             mContext.getString(R.string.msgs_zip_create_new_zip_file_dir_can_not_used), "", null);
                 } else {
-                    if (lf.exists()) showZipFile(false, lf);
-                    else {
+                    if (lf.exists()) {
+                        String err_msg=ZipUtil.isZipFile(mContext, lf);
+                        if (err_msg==null) {
+                            showZipFile(false, lf);
+                        } else {
+                            mCommonDlg.showCommonDialog(false, "W", "Invalid ZIP file", "File="+lf.getPath()+"\n"+err_msg, null);
+                        }
+                    } else {
                         mCommonDlg.showCommonDialog(false, "W",
                                 mContext.getString(R.string.msgs_zip_create_new_zip_file_not_exists), "", null);
                     }
