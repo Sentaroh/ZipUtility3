@@ -589,8 +589,16 @@ public class ActivityMain extends AppCompatActivity {
         File[] fl=mContext.getExternalCacheDirs();
         if (fl!=null && fl.length>0) {
             for(File cf:fl) {
-                File[] child_list=cf.listFiles();
-                if (child_list!=null) for(File ch_item:child_list) if (!deleteCacheFile(ch_item)) break;
+                if (cf!=null) {
+                    File[] child_list=cf.listFiles();
+                    if (child_list!=null) {
+                        for(File ch_item:child_list) {
+                            if (ch_item!=null) {
+                                if (!deleteCacheFile(ch_item)) break;
+                            }
+                        }
+                    }
+                }
             }
         } else {
             fl=mContext.getExternalCacheDirs();
@@ -602,9 +610,11 @@ public class ActivityMain extends AppCompatActivity {
         if (del_item.isDirectory()) {
             File[] child_list=del_item.listFiles();
             for(File child_item:child_list) {
-                if (!deleteCacheFile(child_item)) {
-                    result=false;
-                    break;
+                if (child_item!=null) {
+                    if (!deleteCacheFile(child_item)) {
+                        result=false;
+                        break;
+                    }
                 }
             }
             if (result) result=del_item.delete();
