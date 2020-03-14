@@ -108,6 +108,8 @@ ZIPファイルの作成・編集・抽出のためのアプリケーション�
 	
 	<string name="msgs_zip_zip_file_was_not_found">ファイル%sが見つかりません。</string>
 
+    <string name="msgs_zip_write_zip_file_copy_from_work">更新したZIPファイルをワークファイルから書き戻しています。</string>
+
     <string name="msgs_zip_write_zip_file_canelled">ZIPファイル保存がキャンセルされました。</string>
     <string name="msgs_zip_write_zip_file_writing">ZIPファイルを保存中。</string>
     <string name="msgs_zip_write_zip_file_confirm_override">ファイルが既に存在します、上書きしますか？</string>
@@ -196,6 +198,10 @@ ZIPファイルの作成・編集・抽出のためのアプリケーション�
 	<string name="msgs_zip_extract_file_confirm_extract">下記項目を%sに展開しますか？</string>
 	<string name="msgs_zip_extract_file_started">展開を開始しました。</string>
 	<string name="msgs_zip_extract_file_completed">展開が終了しました。</string>
+
+    <string name="msgs_zip_extract_file_error">展開エラー</string>
+
+    <string name="msgs_confirm_item_replace">下記項目を上書きしますか？</string>
 
 	<string name="msgs_zip_file_was_changed">ZIPファイルが変更されています、ファイルリストの再読み込み後にやり直してください。</string>
 	

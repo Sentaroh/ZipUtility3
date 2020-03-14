@@ -542,7 +542,9 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
                         if (o.isZipFileItem()) {
                             String cm= ZipUtil.getCompressionMethodName(o.getZipFileCompressionMethod());
                             String comp_ratio="";
-                            if (o.getLength()>0) comp_ratio=(o.getZipFileCompressedSize()*100)/o.getLength()+"%";
+                            if (o.getZipFileCompressionMethod()!=TreeFilelistItem.ZIP_COMPRESSION_METHOD_STORE) {
+                                if (o.getLength()>0) comp_ratio=(o.getZipFileCompressedSize()*100)/o.getLength()+"%";
+                            }
                             holder.tv_comp_info.setText(comp_ratio+" "+cm);
                         } else {
                             holder.tv_comp_info.setText("");

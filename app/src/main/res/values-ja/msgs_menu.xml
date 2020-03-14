@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="msgs_menu_log_management">ログファイル管理</string>
+	<string name="msgs_menu_log_management">ログ管理</string>
 	<string name="msgs_menu_about">アプリケーションについて</string>
 	<string name="msgs_menu_settings">設定</string>
 	<string name="msgs_menu_open_zip">開く</string>

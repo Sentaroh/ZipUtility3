@@ -606,7 +606,7 @@ public class ActivityMain extends AppCompatActivity {
         }
     }
 
-    private boolean deleteCacheFile(File del_item) {
+    public boolean deleteCacheFile(File del_item) {
         boolean result=true;
         if (del_item.isDirectory()) {
             File[] child_list=del_item.listFiles();
@@ -1693,7 +1693,11 @@ public class ActivityMain extends AppCompatActivity {
 				if (!mGp.copyCutModeIsCut) msg=mContext.getString(R.string.msgs_zip_cont_header_copy); 
 				else msg=mContext.getString(R.string.msgs_zip_cont_header_cut);
 				String from=mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)?"Local":"ZIP";
-				mCommonDlg.showCommonDialog(false, "I", msg+from, c_list, null);
+				String zip_file_name="";
+				if (mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_ZIP)) {
+				    zip_file_name="("+mGp.copyCutFilePath.substring(mGp.copyCutFilePath.lastIndexOf("/")+1)+")";
+                }
+				mCommonDlg.showCommonDialog(false, "I", msg+from+zip_file_name, c_list, null);
 			}
         });
         

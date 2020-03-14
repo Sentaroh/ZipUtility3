@@ -106,6 +106,8 @@ External Library:\n
 	
 	<string name="msgs_zip_zip_file_was_not_found">File %s could not be found.</string>
 
+    <string name="msgs_zip_write_zip_file_copy_from_work">The updated ZIP file is being written back from the work file.</string>
+
     <string name="msgs_zip_write_zip_file_canelled">Zip file writing has been canceled.</string>
     <string name="msgs_zip_write_zip_file_writing">Witing ZIP file.</string>
     <string name="msgs_zip_write_zip_file_confirm_override">File already exists, do you want to overwrite it?</string>
@@ -198,6 +200,8 @@ External Library:\n
 	<string name="msgs_zip_extract_file_completed">Extraction has been completed.</string>
     <string name="msgs_zip_extract_file_end_with_error">Extraction end with error.</string>
 
+    <string name="msgs_zip_extract_file_error">Extract error</string>
+
 	<string name="msgs_zip_file_was_changed">ZIP file has been changed, please try again in a reload of the file list.</string>
 	
 	<string name="msgs_zip_move_file_confirm">Do you want to move the following item ?</string>
@@ -231,7 +235,9 @@ External Library:\n
 	<string name="msgs_zip_delete_file_was_failed">Delete failed, name=%s</string>
 	<string name="msgs_zip_delete_file_completed">Delete was completed.</string>
 	<string name="msgs_zip_delete_file_aborted">Delete was failed.</string>
-	
+
+    <string name="msgs_confirm_item_replace">Overwrite the following items?</string>
+
 	<string name="msgs_zip_specific_extract_file_extracting">Extracting the file, File name=%s</string>
 	<string name="msgs_zip_specific_extract_file_viewer_not_found" formatted="false">Corresponding application not found. File name=%s, MIME Type=%s</string>
 	<string name="msgs_zip_specific_extract_mime_type_not_found">MIME type is not found. File name=%s</string>
