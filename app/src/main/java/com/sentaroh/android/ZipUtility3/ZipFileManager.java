@@ -240,7 +240,7 @@ public class ZipFileManager {
 	};
 
 	private void initViewWidget() {
-		
+        mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered");
 		mContextButton=(LinearLayout)mMainView.findViewById(R.id.context_view_zip_file);
 		
 		mZipFileSpinner=(Spinner)mMainView.findViewById(R.id.zip_file_zip_file_spinner);
@@ -370,21 +370,26 @@ public class ZipFileManager {
 	};
 
 	private void addZipFileViewerItem(boolean temp_file, String fp) {
-		ZipFileViewerItem n_fvi=new ZipFileViewerItem();
-		n_fvi.file_path=fp;
+        if (getZipFileViewerItem(fp)==null) {
+            ZipFileViewerItem n_fvi=new ZipFileViewerItem();
+            n_fvi.file_path=fp;
 //		n_fvi.temporary_file=temp_file;
-		n_fvi.read_only_file=temp_file;
-		zipFileViewerList.add(n_fvi);
-		Collections.sort(zipFileViewerList, new Comparator<ZipFileViewerItem>(){
-			@Override
-			public int compare(ZipFileViewerItem lhs, ZipFileViewerItem rhs) {
-				return lhs.file_path.compareToIgnoreCase(rhs.file_path);
-			}
-		});
-		mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" file viewer item added, fp="+fp);
+            n_fvi.read_only_file=temp_file;
+            zipFileViewerList.add(n_fvi);
+            Collections.sort(zipFileViewerList, new Comparator<ZipFileViewerItem>(){
+                @Override
+                public int compare(ZipFileViewerItem lhs, ZipFileViewerItem rhs) {
+                    return lhs.file_path.compareToIgnoreCase(rhs.file_path);
+                }
+            });
+            mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" file viewer item added, fp="+fp);
+        } else {
+            mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" file viewer item already exists, fp="+fp);
+        }
 	};
 	
 	private void refreshZipFileSpinner(SafFile3 fp) {
+        mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered");
         CustomSpinnerAdapter adapter=(CustomSpinnerAdapter)mZipFileSpinner.getAdapter();
 		adapter.clear();
 		for(ZipFileViewerItem zfi:zipFileViewerList) {
@@ -395,6 +400,7 @@ public class ZipFileManager {
 	};
 	
 	public void cleanZipFileManager() {
+        mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered");
 		zipFileViewerList=null;
 		mZipFileList=null;
 		mTreeFilelistAdapter.setDataList(new ArrayList<TreeFilelistItem>());
@@ -432,6 +438,7 @@ public class ZipFileManager {
                         Thread th=new Thread() {
                             @Override
                             public void run() {
+                                mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered");
                                 try {
                                     File tmp=new File(out_file.getAppDirectoryCache()+"/"+out_file.getName());
                                     InputStream is=in_file.getInputStream();
@@ -514,6 +521,7 @@ public class ZipFileManager {
     }
 
 	public void showZipFile(boolean read_only, SafFile3 in_file) {
+        mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered");
 		if (!isUiEnabled()) return;
 		Bundle bd=new Bundle();
 //        mCurretnFileIsReadOnly =read_only;
@@ -592,6 +600,7 @@ public class ZipFileManager {
 	class ZipFileViewerItem {
 		public String file_path="";
 //        public boolean temporary_file=false;
+        public boolean file_error_detected=false;
         public Bundle saved_data=null;
         public boolean read_only_file=false;
 	};
@@ -665,6 +674,7 @@ public class ZipFileManager {
 	
 	private static final String SAVE_VIEW_CONTENT_KEY="saved_data";
 	public String saveViewContents(Bundle bd) {
+        mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered");
 		SavedViewData sv=new SavedViewData();
 		ByteArrayOutputStream bos=new ByteArrayOutputStream();
 		ObjectOutputStream oos;
@@ -707,6 +717,7 @@ public class ZipFileManager {
 	};
 
 	public void restoreViewContents(String fp, Bundle bd) {
+        mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered");
 		byte[] ba=bd.getByteArray(SAVE_VIEW_CONTENT_KEY);
 		ByteArrayInputStream bis=new ByteArrayInputStream(ba);
 		SavedViewData sv=new SavedViewData();
@@ -1002,7 +1013,6 @@ public class ZipFileManager {
 				th.start();
 			}
 		});
-		// CANCEL�{�^���̎w��
 		btnCancel.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 //				saveSearchResultList(mAdapterSearchFileList.getDataList());
@@ -1012,41 +1022,6 @@ public class ZipFileManager {
 
 		dialog.show();
 	};
-
-//	private void saveSearchResultList(ArrayList<TreeFilelistItem>fl) {
-//		try {
-//			FileOutputStream fos=new FileOutputStream(mGp.applicationCacheDirectory+"/ZipSearchList");
-//			BufferedOutputStream bos=new BufferedOutputStream(fos,1024*1024*4);
-//			ObjectOutputStream oos=new ObjectOutputStream(bos);
-//			oos.writeObject(fl);
-//			oos.flush();
-//			oos.close();
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//	};
-//
-//	@SuppressWarnings("unchecked")
-//	private ArrayList<TreeFilelistItem> loadSearchResultList() {
-//		ArrayList<TreeFilelistItem>fl=null;
-//		try {
-//			FileInputStream fis=new FileInputStream(mGp.applicationCacheDirectory+"/ZipSearchList");
-//			BufferedInputStream bis=new BufferedInputStream(fis,1024*1024*4);
-//			ObjectInputStream ois=new ObjectInputStream(bis);
-//			fl=(ArrayList<TreeFilelistItem>) ois.readObject();
-//			ois.close();
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} catch (ClassNotFoundException e) {
-//			e.printStackTrace();
-//		}
-//		return fl;
-//	};
-
 
 	private void buildFileListBySearchKey(final ThreadCtrl tc, ProgressSpinDialogFragment psd,
                                           ArrayList<TreeFilelistItem> s_tfl, Pattern s_key) {
@@ -1079,40 +1054,59 @@ public class ZipFileManager {
 	};
 	public void refreshFileList(boolean force) {
 		if (!isUiEnabled()) return;
-		if (!mCurrentFilePath.equals("")) {
+        mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered, fp="+mCurrentFilePath);
+        if (!mCurrentFilePath.equals("")) {
+            ZipFileViewerItem zfv=getZipFileViewerItem(mCurrentFilePath);
 			SafFile3 lf=new SafFile3(mContext, mCurrentFilePath);
 			if (!lf.exists()) {
-				mCommonDlg.showCommonDialog(false, "W",
-						String.format(mContext.getString(R.string.msgs_zip_zip_file_was_not_found),mCurrentFilePath),
-						"", null);
-			}
+			    if (!zfv.file_error_detected) {
+                    mCommonDlg.showCommonDialog(false, "W",
+                            String.format(mContext.getString(R.string.msgs_zip_zip_file_was_not_found),mCurrentFilePath), "", null);
+                    zfv.file_error_detected=true;
+                    mZipFileList=new ArrayList<ZipFileListItem>();
+                    String cdir=mCurrentDirectory.getText().toString();
+                    if (cdir.length()>0) cdir=cdir.substring(1);
+                    refreshFileListView(cdir, mCurrentFilePath);
+                    mFileEmpty.setText(mContext.getString(R.string.msgs_zip_zip_file_was_not_found, mCurrentFilePath));
+                    mContextButtonPasteView.setVisibility(LinearLayout.INVISIBLE);
+                }
+			} else {
+			    String zf_err=ZipUtil.isZipFile(mContext, lf);
+			    if (zf_err!=null) {
+                    zfv.file_error_detected=true;
+                    mZipFileList=new ArrayList<ZipFileListItem>();
+                    String cdir=mCurrentDirectory.getText().toString();
+                    if (cdir.length()>0) cdir=cdir.substring(1);
+                    refreshFileListView(cdir, mCurrentFilePath);
+                    mFileEmpty.setText(zf_err);
+                    mContextButtonPasteView.setVisibility(LinearLayout.INVISIBLE);
+                    return;
+                }
+                zfv.file_error_detected=false;
+                if (isZipFileChanged() || force) {
+                    mUtil.addDebugMsg(1, "I", "refresh entered");
+                    String cdir=mCurrentDirectory.getText().toString();
+                    ArrayList<TreeFilelistItem> p_tfl=null;
+                    if (mTreeFilelistAdapter!=null) p_tfl=mTreeFilelistAdapter.getDataList();
+                    if (cdir.length()>0) createFileList(mCurrentFilePath,null,cdir.substring(1));
+                    else createFileList(mCurrentFilePath,null,"");
+                    ArrayList<TreeFilelistItem> n_tfl=null;
+                    if (mTreeFilelistAdapter!=null) n_tfl=mTreeFilelistAdapter.getDataList();
+                    if (p_tfl!=null && n_tfl!=null) {
+                        for(TreeFilelistItem n_tfli:n_tfl) {
+                            for(TreeFilelistItem p_tfli:p_tfl) {
+                                if (n_tfli.getName().equals(p_tfli.getName())) {
+                                    n_tfli.setChecked(p_tfli.isChecked());
+                                    break;
+                                }
+                            }
+                        }
+                        mTreeFilelistAdapter.setDataList(n_tfl);
+                    }
+                }
+                setContextCopyCutPasteButton(mTreeFilelistAdapter);
+            }
 		}
-		if (isZipFileChanged() || force) {
-		    mUtil.addDebugMsg(1, "I", "refresh entered");
-			final String cdir=mCurrentDirectory.getText().toString();
-//			if (mCurrentFilePath.startsWith(mGp.externalRootDirectory)) {
-//				if (mGp.safMgr.getSdcardRootSafFile()==null) mActivity.startSdcardPicker();
-//			}
-			ArrayList<TreeFilelistItem> p_tfl=null;
-			if (mTreeFilelistAdapter!=null) p_tfl=mTreeFilelistAdapter.getDataList();
-			if (cdir.length()>0) createFileList(mCurrentFilePath,null,cdir.substring(1));
-			else createFileList(mCurrentFilePath,null,"");
-			ArrayList<TreeFilelistItem> n_tfl=null;
-			if (mTreeFilelistAdapter!=null) n_tfl=mTreeFilelistAdapter.getDataList();
-			if (p_tfl!=null && n_tfl!=null) {
-				for(TreeFilelistItem n_tfli:n_tfl) {
-					for(TreeFilelistItem p_tfli:p_tfl) {
-						if (n_tfli.getName().equals(p_tfli.getName())) {
-							n_tfli.setChecked(p_tfli.isChecked());
-							break;
-						}
-					}
-				}
-				mTreeFilelistAdapter.setDataList(n_tfl);
-			}
-//		} else {
-		}
-		setContextCopyCutPasteButton(mTreeFilelistAdapter);
 	};
 
 	private boolean isZipFileChanged() {
@@ -1156,6 +1150,7 @@ public class ZipFileManager {
 	};
 
 	private void refreshFileListView(String target_dir, String fp) {
+        mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered, fp="+fp);
 		if (mZipFileList!=null && mZipFileList.size()>0) {
 			mCurrentDirectory.setText("/"+target_dir);
 			mCurrentDirectory.setVisibility(TextView.VISIBLE);

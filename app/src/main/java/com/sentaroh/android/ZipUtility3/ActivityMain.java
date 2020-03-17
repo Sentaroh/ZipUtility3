@@ -318,8 +318,8 @@ public class ActivityMain extends AppCompatActivity {
         if (mRestartStatus==1) {
             if (isUiEnabled()) {
                 if (mStoragePermissionPrimaryListener==null) {
-                    mZipFileMgr.refreshFileList();
-                    mLocalFileMgr.refreshFileList();
+                    if (mMainTabHost.getCurrentTab()==0) mZipFileMgr.refreshFileList();
+                    else mLocalFileMgr.refreshFileList();
                 }
             }
             try {
