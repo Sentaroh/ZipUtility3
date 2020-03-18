@@ -416,8 +416,10 @@ public class ZipFileManager {
         ntfy_select_dest.setListener(new NotifyEventListener() {
             @Override
             public void positiveResponse(Context context, Object[] objects) {
-                Uri uri=(Uri)objects[0];
-                SafFile3 out_file=new SafFile3(mContext, uri);
+//                Uri uri=(Uri)objects[0];
+//                SafFile3 out_filex=new SafFile3(mContext, uri);
+                String fp=(String)objects[1];
+                SafFile3 out_file=new SafFile3(mContext, fp);
                 NotifyEvent ntfy_confirm=new NotifyEvent(mContext);
                 ntfy_confirm.setListener(new NotifyEventListener() {
                     @Override
@@ -439,42 +441,46 @@ public class ZipFileManager {
                             @Override
                             public void run() {
                                 mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered");
+                                SafFile3 tmp=null;
                                 try {
-                                    File tmp=new File(out_file.getAppDirectoryCache()+"/"+out_file.getName());
-                                    InputStream is=in_file.getInputStream();
-                                    OutputStream os=new FileOutputStream(tmp);
-                                    int rc=0;
-                                    byte[] buff=new byte[1024*1024*2];
-                                    while((rc=is.read(buff))>0) {
-                                        if (!tc.isEnabled()) {
-                                            is.close();
-                                            os.flush();
-                                            os.close();
-                                            tmp.delete();
-                                            break;
-                                        }
-                                        os.write(buff, 0, rc);
+                                    boolean cache_available=false;
+                                    if (out_file.getAppDirectoryCache()!=null) {
+                                        cache_available=true;
+                                        tmp=new SafFile3(mContext, out_file.getAppDirectoryCache()+"/"+out_file.getName());
+                                    } else {
+                                        tmp=new SafFile3(mContext, out_file.getPath()+".tmp");
                                     }
+                                    tmp.deleteIfExists();
+                                    tmp.createNewFile();
+                                    InputStream is=in_file.getInputStream();
+                                    OutputStream os=tmp.getOutputStream();
+                                    copyFile(tc, is, os, new CallBackListener() {
+                                        @Override
+                                        public boolean onCallBack(Context context, Object o, Object[] objects) {
+                                            putProgressMessage(mContext.getString(R.string.msgs_zip_write_zip_file_writing)+" "+(int)o+"%");
+                                            return false;
+                                        }
+                                    });
                                     if (tc.isEnabled()) {
-                                        is.close();
-                                        os.flush();
-                                        os.close();
                                         if (Build.VERSION.SDK_INT>=SCOPED_STORAGE_SDK) {
                                             SafFile3 tmp_sf=new SafFile3(mContext, tmp.getPath());
                                             if (out_file.exists()) out_file.delete();
-                                            tmp_sf.moveTo(out_file);
+                                            if (cache_available) tmp_sf.moveTo(out_file);
+                                            else tmp_sf.renameTo(out_file);
                                         } else {
                                             if (out_file.getPath().startsWith(SafFile3.SAF_FILE_PRIMARY_STORAGE_PREFIX)) {
 //                                                File out_of_file=new File(out_file.getPath());
                                                 if (out_file.exists()) out_file.delete();
-                                                tmp.renameTo(out_file.getFile());
+                                                tmp.renameTo(out_file);
                                             } else {
                                                 SafFile3 tmp_sf=new SafFile3(mContext, tmp.getPath());
                                                 if (out_file.exists()) out_file.delete();
-                                                tmp_sf.moveTo(out_file);
+                                                if (cache_available) tmp_sf.moveTo(out_file);
+                                                else tmp_sf.renameTo(out_file);
                                             }
                                         }
                                     } else {
+                                        tmp.delete();
                                         mCommonDlg.showCommonDialog(false, "W",
                                                 mContext.getString(R.string.msgs_zip_write_zip_file_canelled), out_file.getPath(), null);
                                     }
@@ -487,6 +493,7 @@ public class ZipFileManager {
                                     });
                                 } catch (Exception e) {
                                     e.printStackTrace();
+                                    if (tmp!=null) tmp.delete();
                                 }
                             }
                         };
@@ -513,11 +520,36 @@ public class ZipFileManager {
         });
         boolean include_root=false;
         boolean scoped_storage_mode=mGp.safMgr.isScopedStorageMode();
+        String fn=mCurrentFilePath.substring(mCurrentFilePath.lastIndexOf("/")+1);
         CommonFileSelector2 fsdf=
                 CommonFileSelector2.newInstance(scoped_storage_mode, true, false, CommonFileSelector2.DIALOG_SELECT_CATEGORY_FILE,
-                        true, false, SafFile3.SAF_FILE_PRIMARY_UUID, "", "", "Select destination file");
+                        true, false, SafFile3.SAF_FILE_PRIMARY_UUID, "", fn, "Select destination file");
         fsdf.showDialog(false, mActivity.getSupportFragmentManager(), fsdf, ntfy_select_dest);
 
+    }
+
+    private void copyFile(ThreadCtrl tc, InputStream is, OutputStream os, CallBackListener cbl) throws IOException {
+        int rc=0;
+        long read_size=0;
+        long tot_size=is.available();
+        long progress=0, prev_progress=-1;
+        byte[] buff=new byte[1024*1024*2];
+        cbl.onCallBack(mContext, 0, null);
+        while((rc=is.read(buff))>0) {
+            if (!tc.isEnabled()) {
+                break;
+            }
+            os.write(buff, 0, rc);
+            read_size+=rc;
+            progress=(read_size*100)/tot_size;
+            if (prev_progress!=progress) {
+                prev_progress=progress;
+                cbl.onCallBack(mContext, (int)progress, null);
+            }
+        }
+        is.close();
+        os.flush();
+        os.close();
     }
 
 	public void showZipFile(boolean read_only, SafFile3 in_file) {
@@ -1216,17 +1248,19 @@ public class ZipFileManager {
 	private void createFileList(final String fp, final NotifyEvent p_ntfy, final String target_dir) {
 		mUtil.addDebugMsg(1, "I", "createFileList entered, fp="+fp+", target="+target_dir);
         setUiDisabled();
-        showDialogProgress();
+        final Dialog pd=CommonDialog.showProgressSpinIndicator(mActivity);
         final ThreadCtrl tc=new ThreadCtrl();
-        mDialogProgressSpinCancel.setEnabled(true);
-        mDialogProgressSpinMsg1.setVisibility(TextView.GONE);
-        mDialogProgressSpinCancel.setOnClickListener(new OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                confirmCancel(tc,mDialogProgressSpinCancel);
-            }
-        });
-        putProgressMessage(mContext.getString(R.string.msgs_zip_file_create_file_list_title));
+//        showDialogProgress();
+//        mDialogProgressSpinCancel.setEnabled(true);
+//        mDialogProgressSpinMsg1.setVisibility(TextView.GONE);
+//        mDialogProgressSpinCancel.setOnClickListener(new OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                confirmCancel(tc,mDialogProgressSpinCancel);
+//            }
+//        });
+//        putProgressMessage(mContext.getString(R.string.msgs_zip_file_create_file_list_title));
+        pd.show();
         mFileEmpty.setText("");//.setVisibility(TextView.GONE);
         Thread th=new Thread() {
             @Override
@@ -1256,6 +1290,7 @@ public class ZipFileManager {
                                 setUiEnabled();
                                 if (p_ntfy!=null) p_ntfy.notifyToListener(true, null);
                                 mUtil.addDebugMsg(2, "I", "createFileList end");
+                                pd.dismiss();
                             }
                         });
                     }
@@ -1268,6 +1303,7 @@ public class ZipFileManager {
                                     mFileEmpty.setText(R.string.msgs_zip_folder_not_specified);
                                 setUiEnabled();
                                 mUtil.addDebugMsg(1, "I", "createFileList end");
+                                pd.dismiss();
                             }
                         });
                     }
@@ -1303,6 +1339,7 @@ public class ZipFileManager {
                 } else {
                     ntfy_create_file_list.notifyToListener(false, null);
                 }
+                pd.dismiss();
             }
         };
         th.start();
