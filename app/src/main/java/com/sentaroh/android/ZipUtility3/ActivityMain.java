@@ -74,12 +74,12 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.sentaroh.android.Utilities3.AppUncaughtExceptionHandler;
 import com.sentaroh.android.Utilities3.Dialog.CommonDialog;
+import com.sentaroh.android.Utilities3.MiscUtil;
 import com.sentaroh.android.Utilities3.NotifyEvent;
 import com.sentaroh.android.Utilities3.NotifyEvent.NotifyEventListener;
 import com.sentaroh.android.Utilities3.SafFile3;
 import com.sentaroh.android.Utilities3.SafManager3;
 import com.sentaroh.android.Utilities3.SafStorage3;
-import com.sentaroh.android.Utilities3.StringUtil;
 import com.sentaroh.android.Utilities3.SystemInfo;
 import com.sentaroh.android.Utilities3.ThemeUtil;
 import com.sentaroh.android.Utilities3.ThreadCtrl;
@@ -90,15 +90,10 @@ import com.sentaroh.android.Utilities3.Widget.NonWordwrapTextView;
 import com.sentaroh.android.Utilities3.Zip.ZipUtil;
 import com.sentaroh.android.ZipUtility3.Log.LogManagementFragment;
 
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.compressors.lzma.LZMACompressorInputStream;
-import org.apache.commons.compress.compressors.lzma.LZMACompressorOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -1293,7 +1288,7 @@ public class ActivityMain extends AppCompatActivity {
                                         @Override
                                         public void positiveResponse(Context c, Object[] o) {
                                             mStoragePermissionPrimaryListener = ntfy_response;
-                                            requestStooragePermissionsByUuid(SAF_FILE_PRIMARY_UUID, mStoragePermissionPrimaryRequestCode);
+                                            requestStoragePermissionsByUuid(SAF_FILE_PRIMARY_UUID, mStoragePermissionPrimaryRequestCode);
                                         }
                                         @Override
                                         public void negativeResponse(Context c, Object[] o) {
@@ -1342,7 +1337,7 @@ public class ActivityMain extends AppCompatActivity {
                         public void negativeResponse(Context context, Object[] objects) {}
                     });
                     mStoragePermissionPrimaryListener = ntfy_response;
-                    requestStooragePermissionsByUuid(SAF_FILE_PRIMARY_UUID, mStoragePermissionPrimaryRequestCode);
+                    requestStoragePermissionsByUuid(SAF_FILE_PRIMARY_UUID, mStoragePermissionPrimaryRequestCode);
                 }
 
                 @Override
@@ -1406,7 +1401,7 @@ public class ActivityMain extends AppCompatActivity {
         }
     }
 
-    public void requestStooragePermissionsByUuid(String uuid, int request_code) {
+    public void requestStoragePermissionsByUuid(String uuid, int request_code) {
         Intent intent = null;
         StorageManager sm = (StorageManager) mContext.getSystemService(Context.STORAGE_SERVICE);
         ArrayList<SafManager3.StorageVolumeInfo>vol_list=SafManager3.getStorageVolumeInfo(mContext);
@@ -1415,19 +1410,24 @@ public class ActivityMain extends AppCompatActivity {
                 if (Build.VERSION.SDK_INT>=SCOPED_STORAGE_SDK) intent=svi.volume.createOpenDocumentTreeIntent();
                 else if (Build.VERSION.SDK_INT>=29) intent=svi.volume.createOpenDocumentTreeIntent();
                 else intent=svi.volume.createAccessIntent(null);
-                startActivityForResult(intent, request_code);
+                try {
+                    startActivityForResult(intent, request_code);
+                } catch(Exception e) {
+                    String st= MiscUtil.getStackTraceString(e);
+                    mCommonDlg.showCommonDialog(false, "E", "SAF Request permission error", e.getMessage()+"\n"+st, null);
+                }
                 break;
             }
         }
     }
 
-    public void requestStooragePermissionsByUuid(String uuid, int request_code, NotifyEvent ntfy) {
+    public void requestStoragePermissionsByUuid(String uuid, int request_code, NotifyEvent ntfy) {
         OnActivityResultCallback cb_item=new OnActivityResultCallback();
         cb_item.request_code=request_code;
         cb_item.app_data=uuid;
         cb_item.callback_notify=ntfy;
         mOnActivityResultCallbackList.add(cb_item);
-        requestStooragePermissionsByUuid(uuid, request_code);
+        requestStoragePermissionsByUuid(uuid, request_code);
     }
 
     private NotifyEvent mStoragePermissionPrimaryListener = null;
@@ -1471,7 +1471,7 @@ public class ActivityMain extends AppCompatActivity {
                                 ntfy_retry.setListener(new NotifyEvent.NotifyEventListener() {
                                     @Override
                                     public void positiveResponse(Context c, Object[] o) {
-                                        mActivity.requestStooragePermissionsByUuid(uuid, EXTERNAL_SAF_STORAGE_REQUEST_CODE, ntfy_response);
+                                        mActivity.requestStoragePermissionsByUuid(uuid, EXTERNAL_SAF_STORAGE_REQUEST_CODE, ntfy_response);
                                     }
 
                                     @Override
@@ -1508,7 +1508,7 @@ public class ActivityMain extends AppCompatActivity {
                     }
                 });
                 for(String uuid:uuid_list) {
-                    mActivity.requestStooragePermissionsByUuid(uuid, EXTERNAL_SAF_STORAGE_REQUEST_CODE, ntfy_response);
+                    mActivity.requestStoragePermissionsByUuid(uuid, EXTERNAL_SAF_STORAGE_REQUEST_CODE, ntfy_response);
                 }
             }
 
@@ -1609,8 +1609,6 @@ public class ActivityMain extends AppCompatActivity {
 	
 	private TabWidget mMainTabWidget;
 
-	@SuppressWarnings("deprecation")
-	@SuppressLint("InflateParams")
 	private void createTabView() {
 		mMainTabHost=(TabHost)findViewById(android.R.id.tabhost);
 		mMainTabHost.setup();
