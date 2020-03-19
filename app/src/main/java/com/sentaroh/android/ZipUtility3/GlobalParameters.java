@@ -217,7 +217,6 @@ public class GlobalParameters {
         return result;
     };
     
-	@SuppressLint("NewApi")
 	static private boolean isScreenOn(Context context, CommonUtilities util) {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         if (Build.VERSION.SDK_INT>=23) {

@@ -365,7 +365,6 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
 	
 	private Drawable mDefaultBgColor=null;
 	private ColorStateList mDefaultTextColor=null;
-	@SuppressLint("InflateParams")
 	@Override
     public View getView(int position, View convertView, ViewGroup parent) {
 		 	final ViewHolder holder;

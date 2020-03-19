@@ -51,7 +51,6 @@ import java.util.ArrayList;
 
 import static com.sentaroh.android.ZipUtility3.Constants.SERVICE_HEART_BEAT;
 
-@SuppressLint("Wakelock")
 public class ZipService extends Service {
 	private GlobalParameters mGp=null;
 	
@@ -83,7 +82,6 @@ public class ZipService extends Service {
         initNotification();
 	}
 
-	@SuppressLint("NewApi")
 	private void setHeartBeat() {
 //		if (Build.VERSION.SDK_INT>=21) {
 ////			Thread.dumpStack();
@@ -319,7 +317,6 @@ public class ZipService extends Service {
     };
 
     final private class SleepReceiver  extends BroadcastReceiver {
-		@SuppressLint({ "Wakelock", "NewApi"})
 		@Override
 		final public void onReceive(Context c, Intent in) {
 			String action = in.getAction();

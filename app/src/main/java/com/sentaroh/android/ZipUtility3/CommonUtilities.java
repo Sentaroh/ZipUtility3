@@ -64,7 +64,6 @@ public final class CommonUtilities {
    	
    	private GlobalParameters mGp=null;
    	
-   	@SuppressWarnings("unused")
 	private String mLogIdent="";
 
     private CommonDialog mCommonDlg=null;
@@ -151,8 +150,7 @@ public final class CommonUtilities {
 		else spinner.setBackground(c.getDrawable(R.drawable.spinner_color_background));
 	};
 
-	@SuppressWarnings("deprecation")
-	@SuppressLint("InlinedApi")
+
 	final static public SharedPreferences getPrefMgr(Context c) {
     	return c.getSharedPreferences(DEFAULT_PREFS_FILENAME, Context.MODE_PRIVATE| Context.MODE_MULTI_PROCESS);
     }
@@ -176,7 +174,6 @@ public final class CommonUtilities {
         return sw.toString();
     }
 
-	@SuppressLint("DefaultLocale")
 	final static public String getFileExtention(String fp) {
 		String fid="";
 		if (fp.lastIndexOf(".") > 0) {

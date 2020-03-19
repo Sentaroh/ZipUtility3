@@ -41,7 +41,6 @@ public class ZipReceiver extends BroadcastReceiver {
 
     private static LogUtil mLog = null;
 
-    @SuppressLint("Wakelock")
     @Override
     final public void onReceive(Context c, Intent received_intent) {
         WakeLock wl =

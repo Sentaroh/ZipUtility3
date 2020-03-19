@@ -38,7 +38,6 @@ import java.util.List;
 
 import static com.sentaroh.android.ZipUtility3.GlobalParameters.DEFAULT_OPEN_AS_TEXT_FILE_TYPE;
 
-@SuppressWarnings("unused")
 public class ActivitySettings extends PreferenceActivity {
 	private static Context mContext=null;
 	private static PreferenceFragment mPrefFrag=null;

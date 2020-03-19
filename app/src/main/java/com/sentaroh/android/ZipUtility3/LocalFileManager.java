@@ -2308,7 +2308,6 @@ public class LocalFileManager {
         });
     }
 
-    @SuppressWarnings("unused")
 	private void putDialogMessage(final boolean negative, final String msg_type, final String msg_title,
                                   final String msg_body, final NotifyEvent ntfy) {
 		mUiHandler.post(new Runnable(){

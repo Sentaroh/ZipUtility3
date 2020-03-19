@@ -120,7 +120,6 @@ import java.util.regex.Pattern;
 import static com.sentaroh.android.Utilities3.SafManager3.SCOPED_STORAGE_SDK;
 import static com.sentaroh.android.ZipUtility3.Constants.*;
 
-@SuppressLint("ClickableViewAccessibility")
 public class ZipFileManager {
 
 	private GlobalParameters mGp=null;
@@ -130,7 +129,6 @@ public class ZipFileManager {
 	
 	private Context mContext;
 	private ActivityMain mActivity=null;
-	@SuppressWarnings("unused")
 	private String mLastMsgText="";
 
 	private ArrayList<ZipFileListItem> mZipFileList=null;
@@ -970,7 +968,6 @@ public class ZipFileManager {
 		});
 
 		lv_search_result.setOnItemClickListener(new OnItemClickListener(){
-			@SuppressLint("DefaultLocale")
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				TreeFilelistItem tfi=mAdapterSearchFileList.getItem(position);
@@ -1412,7 +1409,6 @@ public class ZipFileManager {
 		return tfl;
 	};
 
-	@SuppressLint("DefaultLocale")
 	private TreeFilelistItem createNewFileListItem(ZipFileListItem zfli) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.getDefault());
 		String tfs=MiscUtil.convertFileSize(zfli.getFileLength());
@@ -1968,7 +1964,6 @@ public class ZipFileManager {
 				mContext.getString(R.string.msgs_main_confirm_cancel), "", ntfy);
 	};
 
-	@SuppressWarnings("unused")
 	private void addItemDlg() {
 		NotifyEvent ntfy=new NotifyEvent(mContext);
 		ntfy.setListener(new NotifyEventListener(){
@@ -3071,7 +3066,6 @@ public class ZipFileManager {
 				zf.setPassword(pswd);
 				InputStream is=zf.getInputStream(fh);
 				byte[] buff=new byte[512];
-				@SuppressWarnings("unused")
 				int rc=is.read(buff);
 				result=true;
 //				is.close();
@@ -3084,7 +3078,6 @@ public class ZipFileManager {
 		return result;
 	};
 
-	@SuppressWarnings("unchecked")
 	private ArrayList<FileHeader> buildSelectedFileHeaderList(CustomZipFile zf, CustomTreeFilelistAdapter tfa) {
 		ArrayList<FileHeader> sel_fh=new ArrayList<FileHeader>();
 		ArrayList<FileHeader> zf_list=null;
