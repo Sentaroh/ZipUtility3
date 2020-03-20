@@ -193,7 +193,7 @@ External Library:\n
 	<string name="msgs_zip_extract_file_was_failed">An error has occurred in the extraction.</string>
 	<string name="msgs_zip_extract_file_was_cancelled">Extraction has been canceled.</string>
 	<string name="msgs_zip_extract_file_was_not_replaced">Overwrite the file has been rejected by the user. Name=%s</string>
-	<string name="msgs_zip_extract_file_confirm_replace_copy">Do you want to overwrite the file. File=%s</string>
+	<string name="msgs_zip_extract_file_confirm_replace_copy">Do you want to overwrite the file</string>
 	<string name="msgs_zip_extract_file_extracting" formatted="false">Extracting %s, %s%% completed.</string>
 	<string name="msgs_zip_extract_file_confirm_extract">Do you want to expand the following items to the %s?</string>
 	<string name="msgs_zip_extract_file_started">Extraction has been started.</string>

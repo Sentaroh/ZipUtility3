@@ -193,7 +193,7 @@ ZIPファイルの作成・編集・抽出のためのアプリケーション�
 	<string name="msgs_zip_extract_file_was_failed">展開でエラーが発生しました。</string>
 	<string name="msgs_zip_extract_file_was_cancelled">キャンセルされました。</string>
 	<string name="msgs_zip_extract_file_was_not_replaced">ファイルの上書きがユーザーにより拒否されました。 ファイル=%s</string>
-	<string name="msgs_zip_extract_file_confirm_replace_copy">ファイルを上書きしてよろしいでしょうか。 ファイル=%s</string>
+	<string name="msgs_zip_extract_file_confirm_replace_copy">ファイルを上書きしてよろしいでしょうか。</string>
 	<string name="msgs_zip_extract_file_extracting" formatted="false">%sを展開しています、%s%%完了。</string>
 	<string name="msgs_zip_extract_file_confirm_extract">下記項目を%sに展開しますか？</string>
 	<string name="msgs_zip_extract_file_started">展開を開始しました。</string>

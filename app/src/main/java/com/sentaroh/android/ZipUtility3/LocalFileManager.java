@@ -248,6 +248,10 @@ public class LocalFileManager {
 
     private LinearLayout mDialogConfirmView = null;
     private TextView mDialogConfirmMsg = null;
+    private TextView mDialogConfirmTitle = null;
+    private TextView mDialogConfirmFilePath = null;
+    private TextView mDialogConfirmFileDateTime = null;
+
     private Button mDialogConfirmCancel = null;
 
     private Button mDialogConfirmYes = null;
@@ -350,7 +354,10 @@ public class LocalFileManager {
 
         mDialogConfirmView = (LinearLayout) mMainView.findViewById(R.id.main_dialog_confirm_view);
         mDialogConfirmView.setVisibility(LinearLayout.GONE);
+        mDialogConfirmTitle = (TextView) mMainView.findViewById(R.id.main_dialog_confirm_title);
         mDialogConfirmMsg = (TextView) mMainView.findViewById(R.id.main_dialog_confirm_msg);
+        mDialogConfirmFilePath = (TextView) mMainView.findViewById(R.id.main_dialog_confirm_file_path);
+        mDialogConfirmFileDateTime = (TextView) mMainView.findViewById(R.id.main_dialog_confirm_file_date_time);
         mDialogConfirmCancel = (Button) mMainView.findViewById(R.id.main_dialog_confirm_sync_cancel);
         mDialogConfirmNo = (Button) mMainView.findViewById(R.id.copy_delete_confirm_no);
         mDialogConfirmNoAll = (Button) mMainView.findViewById(R.id.copy_delete_confirm_noall);
@@ -1320,6 +1327,7 @@ public class LocalFileManager {
     }
 
     private void confirmMove() {
+        mConfirmResponse=0;
         if (mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)) confirmMoveFromLocal();
         else if (mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_ZIP)) confirmMoveFromZip();
     }
@@ -1346,12 +1354,13 @@ public class LocalFileManager {
             public void negativeResponse(Context c, Object[] o) {
             }
         });
-        if (w_override_list.equals("")) ntfy_confirm.notifyToListener(true, null);
-        else {
-            mCommonDlg.showCommonDialog(true, "W",
-                    String.format(mContext.getString(R.string.msgs_confirm_item_replace), to_dir),
-                    w_override_list, ntfy_confirm);
-        }
+        mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_zip_local_file_move_confirm_title), w_conf_list, ntfy_confirm);
+//        if (w_override_list.equals("")) ntfy_confirm.notifyToListener(true, null);
+//        else {
+//            mCommonDlg.showCommonDialog(true, "W",
+//                    String.format(mContext.getString(R.string.msgs_confirm_item_replace), to_dir),
+//                    w_override_list, ntfy_confirm);
+//        }
     }
 
     private void confirmMoveFromLocal() {
@@ -1379,6 +1388,7 @@ public class LocalFileManager {
                         boolean process_aborted = false;
                         for (TreeFilelistItem tfl : mGp.copyCutList) {
                             SafFile3 from_file = new SafFile3(mContext, tfl.getPath() + "/" + tfl.getName());
+                            SafFile3 to_file=new SafFile3(mContext, to_dir+"/"+tfl.getName());
                             boolean rc = moveCopyLocalToLocal(true,tc, from_file, (to_dir + "/" + tfl.getName()).replace("//", "/"));
 //							boolean rc=from_file.renameTo(to_file);
                             if (rc) {
@@ -1421,19 +1431,21 @@ public class LocalFileManager {
             public void negativeResponse(Context c, Object[] o) {
             }
         });
-        String c_list = "", sep = "";
+        String override_list = "", sep_override = "", move_list="", sep_move="";
         for (TreeFilelistItem tfl : mGp.copyCutList) {
             SafFile3 sf=new SafFile3(mContext, to_dir+"/"+tfl.getName());
             if (sf.exists()) {
-                c_list += sep + tfl.getName();
-                sep = ",";
+                override_list += sep_override + tfl.getName();
+                sep_override = ",";
             }
+            move_list+=sep_move+tfl.getName();
         }
-        if (c_list.equals("")) ntfy.notifyToListener(true, null);
-        else {
-            mCommonDlg.showCommonDialog(true, "W",
-                    mContext.getString(R.string.msgs_confirm_item_replace), c_list, ntfy);
-        }
+        mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_zip_local_file_move_confirm_title), move_list, ntfy);
+//        if (override_list.equals("")) {
+//            mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_zip_local_file_move_confirm_title), move_list, ntfy);
+//        } else {
+//            mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_confirm_item_replace), override_list, ntfy);
+//        }
 
     }
 
@@ -1466,7 +1478,14 @@ public class LocalFileManager {
             SafFile3 lf = new SafFile3(mContext, to_path);
             lf.mkdirs();
         } else {
-            if (confirmReplace(tc, to_path)) {
+            SafFile3 lf=new SafFile3(mContext, to_path);
+            boolean replace_granted=true;
+            if (lf.exists()) {
+                String title=move?"Move":"Copy";
+                String msg=mContext.getString(R.string.msgs_zip_extract_file_confirm_replace_copy);
+                replace_granted=confirmReplace(tc, title, msg, to_path);
+            }
+            if (replace_granted) {
                 result=moveCopyFileLocalToLocal(move, tc, from_file, to_path);
             } else {
                 //Reject replace request
@@ -1631,6 +1650,7 @@ public class LocalFileManager {
     }
 
     private void confirmCopy() {
+        mConfirmResponse=0;
         if (mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)) confirmCopyFromLocal();
         else if (mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_ZIP)) confirmCopyFromZip();
     }
@@ -1659,12 +1679,14 @@ public class LocalFileManager {
             public void negativeResponse(Context c, Object[] o) {
             }
         });
-        if (w_override_list.equals("")) ntfy_confirm.notifyToListener(true, null);
-        else {
-            mCommonDlg.showCommonDialog(true, "W",
-                    String.format(mContext.getString(R.string.msgs_confirm_item_replace), to_dir),
-                    w_override_list, ntfy_confirm);
-        }
+        mCommonDlg.showCommonDialog(true, "W",
+                String.format(mContext.getString(R.string.msgs_zip_local_file_copy_confirm_title), to_dir), w_conf_list, ntfy_confirm);
+//        if (w_override_list.equals("")) ntfy_confirm.notifyToListener(true, null);
+//        else {
+//            mCommonDlg.showCommonDialog(true, "W",
+//                    String.format(mContext.getString(R.string.msgs_confirm_item_replace), to_dir),
+//                    w_override_list, ntfy_confirm);
+//        }
     }
 
     private void prepareExtractMultipleItem(final String dest_path, final String conf_list, final boolean move_mode) {
@@ -1903,7 +1925,14 @@ public class LocalFileManager {
             dir = "/"+fh_item.getFileName().substring(0, fh_item.getFileName().lastIndexOf("/")).replace(mGp.copyCutCurrentDirectory, "");
             fn = fh_item.getFileName().substring(fh_item.getFileName().lastIndexOf("/") + 1);
         }
-        if (confirmReplace(tc, (dest_path + dir + "/" + fn).replaceAll("//","/").replaceAll("//","/"))) {
+        String file_path=(dest_path + dir + "/" + fn).replaceAll("//","/").replaceAll("//","/");
+        File lf=new File(file_path);
+        boolean replace_granted=true;
+        if (lf.exists() && !lf.isDirectory()) {
+            String msg=mContext.getString(R.string.msgs_zip_extract_file_confirm_replace_copy);
+            replace_granted=confirmReplace(tc, "Extract from ZIP", msg, file_path);
+        }
+        if (replace_granted) {
             if (copyZipItemToFile(tc, zf, fh_item, fh_item.getFileName(), dest_path + dir, fn)) {
                 if (tc.isEnabled()) {
                     putProgressMessage(String.format(mContext.getString(R.string.msgs_zip_extract_file_was_extracted), fh_item.getFileName()));
@@ -2035,19 +2064,22 @@ public class LocalFileManager {
             public void negativeResponse(Context c, Object[] o) {
             }
         });
-        String c_list = "", sep = "";
+//        ntfy.notifyToListener(true, null);
+        String c_list = "", sep = "", copy_list="", copy_sep="";
         for (TreeFilelistItem tfl : mGp.copyCutList) {
             SafFile3 sf=new SafFile3(mContext, to_dir+"/"+tfl.getName());
             if (sf.exists()) {
                 c_list += sep + tfl.getName();
                 sep = ",";
             }
+            copy_list+=copy_sep+tfl.getName();
+            copy_sep=",";
         }
-        if (c_list.equals("")) ntfy.notifyToListener(true, null);
-        else {
-            mCommonDlg.showCommonDialog(true, "W",
-                    mContext.getString(R.string.msgs_confirm_item_replace), c_list, ntfy);
-        }
+        mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_zip_local_file_copy_confirm_title), copy_list, ntfy);
+//        if (c_list.equals("")) ntfy.notifyToListener(true, null);
+//        else {
+//            mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_confirm_item_replace), c_list, ntfy);
+//        }
     }
 
     private void showToast(Activity a, String msg) {
@@ -2066,108 +2098,105 @@ public class LocalFileManager {
     static final public int CONFIRM_RESPONSE_NOALL = -2;
     private int mConfirmResponse = 0;
 
-    private boolean confirmReplace(final ThreadCtrl tc, final String dest_path) {
+    private boolean confirmReplaceX(final ThreadCtrl tc, final String dest_path) {
         return true;
     }
-    private boolean confirmReplaceX(final ThreadCtrl tc, final String dest_path) {
+    private boolean confirmReplace(final ThreadCtrl tc, final String title, final String message, final String dest_path) {
 //        Thread.dumpStack();
-        SafFile3 lf = new SafFile3(mContext, dest_path);
-        if (lf.exists()) {
-            if (mConfirmResponse != CONFIRM_RESPONSE_YESALL && mConfirmResponse != CONFIRM_RESPONSE_NOALL) {
-                mUiHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mDialogProgressSpinView.setVisibility(LinearLayout.GONE);
-                        mDialogConfirmView.setVisibility(LinearLayout.VISIBLE);
-                        mDialogConfirmCancel.setOnClickListener(new OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
-                                mDialogConfirmView.setVisibility(LinearLayout.GONE);
-                                mConfirmResponse = CONFIRM_RESPONSE_CANCEL;
-                                tc.setDisabled();
-                                synchronized (tc) {
-                                    tc.notify();
-                                }
+        if (mConfirmResponse != CONFIRM_RESPONSE_YESALL && mConfirmResponse != CONFIRM_RESPONSE_NOALL) {
+            mUiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mDialogProgressSpinView.setVisibility(LinearLayout.GONE);
+                    mDialogConfirmView.setVisibility(LinearLayout.VISIBLE);
+                    mDialogConfirmCancel.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
+                            mDialogConfirmView.setVisibility(LinearLayout.GONE);
+                            mConfirmResponse = CONFIRM_RESPONSE_CANCEL;
+                            tc.setDisabled();
+                            synchronized (tc) {
+                                tc.notify();
                             }
-                        });
+                        }
+                    });
 
-                        mDialogConfirmYes.setOnClickListener(new OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
-                                mDialogConfirmView.setVisibility(LinearLayout.GONE);
-                                mConfirmResponse = CONFIRM_RESPONSE_YES;
-                                synchronized (tc) {
-                                    tc.notify();
-                                }
+                    mDialogConfirmYes.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
+                            mDialogConfirmView.setVisibility(LinearLayout.GONE);
+                            mConfirmResponse = CONFIRM_RESPONSE_YES;
+                            synchronized (tc) {
+                                tc.notify();
                             }
-                        });
-                        mDialogConfirmYesAll.setOnClickListener(new OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
-                                mDialogConfirmView.setVisibility(LinearLayout.GONE);
-                                mConfirmResponse = CONFIRM_RESPONSE_YESALL;
-                                synchronized (tc) {
-                                    tc.notify();
-                                }
+                        }
+                    });
+                    mDialogConfirmYesAll.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
+                            mDialogConfirmView.setVisibility(LinearLayout.GONE);
+                            mConfirmResponse = CONFIRM_RESPONSE_YESALL;
+                            synchronized (tc) {
+                                tc.notify();
                             }
-                        });
-                        mDialogConfirmNo.setOnClickListener(new OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
-                                mDialogConfirmView.setVisibility(LinearLayout.GONE);
-                                mConfirmResponse = CONFIRM_RESPONSE_NO;
-                                synchronized (tc) {
-                                    tc.notify();
-                                }
+                        }
+                    });
+                    mDialogConfirmNo.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
+                            mDialogConfirmView.setVisibility(LinearLayout.GONE);
+                            mConfirmResponse = CONFIRM_RESPONSE_NO;
+                            synchronized (tc) {
+                                tc.notify();
                             }
-                        });
-                        mDialogConfirmNoAll.setOnClickListener(new OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
-                                mDialogConfirmView.setVisibility(LinearLayout.GONE);
-                                mConfirmResponse = CONFIRM_RESPONSE_NOALL;
-                                synchronized (tc) {
-                                    tc.notify();
-                                }
+                        }
+                    });
+                    mDialogConfirmNoAll.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
+                            mDialogConfirmView.setVisibility(LinearLayout.GONE);
+                            mConfirmResponse = CONFIRM_RESPONSE_NOALL;
+                            synchronized (tc) {
+                                tc.notify();
                             }
-                        });
-                        mDialogConfirmMsg.setText(
-                                String.format(mContext.getString(R.string.msgs_zip_extract_file_confirm_replace_copy), dest_path));
-                    }
-                });
+                        }
+                    });
+                    mDialogConfirmMsg.setText(message);
+                    mDialogConfirmMsg.requestLayout();
+                    mDialogConfirmFilePath.setText(dest_path);
+                    mDialogConfirmFilePath.requestLayout();
+                }
+            });
 
-                synchronized (tc) {
-                    try {
-                        tc.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+            synchronized (tc) {
+                try {
+                    tc.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-
-                boolean result = false;
-                if (mConfirmResponse == CONFIRM_RESPONSE_CANCEL) {
-                } else if (mConfirmResponse == CONFIRM_RESPONSE_YES) {
-                    result = true;
-                } else if (mConfirmResponse == CONFIRM_RESPONSE_YESALL) {
-                    result = true;
-                } else if (mConfirmResponse == CONFIRM_RESPONSE_NO) {
-                } else if (mConfirmResponse == CONFIRM_RESPONSE_NOALL) {
-                }
-                return result;
-            } else {
-                boolean result = false;
-                if (mConfirmResponse == CONFIRM_RESPONSE_YESALL) {
-                    result = true;
-                }
-                return result;
             }
+
+            boolean result = false;
+            if (mConfirmResponse == CONFIRM_RESPONSE_CANCEL) {
+            } else if (mConfirmResponse == CONFIRM_RESPONSE_YES) {
+                result = true;
+            } else if (mConfirmResponse == CONFIRM_RESPONSE_YESALL) {
+                result = true;
+            } else if (mConfirmResponse == CONFIRM_RESPONSE_NO) {
+            } else if (mConfirmResponse == CONFIRM_RESPONSE_NOALL) {
+            }
+            return result;
         } else {
-            return true;
+            boolean result = false;
+            if (mConfirmResponse == CONFIRM_RESPONSE_YESALL) {
+                result = true;
+            }
+            return result;
         }
     }
 
@@ -2304,6 +2333,7 @@ public class LocalFileManager {
             @Override
             public void run() {
                 tv.setText(msg);
+                tv.requestLayout();
             }
         });
     }

@@ -7,15 +7,42 @@
     android:orientation="vertical"
     tools:ignore="HardcodedText" >
 
-    <TextView
+    <com.sentaroh.android.Utilities3.Widget.NonWordwrapTextView
+        android:id="@+id/main_dialog_confirm_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:visibility="gone"
+        android:text="Title"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <com.sentaroh.android.Utilities3.Widget.NonWordwrapTextView
         android:id="@+id/main_dialog_confirm_msg"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
-        android:text="Medium Text"
+        android:text="Message"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <com.sentaroh.android.Utilities3.Widget.NonWordwrapTextView
+        android:id="@+id/main_dialog_confirm_file_path"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:text="File path"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <com.sentaroh.android.Utilities3.Widget.NonWordwrapTextView
+        android:id="@+id/main_dialog_confirm_file_date_time"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:visibility="gone"
+        android:text="2020/03/20 23:59:00"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <include layout="@layout/divider_line1" />
