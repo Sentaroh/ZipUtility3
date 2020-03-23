@@ -39,6 +39,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -52,8 +53,10 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -72,6 +75,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.material.tabs.TabLayout;
 import com.sentaroh.android.Utilities3.AppUncaughtExceptionHandler;
 import com.sentaroh.android.Utilities3.Dialog.CommonDialog;
 import com.sentaroh.android.Utilities3.MiscUtil;
@@ -313,7 +317,9 @@ public class ActivityMain extends AppCompatActivity {
         if (mRestartStatus==1) {
             if (isUiEnabled()) {
                 if (mStoragePermissionPrimaryListener==null) {
-                    if (mMainTabHost.getCurrentTab()==0) mZipFileMgr.refreshFileList();
+//                    if (mMainTabHost.getCurrentTab()==0) mZipFileMgr.refreshFileList();
+//                    else mLocalFileMgr.refreshFileList();
+                    if (mTabLayout.getSelectedTabPosition()==0) mZipFileMgr.refreshFileList();
                     else mLocalFileMgr.refreshFileList();
                 }
             }
@@ -538,7 +544,8 @@ public class ActivityMain extends AppCompatActivity {
 		switch (keyCode) {
 			case KeyEvent.KEYCODE_BACK:
 				if (isUiEnabled()) {
-					if (mMainTabHost.getCurrentTab()==0) {//Local tab
+//					if (mMainTabHost.getCurrentTab()==0) {//Local tab
+                    if (mTabLayout.getSelectedTabPosition()==0) {//Local tab
 					    if (mLocalFileMgr.isFileListSelected()) {
 					        mLocalFileMgr.setFileListAllItemUnselected();
                             return true;
@@ -639,7 +646,8 @@ public class ActivityMain extends AppCompatActivity {
         super.onPrepareOptionsMenu(menu);
 
         menu.findItem(R.id.menu_top_save_zip_file).setVisible(false);
-        if (mMainTabHost.getCurrentTabTag().equals(mContext.getString(R.string.msgs_main_tab_name_local))) {
+//        if (mMainTabHost.getCurrentTabTag().equals(mContext.getString(R.string.msgs_main_tab_name_local))) {
+        if (mTabLayout.getSelectedTabPosition()==getTabPosition(mContext.getString(R.string.msgs_main_tab_name_local))) {
         	if (mLocalFileMgr!=null) {
         		if (mLocalFileMgr.isFileListSortAscendant()) menu.findItem(R.id.menu_top_sort).setIcon(R.drawable.ic_128_sort_asc_gray);
         		else menu.findItem(R.id.menu_top_sort).setIcon(R.drawable.ic_128_sort_dsc_gray);
@@ -687,16 +695,22 @@ public class ActivityMain extends AppCompatActivity {
 			case android.R.id.home:
 				return true;
 			case R.id.menu_top_find:
-				if (mMainTabHost.getCurrentTabTag().equals(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.searchFile();
-				else mZipFileMgr.searchFile();
+//				if (mMainTabHost.getCurrentTabTag().equals(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.searchFile();
+//				else mZipFileMgr.searchFile();
+                if (mTabLayout.getSelectedTabPosition()==getTabPosition(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.searchFile();
+                else mZipFileMgr.searchFile();
 				return true;
 			case R.id.menu_top_refresh:
-				if (mMainTabHost.getCurrentTabTag().equals(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.refreshFileList();
-				else mZipFileMgr.refreshFileList(true);
+//				if (mMainTabHost.getCurrentTabTag().equals(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.refreshFileList();
+//				else mZipFileMgr.refreshFileList(true);
+                if (mTabLayout.getSelectedTabPosition()==getTabPosition(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.refreshFileList();
+                else mZipFileMgr.refreshFileList(true);
 				return true;
 			case R.id.menu_top_sort:
-				if (mMainTabHost.getCurrentTabTag().equals(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.sortFileList();
-				else mZipFileMgr.sortFileList();
+//				if (mMainTabHost.getCurrentTabTag().equals(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.sortFileList();
+//				else mZipFileMgr.sortFileList();
+                if (mTabLayout.getSelectedTabPosition()==getTabPosition(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.sortFileList();
+                else mZipFileMgr.sortFileList();
 				return true;
 			case R.id.menu_top_save_zip_file:
 			    mZipFileMgr.saveZipFile();
@@ -1000,6 +1014,11 @@ public class ActivityMain extends AppCompatActivity {
         dialog.show();
     }
 
+    private int getTabPosition(String tab_name) {
+        if (tab_name.equals(mContext.getString(R.string.msgs_main_tab_name_zip))) return 1;
+        else if (tab_name.equals(mContext.getString(R.string.msgs_main_tab_name_zip))) return 0;
+        return 0;
+    }
 
 	public void showZipFile(boolean read_only, final SafFile3 in_file) {
 		if (!isUiEnabled()) return;
@@ -1007,7 +1026,8 @@ public class ActivityMain extends AppCompatActivity {
         if (err_msg==null) {
             mZipFileMgr.showZipFile(read_only, in_file);
             mMainViewPager.setUseFastScroll(true);
-            mMainTabHost.setCurrentTabByTag(mContext.getString(R.string.msgs_main_tab_name_zip));
+//            mMainTabHost.setCurrentTabByTag(mContext.getString(R.string.msgs_main_tab_name_zip));
+            mTabLayout.getTabAt(getTabPosition(mContext.getString(R.string.msgs_main_tab_name_zip))).select();
             Handler hndl=new Handler();
             hndl.post(new Runnable() {
                 @Override
@@ -1104,24 +1124,12 @@ public class ActivityMain extends AppCompatActivity {
         title.setTextColor(mGp.themeColorList.title_text_color);
         title.setText(getString(R.string.msgs_dlg_title_about)+"(Ver "+getAppVersionName()+")");
 
-        // get our tabHost from the xml
-        final TabHost tab_host = (TabHost)dialog.findViewById(R.id.about_tab_host);
-        tab_host.setup();
-
-        final TabWidget tab_widget = (TabWidget)dialog.findViewById(android.R.id.tabs);
-
-        tab_widget.setStripEnabled(false);
-        tab_widget.setShowDividers(LinearLayout.SHOW_DIVIDER_NONE);
-
-        CustomTabContentView tabViewProf = new CustomTabContentView(this,getString(R.string.msgs_about_dlg_func_btn));
-        tab_host.addTab(tab_host.newTabSpec("func").setIndicator(tabViewProf).setContent(android.R.id.tabcontent));
-
-        CustomTabContentView tabViewPrivacy = new CustomTabContentView(this,getString(R.string.msgs_about_dlg_privacy_btn));
-        tab_host.addTab(tab_host.newTabSpec("privacy").setIndicator(tabViewPrivacy).setContent(android.R.id.tabcontent));
-
-        CustomTabContentView tabViewHist = new CustomTabContentView(this,getString(R.string.msgs_about_dlg_change_btn));
-        tab_host.addTab(tab_host.newTabSpec("change").setIndicator(tabViewHist).setContent(android.R.id.tabcontent));
-
+        TabLayout tab_layout=(TabLayout)dialog.findViewById(R.id.about_tab_view);
+//        tab_layout.setSelectedTabIndicatorColor(Color.argb(0xff, 0x00, 0x88, 0xcc));
+//        tab_layout.setSelectedTabIndicatorHeight((int)CommonDialog.toPixel(mContext.getResources(),5));//5DP
+        tab_layout.addTab(tab_layout.newTab().setText(mContext.getString(R.string.msgs_about_dlg_func_btn)));
+        tab_layout.addTab(tab_layout.newTab().setText(mContext.getString(R.string.msgs_about_dlg_privacy_btn)));
+        tab_layout.addTab(tab_layout.newTab().setText(mContext.getString(R.string.msgs_about_dlg_change_btn)));
 
         LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout ll_func=(LinearLayout)vi.inflate(R.layout.about_dialog_func,null);
@@ -1131,34 +1139,37 @@ public class ActivityMain extends AppCompatActivity {
         final WebView func_view=(WebView)ll_func.findViewById(R.id.about_dialog_function);
         func_view.loadUrl("File:///android_asset/"+getString(R.string.msgs_dlg_title_about_func_desc));
         func_view.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-//		func_view.getSettings().setBuiltInZoomControls(true);
+//	    func_view.getSettings().setBuiltInZoomControls(true);
+//        func_view.getSettings().setDisplayZoomControls(true);
 
         final WebView change_view=(WebView)ll_change.findViewById(R.id.about_dialog_change_history);
         change_view.loadUrl("File:///android_asset/"+getString(R.string.msgs_dlg_title_about_change_desc));
         change_view.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
 //		change_view.getSettings().setBuiltInZoomControls(true);
+//        change_view.getSettings().setDisplayZoomControls(true);
 
         final WebView privacy_view=(WebView)ll_privacy.findViewById(R.id.about_dialog_privacy);
         privacy_view.loadUrl("File:///android_asset/"+getString(R.string.msgs_dlg_title_about_privacy_desc));
         privacy_view.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+//        privacy_view.getSettings().setBuiltInZoomControls(true);
+//        privacy_view.getSettings().setDisplayZoomControls(true);
 
-        final CustomViewPagerAdapter adapter=new CustomViewPagerAdapter(this,
-                new WebView[]{func_view, privacy_view, change_view});
+        final CustomViewPagerAdapter adapter=new CustomViewPagerAdapter(this, new WebView[]{func_view, privacy_view, change_view});
         final CustomViewPager mAboutViewPager=(CustomViewPager)dialog.findViewById(R.id.about_view_pager);
 //	    mMainViewPager.setBackgroundColor(mThemeColorList.window_color_background);
+
         mAboutViewPager.setAdapter(adapter);
         mAboutViewPager.setOffscreenPageLimit(3);
         mAboutViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener(){
             @Override
             public void onPageSelected(int position) {
-//		    	util.addDebugMsg(2,"I","onPageSelected entered, pos="+position);
-                tab_widget.setCurrentTab(position);
-                tab_host.setCurrentTab(position);
+		    	mUtil.addDebugMsg(2,"I","onPageSelected entered, pos="+position);
+                tab_layout.getTabAt(position).select();
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
-//		    	util.addDebugMsg(2,"I","onPageScrollStateChanged entered, state="+state);
+		    	mUtil.addDebugMsg(2,"I","onPageScrollStateChanged entered, state="+state);
             }
 
             @Override
@@ -1167,16 +1178,28 @@ public class ActivityMain extends AppCompatActivity {
             }
         });
 
-        tab_host.setOnTabChangedListener(new OnTabChangeListener(){
+        tab_layout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener(){
             @Override
-            public void onTabChanged(String tabId) {
-                mUtil.addDebugMsg(2,"I","onTabchanged entered. tab="+tabId);
-                mAboutViewPager.setCurrentItem(tab_host.getCurrentTab());
+            public void onTabSelected(TabLayout.Tab tab) {
+                mUtil.addDebugMsg(2,"I","onTabSelected entered, state="+tab);
+                mAboutViewPager.setCurrentItem(tab.getPosition());
             }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                mUtil.addDebugMsg(2,"I","onTabUnselected entered, state="+tab);
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                mUtil.addDebugMsg(2,"I","onTabReselected entered, state="+tab);
+            }
+
         });
 
         final Button btnOk = (Button) dialog.findViewById(R.id.about_dialog_btn_ok);
 
+//        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         CommonDialog.setDlgBoxSizeLimit(dialog,true);
 
         // OKボタンの指定
@@ -1560,11 +1583,27 @@ public class ActivityMain extends AppCompatActivity {
 
 	private boolean enableMainUi=true; 
 
+	private void setTabLayoutEnabled(boolean enabled) {
+        LinearLayout tabStrip = ((LinearLayout)mTabLayout.getChildAt(0));
+	    if (enabled) {
+            for(int i = 0; i < tabStrip.getChildCount(); i++) {
+                tabStrip.getChildAt(i).setOnTouchListener(null);
+            }
+        } else {
+            for(int i = 0; i < tabStrip.getChildCount(); i++) {
+                tabStrip.getChildAt(i).setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        return true;
+                    }
+                });
+            }
+        }
+    }
+
 	public void setUiEnabled() {
 		enableMainUi=true;
-		mMainTabHost.setEnabled(enableMainUi);
-		mMainTabWidget.setEnabled(enableMainUi);
-//		mMainViewPager.setEnabled(enableMainUi);
+        setTabLayoutEnabled(enableMainUi);
 		mMainViewPager.setSwipeEnabled(enableMainUi);
 		refreshOptionMenu();
 		
@@ -1589,9 +1628,7 @@ public class ActivityMain extends AppCompatActivity {
 	
 	public void setUiDisabled() {
 		enableMainUi=false;
-		mMainTabHost.setEnabled(enableMainUi);
-		mMainTabWidget.setEnabled(enableMainUi);
-//		mMainViewPager.setEnabled(enableMainUi);
+        setTabLayoutEnabled(enableMainUi);
 		mMainViewPager.setSwipeEnabled(enableMainUi);
 		refreshOptionMenu();
 	};
@@ -1600,144 +1637,160 @@ public class ActivityMain extends AppCompatActivity {
 		return enableMainUi;
 	};
 
-	private TabHost mMainTabHost=null;
 	private LinearLayout mLocalView;
 	private LinearLayout mZipView;
 
 	private CustomViewPager mMainViewPager;
-	private CustomViewPagerAdapter mMainViewPagerAdapter;
-	
-	private TabWidget mMainTabWidget;
 
-	private void createTabView() {
-		mMainTabHost=(TabHost)findViewById(android.R.id.tabhost);
-		mMainTabHost.setup();
-		mMainTabWidget = (TabWidget) findViewById(android.R.id.tabs);
-		 
-	    mMainTabWidget.setStripEnabled(false);  
-	    mMainTabWidget.setShowDividers(LinearLayout.SHOW_DIVIDER_NONE);
-	    
-		CustomTabContentView tabLocal = new CustomTabContentView(this,
-				mContext.getString(R.string.msgs_main_tab_name_local));
-		mMainTabHost.addTab(mMainTabHost.newTabSpec(
-				mContext.getString(R.string.msgs_main_tab_name_local)).setIndicator(tabLocal).
-				setContent(android.R.id.tabcontent));
-		
-		CustomTabContentView tabZip = new CustomTabContentView(this,
-				mContext.getString(R.string.msgs_main_tab_name_zip));
-		mMainTabHost.addTab(mMainTabHost.newTabSpec(mContext.getString(R.string.msgs_main_tab_name_zip)).
-				setIndicator(tabZip).setContent(android.R.id.tabcontent));
+	private TabLayout mTabLayout=null;
 
-		
-		LinearLayout ll_main=(LinearLayout)findViewById(R.id.main_screen_view);
+    private void createTabView() {
+        mTabLayout=(TabLayout)findViewById(R.id.main_screen_tab);
+        mTabLayout.addTab(mTabLayout.newTab().setText(mContext.getString(R.string.msgs_main_tab_name_local)).setTag(mContext.getString(R.string.msgs_main_tab_name_local)));
+        mTabLayout.addTab(mTabLayout.newTab().setText(mContext.getString(R.string.msgs_main_tab_name_zip)).setTag(mContext.getString(R.string.msgs_main_tab_name_zip)));
+
+        LinearLayout ll_main=(LinearLayout)findViewById(R.id.main_screen_view);
 //		ll_main.setBackgroundColor(mGp.themeColorList.window_background_color_content);
-		
+
         LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		mLocalView=(LinearLayout)vi.inflate(R.layout.main_local_file,null);
+        mLocalView=(LinearLayout)vi.inflate(R.layout.main_local_file,null);
 //		if (mGp.themeIsLight) mLocalView.setBackgroundColor(0xffc0c0c0);
 //		else mLocalView.setBackgroundColor(0xff303030);
-		
-		LinearLayout dv=(LinearLayout)mLocalView.findViewById(R.id.main_dialog_view);
-		dv.setVisibility(LinearLayout.GONE);
-		
-		LinearLayout lv=(LinearLayout)mLocalView.findViewById(R.id.local_file_view);
-		lv.setVisibility(LinearLayout.GONE);
-		
+
+        LinearLayout dv=(LinearLayout)mLocalView.findViewById(R.id.main_dialog_view);
+        dv.setVisibility(LinearLayout.GONE);
+
+        LinearLayout lv=(LinearLayout)mLocalView.findViewById(R.id.local_file_view);
+        lv.setVisibility(LinearLayout.GONE);
+
 //		mLocalView.setBackgroundColor(mGp.themeColorList.window_background_color_content);
-		mZipView=(LinearLayout)vi.inflate(R.layout.main_zip_file,null);
+        mZipView=(LinearLayout)vi.inflate(R.layout.main_zip_file,null);
 //		if (mGp.themeIsLight) mZipView.setBackgroundColor(0xffc0c0c0);
 //		else mZipView.setBackgroundColor(0xff303030);
 //		mZipView.setBackgroundColor(mGp.themeColorList.window_background_color_content);
 
-		mMainViewPager=(CustomViewPager)findViewById(R.id.main_screen_pager);
-	    mMainViewPagerAdapter=new CustomViewPagerAdapter(this, 
-	    		new View[]{mLocalView, mZipView});
-	    
-//	    mMainViewPager.setBackgroundColor(mGp.themeColorList.window_background_color_content);
-	    mMainViewPager.setAdapter(mMainViewPagerAdapter);
-	    mMainViewPager.setOnPageChangeListener(new MainPageChangeListener());
-		if (mRestartStatus==0) {
-			mMainTabHost.setCurrentTabByTag(mContext.getString(R.string.msgs_main_tab_name_local));
-			mMainViewPager.setCurrentItem(0);
-		}
-		mMainTabHost.setOnTabChangedListener(new MainOnTabChange());
+        mMainViewPager=(CustomViewPager)findViewById(R.id.main_screen_pager);
+        CustomViewPagerAdapter adapter=new CustomViewPagerAdapter(this,
+                new View[]{mLocalView, mZipView});
 
-		mGp.copyCutItemClear=(Button)findViewById(R.id.main_screen_copy_cut_clear_btn);
-		mGp.copyCutItemInfo=(Button)findViewById(R.id.main_screen_copy_cut_item);
-		
-		mGp.copyCutItemInfo.setVisibility(TextView.GONE);
-		mGp.copyCutItemClear.setVisibility(Button.GONE);
+//	    mMainViewPager.setBackgroundColor(mGp.themeColorList.window_background_color_content);
+
+        mMainViewPager.setAdapter(adapter);
+//        mMainViewPager.setOffscreenPageLimit(mMainViewPagerAdapter.getCount());
+        mMainViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener(){
+            @Override
+            public void onPageSelected(int position) {
+                mUtil.addDebugMsg(2,"I","onPageSelected entered, pos="+position);
+                mTabLayout.getTabAt(position).select();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                mUtil.addDebugMsg(2,"I","onPageScrollStateChanged entered, state="+state);
+            }
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//		    	util.addDebugMsg(2,"I","onPageScrolled entered, pos="+position);
+            }
+        });
+
+        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener(){
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                mUtil.addDebugMsg(2,"I","onTabSelected entered, state="+tab);
+                mMainViewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                mUtil.addDebugMsg(2,"I","onTabUnselected entered, state="+tab);
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                mUtil.addDebugMsg(2,"I","onTabReselected entered, state="+tab);
+            }
+
+        });
+
+
+        mGp.copyCutItemClear=(Button)findViewById(R.id.main_screen_copy_cut_clear_btn);
+        mGp.copyCutItemInfo=(Button)findViewById(R.id.main_screen_copy_cut_item);
+
+        mGp.copyCutItemInfo.setVisibility(TextView.GONE);
+        mGp.copyCutItemClear.setVisibility(Button.GONE);
 
         mGp.copyCutItemClear.setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View v) {
-				mGp.copyCutList.clear();
-				mGp.copyCutItemInfo.setVisibility(TextView.GONE);
-				mGp.copyCutItemClear.setVisibility(Button.GONE);
-				mLocalFileMgr.setContextButtonPasteEnabled(false);
-				mZipFileMgr.setContextButtonPasteEnabled(false);
-			}
+            @Override
+            public void onClick(View v) {
+                mGp.copyCutList.clear();
+                mGp.copyCutItemInfo.setVisibility(TextView.GONE);
+                mGp.copyCutItemClear.setVisibility(Button.GONE);
+                mLocalFileMgr.setContextButtonPasteEnabled(false);
+                mZipFileMgr.setContextButtonPasteEnabled(false);
+            }
         });
         mGp.copyCutItemInfo.setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View v) {
+            @Override
+            public void onClick(View v) {
 //				String item_name=mGp.copyCutItemInfo.getText().toString();
-				String c_list="", sep="";
-				for(TreeFilelistItem tfli:mGp.copyCutList) {
-					c_list+=sep+tfli.getPath()+"/"+tfli.getName();
-					sep="\n";
-				}
-				String msg="";
-				if (!mGp.copyCutModeIsCut) msg=mContext.getString(R.string.msgs_zip_cont_header_copy); 
-				else msg=mContext.getString(R.string.msgs_zip_cont_header_cut);
-				String from=mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)?"Local":"ZIP";
-				String zip_file_name="";
-				if (mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_ZIP)) {
-				    zip_file_name="("+mGp.copyCutFilePath.substring(mGp.copyCutFilePath.lastIndexOf("/")+1)+")";
+                String c_list="", sep="";
+                for(TreeFilelistItem tfli:mGp.copyCutList) {
+                    c_list+=sep+tfli.getPath()+"/"+tfli.getName();
+                    sep="\n";
                 }
-				mCommonDlg.showCommonDialog(false, "I", msg+from+zip_file_name, c_list, null);
-			}
+                String msg="";
+                if (!mGp.copyCutModeIsCut) msg=mContext.getString(R.string.msgs_zip_cont_header_copy);
+                else msg=mContext.getString(R.string.msgs_zip_cont_header_cut);
+                String from=mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)?"Local":"ZIP";
+                String zip_file_name="";
+                if (mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_ZIP)) {
+                    zip_file_name="("+mGp.copyCutFilePath.substring(mGp.copyCutFilePath.lastIndexOf("/")+1)+")";
+                }
+                mCommonDlg.showCommonDialog(false, "I", msg+from+zip_file_name, c_list, null);
+            }
         });
-        
 
-	};
 
-	private class MainOnTabChange implements OnTabChangeListener {
-		@Override
-		public void onTabChanged(String tabId){
-			mUtil.addDebugMsg(1,"I",CommonUtilities.getExecutedMethodName()+" entered. tab="+tabId);
-			
-			mMainViewPager.setCurrentItem(mMainTabHost.getCurrentTab());
-			
-			if (tabId.equals(mContext.getString(R.string.msgs_main_tab_name_local))) {
-				mLocalFileMgr.refreshFileList(true);
-			} else {
-			    if (mZipFileMgr!=null) mZipFileMgr.refreshFileList();
-			}
-			
-			refreshOptionMenu();
-		};
-	};
-	
-	private class MainPageChangeListener implements ViewPager.OnPageChangeListener {
-	    @Override
-	    public void onPageSelected(int position) {
-	    	mUtil.addDebugMsg(1,"I","onPageSelected entered, pos="+position);
-	        mMainTabWidget.setCurrentTab(position);
-	        mMainTabHost.setCurrentTab(position);
-	    }  
-	  
-	    @Override
-	    public void onPageScrollStateChanged(int state) {  
-//	    	mUtil.addDebugMsg(1,"I","onPageScrollStateChanged entered, state="+state);
-	    }  
-	  
-	    @Override
-	    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//	    	mUtil.addDebugMsg(1, "I","onPageScrolled entered, pos="+position);
-	    }  
-	};  
-	
+    };
+
+//    private class MainOnTabChange implements OnTabChangeListener {
+//		@Override
+//		public void onTabChanged(String tabId){
+//			mUtil.addDebugMsg(1,"I",CommonUtilities.getExecutedMethodName()+" entered. tab="+tabId);
+//
+//			mMainViewPager.setCurrentItem(mMainTabHost.getCurrentTab());
+//
+//			if (tabId.equals(mContext.getString(R.string.msgs_main_tab_name_local))) {
+//				mLocalFileMgr.refreshFileList(true);
+//			} else {
+//			    if (mZipFileMgr!=null) mZipFileMgr.refreshFileList();
+//			}
+//
+//			refreshOptionMenu();
+//		};
+//	};
+//
+//	private class MainPageChangeListener implements ViewPager.OnPageChangeListener {
+//	    @Override
+//	    public void onPageSelected(int position) {
+//	    	mUtil.addDebugMsg(1,"I","onPageSelected entered, pos="+position);
+//	        mMainTabWidget.setCurrentTab(position);
+//	        mMainTabHost.setCurrentTab(position);
+//	    }
+//
+//	    @Override
+//	    public void onPageScrollStateChanged(int state) {
+////	    	mUtil.addDebugMsg(1,"I","onPageScrollStateChanged entered, state="+state);
+//	    }
+//
+//	    @Override
+//	    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+////	    	mUtil.addDebugMsg(1, "I","onPageScrolled entered, pos="+position);
+//	    }
+//	};
+//
 	private ISvcClient mSvcClient=null;
 	private ServiceConnection mSvcConnection=null;
 
