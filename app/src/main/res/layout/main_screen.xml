@@ -72,7 +72,7 @@
         android:layout_height="fill_parent"
         android:orientation="vertical" >
 
-        <com.google.android.material.tabs.TabLayout
+        <com.sentaroh.android.Utilities3.Widget.CustomTabLayout
             android:id="@+id/main_screen_tab"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -83,7 +83,8 @@
             app:tabTextAppearance="@style/TextAppearance.AppCompat.Medium"
             app:tabMaxWidth="0dp"
             app:tabGravity="fill"
-            app:tabMode="fixed" />
+            app:tabMode="fixed"
+            />
 
         <com.sentaroh.android.Utilities3.Widget.CustomViewPager
             android:id="@+id/main_screen_pager"
