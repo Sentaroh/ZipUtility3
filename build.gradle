@@ -25,4 +25,7 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+//    def filePath=rootProject.rootDir.absolutePath+"\\release\\"+rootProject.name+"_debug.apk"
+//    File debug_apk=new File(filePath)
+//    debug_apk.delete()
 }
