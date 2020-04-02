@@ -1654,6 +1654,8 @@ public class ActivityMain extends AppCompatActivity {
             public void onPageSelected(int position) {
                 mUtil.addDebugMsg(2,"I","onPageSelected entered, pos="+position);
                 mTabLayout.setCurrentTabByPosition(position);
+                if (mTabLayout.getSelectedTabName().equals(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.refreshFileList();
+                else mZipFileMgr.refreshFileList();
             }
 
             @Override
