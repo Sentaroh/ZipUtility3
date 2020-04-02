@@ -36,7 +36,8 @@ android {
                         def mod_name = "${rootProject.name}"
                         def fileExtension= outputFileName.toString().substring(outputFileName.toString().lastIndexOf(".")+1)
                         def newName = "${mod_name}_debug.${fileExtension}"
-                        outputFileName = "../../../../../release/"+newName
+//                        outputFileName = "../../../../../release/"+newName
+                        outputFileName = newName
                     }
                 }
             }

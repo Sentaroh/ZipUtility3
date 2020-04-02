@@ -70,6 +70,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
+
+import com.sentaroh.android.ZipUtility3.BuildConfig;
+
 import com.sentaroh.android.Utilities3.AppUncaughtExceptionHandler;
 import com.sentaroh.android.Utilities3.Dialog.CommonDialog;
 import com.sentaroh.android.Utilities3.MiscUtil;

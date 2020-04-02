@@ -56,6 +56,8 @@ import android.widget.TextView;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentManager;
 
+import com.sentaroh.android.ZipUtility3.BuildConfig;
+
 import com.sentaroh.android.Utilities3.CallBackListener;
 import com.sentaroh.android.Utilities3.ContextButton.ContextButtonUtil;
 import com.sentaroh.android.Utilities3.ContextMenu.CustomContextMenu;
