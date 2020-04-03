@@ -314,10 +314,8 @@ public class ActivityMain extends AppCompatActivity {
         if (mRestartStatus==1) {
             if (isUiEnabled()) {
                 if (mStoragePermissionPrimaryListener==null) {
-//                    if (mMainTabHost.getCurrentTab()==0) mZipFileMgr.refreshFileList();
-//                    else mLocalFileMgr.refreshFileList();
-                    if (mTabLayout.getSelectedTabPosition()==0) mZipFileMgr.refreshFileList();
-                    else mLocalFileMgr.refreshFileList();
+                    if (mTabLayout.getSelectedTabName().equals(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.refreshFileList();
+                    else mZipFileMgr.refreshFileList();
                 }
             }
             try {
