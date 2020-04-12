@@ -1011,23 +1011,8 @@ public class ActivityMain extends AppCompatActivity {
 
 	public void showZipFile(boolean read_only, final SafFile3 in_file) {
 		if (!isUiEnabled()) return;
-        String err_msg=ZipUtil.isZipFile(mContext, in_file);
-        if (err_msg==null) {
-            mZipFileMgr.showZipFile(read_only, in_file);
-            mMainViewPager.setUseFastScroll(true);
-//            mMainTabHost.setCurrentTabByTag(mContext.getString(R.string.msgs_main_tab_name_zip));
-            mTabLayout.setCurrentTabByName(mContext.getString(R.string.msgs_main_tab_name_zip));
-//            mTabLayout.getTabAt(getTabPosition(mContext.getString(R.string.msgs_main_tab_name_zip))).select();
-            Handler hndl=new Handler();
-            hndl.post(new Runnable() {
-                @Override
-                public void run() {
-                    mMainViewPager.setUseFastScroll(false);
-                }
-            });
-        } else {
-            mCommonDlg.showCommonDialog(false, "W", "Invalid ZIP file", "File="+in_file.getPath()+"\n"+err_msg, null);
-        }
+        mZipFileMgr.showZipFile(read_only, in_file);
+        mTabLayout.setCurrentTabByName(mContext.getString(R.string.msgs_main_tab_name_zip));
 	};
 	
 	private void invokeSettingsActivity() {
@@ -1085,13 +1070,6 @@ public class ActivityMain extends AppCompatActivity {
 		});
 		mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_main_kill_confirm_msg), "", ntfy);
 	};
-
-//	private void aboutApplicaion() {
-//		mCommonDlg.showCommonDialog(false, "I",
-//				getString(R.string.msgs_main_about_title), String.format(
-//				getString(R.string.msgs_main_about_content),getApplVersionName()),
-//				null);
-//	};
 
     public String getAppVersionName() {
         try {

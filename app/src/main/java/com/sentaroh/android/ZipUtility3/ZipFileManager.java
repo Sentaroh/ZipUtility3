@@ -563,7 +563,6 @@ public class ZipFileManager {
         mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered");
 		if (!isUiEnabled()) return;
 		Bundle bd=new Bundle();
-//        mCurretnFileIsReadOnly =read_only;
 		if (in_file!=null) {
 		    if (!read_only) {
 		        if (Build.VERSION.SDK_INT>=SCOPED_STORAGE_SDK) {
@@ -604,17 +603,32 @@ public class ZipFileManager {
 						refreshZipFileSpinner(in_file);
 					}
 				} else {
-				    String err_msg=ZipUtil.isZipFile(mContext, in_file);
-                    if (err_msg==null) {
-                        mCurretnFileIsReadOnly=read_only;
-                        addZipFileViewerItem(read_only, in_file.getPath());
-                        mCurrentFilePath=in_file.getPath();
-                        mCurrentDirectory.setText("/");
-                        refreshFileList(true);
-                        refreshZipFileSpinner(in_file);
-                    } else {
-                        mCommonDlg.showCommonDialog(false, "W", "Invalid ZIP file", "File="+in_file.getPath()+"\n"+err_msg, null);
-                    }
+				    final Handler hndl=new Handler();
+				    final Dialog pd=CommonDialog.showProgressSpinIndicator(mActivity);
+				    pd.show();
+				    Thread th=new Thread() {
+				        @Override
+                        public void run() {
+                            final String err_msg=ZipUtil.isZipFile(mContext, in_file);
+                            hndl.post(new Runnable(){
+                                @Override
+                                public void run() {
+                                    pd.dismiss();
+                                    if (err_msg==null) {
+                                        mCurretnFileIsReadOnly=read_only;
+                                        addZipFileViewerItem(read_only, in_file.getPath());
+                                        mCurrentFilePath=in_file.getPath();
+                                        mCurrentDirectory.setText("/");
+                                        refreshFileList(true);
+                                        refreshZipFileSpinner(in_file);
+                                    } else {
+                                        mCommonDlg.showCommonDialog(false, "W", "Invalid ZIP file", "File="+in_file.getPath()+"\n"+err_msg, null);
+                                    }
+                                }
+                            });
+                        }
+                    };
+				    th.start();
 				}
 				mZipFileSpinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 					@Override
@@ -622,7 +636,6 @@ public class ZipFileManager {
 						String n_fp=mZipFileSpinner.getSelectedItem().toString();
                         ZipFileViewerItem fvi= getZipFileViewerItem(n_fp);
                         if (fvi!=null) {
-//                            mCurretnFileIsReadOnly=fvi.read_only_file;
                             showZipFile(fvi.read_only_file, new SafFile3(mContext, n_fp));
                         } else {
                             showZipFile(false, new SafFile3(mContext, n_fp));
