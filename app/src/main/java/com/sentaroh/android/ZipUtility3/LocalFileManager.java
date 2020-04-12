@@ -172,12 +172,6 @@ public class LocalFileManager {
     public void refreshFileList() {
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered");
 
-//        String w_curr_dir = "";
-//        if (mCurrentDirectory.getText().toString().equals("/")) {
-//            w_curr_dir = mLocalStorageSelector.getSelectedItem().toString();
-//        } else {
-//            w_curr_dir = mLocalStorageSelector.getSelectedItem().toString() + mCurrentDirectory.getText().toString();
-//        }
         final String curr_dir = mCurrentDirectory.getText().toString();
 
         final int pos_x = mTreeFilelistView.getFirstVisiblePosition();
@@ -289,12 +283,6 @@ public class LocalFileManager {
     private LinearLayout mContextButtonUnselectAllView = null;
 
     private void invalidateLocalFileView() {
-//        LinearLayout lv = (LinearLayout) mMainView.findViewById(R.id.local_file_view);
-//        lv.invalidate();
-//        lv.requestLayout();
-//        mCurrentDirectory.invalidate();
-//        mCurrentDirectory.invalidateOutline();
-//        mCurrentDirectory.requestLayout();
     }
 
     public void showLocalFileView(boolean show) {
@@ -649,8 +637,6 @@ public class LocalFileManager {
                 String mt=getMimeTypeFromFileExtention(mGp, lf.getName());
                 Intent intent = new Intent(android.content.Intent.ACTION_SEND);
                 Uri uri = null;
-//                if (Build.VERSION.SDK_INT >= 26) uri = FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID + ".provider", lf);
-//                else uri = Uri.parse("file://" + fpl.get(0));
                 uri = Uri.parse("file://" + fpl.get(0));
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -804,14 +790,6 @@ public class LocalFileManager {
                 mSearchListPositionX = lv_search_result.getFirstVisiblePosition();
                 mSearchListPositionY = lv_search_result.getChildAt(0) == null ? 0 : lv_search_result.getChildAt(0).getTop();
                 btnCancel.performClick();
-
-//				String fid=CommonUtilities.getFileExtention(tfi.getName());
-//				String mt=MimeTypeMap.getSingleton().getMimeTypeFromExtension(fid);
-//				invokeBrowser(tfi.getPath(), tfi.getName(), "");
-//
-//				if (mt!=null && mt.startsWith("application/zip")) {
-//					btnCancel.performClick();
-//				}
             }
         });
 
@@ -1357,12 +1335,6 @@ public class LocalFileManager {
             }
         });
         mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_zip_local_file_move_confirm_title), w_conf_list, ntfy_confirm);
-//        if (w_override_list.equals("")) ntfy_confirm.notifyToListener(true, null);
-//        else {
-//            mCommonDlg.showCommonDialog(true, "W",
-//                    String.format(mContext.getString(R.string.msgs_confirm_item_replace), to_dir),
-//                    w_override_list, ntfy_confirm);
-//        }
     }
 
     private void confirmMoveFromLocal() {
@@ -1443,12 +1415,6 @@ public class LocalFileManager {
             move_list+=sep_move+tfl.getName();
         }
         mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_zip_local_file_move_confirm_title), move_list, ntfy);
-//        if (override_list.equals("")) {
-//            mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_zip_local_file_move_confirm_title), move_list, ntfy);
-//        } else {
-//            mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_confirm_item_replace), override_list, ntfy);
-//        }
-
     }
 
     private boolean moveCopyLocalToLocal(boolean move, ThreadCtrl tc, SafFile3 from_file, String to_path) {
@@ -1683,12 +1649,6 @@ public class LocalFileManager {
         });
         mCommonDlg.showCommonDialog(true, "W",
                 String.format(mContext.getString(R.string.msgs_zip_local_file_copy_confirm_title), to_dir), w_conf_list, ntfy_confirm);
-//        if (w_override_list.equals("")) ntfy_confirm.notifyToListener(true, null);
-//        else {
-//            mCommonDlg.showCommonDialog(true, "W",
-//                    String.format(mContext.getString(R.string.msgs_confirm_item_replace), to_dir),
-//                    w_override_list, ntfy_confirm);
-//        }
     }
 
     private void prepareExtractMultipleItem(final String dest_path, final String conf_list, final boolean move_mode) {
@@ -2078,10 +2038,6 @@ public class LocalFileManager {
             copy_sep=",";
         }
         mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_zip_local_file_copy_confirm_title), copy_list, ntfy);
-//        if (c_list.equals("")) ntfy.notifyToListener(true, null);
-//        else {
-//            mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_confirm_item_replace), c_list, ntfy);
-//        }
     }
 
     private void showToast(Activity a, String msg) {
@@ -2916,26 +2872,15 @@ public class LocalFileManager {
                                     setCurrentDirectoryText(n_dir);
                                     if (tfl.size()>0) {
                                         if (p_dli!=null) {
-//                                            mUtil.addDebugMsg(1, "I", "setPosition1 x="+p_dli.pos_x+", y="+p_dli.pos_y);
                                             mTreeFilelistView.setSelectionFromTop(p_dli.pos_x, p_dli.pos_y);
                                         }
                                     }
                                 } else {
                                     mCurrentDirectory.setText(n_dir);
                                     invalidateLocalFileView();
-//                                    mCurrentDirectory.invalidate();
-//                                    mCurrentDirectory.requestLayout();
                                     if (tfl.size()>0) {
                                         if (p_dli!=null) {
                                             mTreeFilelistView.setSelectionFromTop(p_dli.pos_x, p_dli.pos_y);
-//                                            mUtil.addDebugMsg(1, "I", "setPosition2 x="+p_dli.pos_x+", y="+p_dli.pos_y);
-//                                            mUiHandler.postDelayed(new Runnable(){
-//                                                @Override
-//                                                public void run() {
-//                                                    mUtil.addDebugMsg(1, "I", "setPosition2 x="+p_dli.pos_x+", y="+p_dli.pos_y);
-//                                                    mTreeFilelistView.setSelectionFromTop(p_dli.pos_x, p_dli.pos_y);
-//                                                }
-//                                            },50);
                                         }
                                     }
                                     setTopUpButtonEnabled(false);
@@ -2981,14 +2926,6 @@ public class LocalFileManager {
         mTreeFilelistAdapter.setAllItemUnchecked();
         mTreeFilelistAdapter.notifyDataSetChanged();
     }
-
-//    private void setContextButtonViewVisibility(LinearLayout cbv) {
-//        if (mMainFilePath.startsWith(mGp.internalRootDirectory)) {
-//        } else {
-//            if (mGp.safMgr.isSdcardMounted()) cbv.setVisibility(LinearLayout.VISIBLE);
-//            else cbv.setVisibility(LinearLayout.INVISIBLE);
-//        }
-//    }
 
     public void performClickUpButton() {
 		mFileListUp.setSoundEffectsEnabled(false);
@@ -3503,55 +3440,6 @@ public class LocalFileManager {
 		th.start();
 	};
 
-//    private void writeBackZipFile(ThreadCtrl tc, SafFile3 in_file, SafFile3 dest_file) {
-//        mUtil.addDebugMsg(2, "I", "writeBackZiFile started.");
-//        CallBackListener cbl=new CallBackListener() {
-//            @Override
-//            public boolean onCallBack(Context context, Object o, Object[] objects) {
-//                putProgressMessage(mContext.getString(R.string.msgs_zip_write_zip_file_copy_from_work)+" "+(int)o+"%");
-//                return false;
-//            }
-//        };
-//        int rc=0;
-//        byte[] buff=new byte[1024*1024*4];
-//        InputStream is=null;
-//        OutputStream os=null;
-//        try {
-//            dest_file.createNewFile();
-//            is=in_file.getInputStream();
-//            os=dest_file.getOutputStream();
-//            long read_count=0, tot_size=is.available();
-//            while(((rc=is.read(buff))!=-1)) {
-//                read_count+=rc;
-//                long prog=(read_count*100)/tot_size;
-//                cbl.onCallBack(mContext, (int)prog, null);
-//                if (!tc.isEnabled()) {
-//                    break;
-//                }
-//                os.write(buff, 0, rc);
-//            }
-//            if (tc.isEnabled()) {
-//                mUtil.addDebugMsg(2, "I", "writeBackZiFile completed.");
-//                os.flush();
-//                os.close();
-//                is.close();
-//                in_file.deleteIfExists();
-//            } else {
-//                mUtil.addDebugMsg(2, "I", "writeBackZiFile cancelled.");
-//                os.close();
-//                is.close();
-//                dest_file.deleteIfExists();
-//                in_file.deleteIfExists();
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            try {if (is!=null) is.close();} catch(Exception ex) {};
-//            try {if (os!=null) os.close();} catch(Exception ex) {};
-//            dest_file.deleteIfExists();
-//            in_file.deleteIfExists();
-//        }
-//    }
-
     private CallBackListener getZipProgressCallbackListener(final ThreadCtrl tc, final BufferedZipFile3 bzf, final String msg_txt) {
         CallBackListener cbl=new CallBackListener() {
             @Override
@@ -3620,11 +3508,6 @@ public class LocalFileManager {
             }
         }
 
-//		if (mt != null) {
-//		} else {
-//			mCommonDlg.showCommonDialog(false,"E",
-//					String.format(mContext.getString(R.string.msgs_zip_specific_extract_mime_type_not_found),f_name),"",null);
-//		}
 		return result;
 	};
 	

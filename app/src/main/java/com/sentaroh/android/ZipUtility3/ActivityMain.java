@@ -460,10 +460,6 @@ public class ActivityMain extends AppCompatActivity {
             public void onClick(View v) {
                 dialog.dismiss();
                 p_ntfy.notifyToListener(true, new Object[]{ctvSuppr.isChecked()});
-//                if (ctvSuppr.isChecked()) {
-//                    prefs.edit().putBoolean(c.getString(R.string.settings_suppress_warning_location_service_disabled), true).commit();
-//                    gp.settingSupressLocationServiceWarning =true;
-//                }
             }
         });
         btnCancel.setOnClickListener(new View.OnClickListener() {
@@ -482,14 +478,6 @@ public class ActivityMain extends AppCompatActivity {
         dialog.show();
     }
 
-//    @Override
-//	public void onLowMemory() {
-//		super.onLowMemory();
-//		mUtil.addDebugMsg(1, "I", "onLowMemory entered");
-//        // Application process is follow
-//
-//	};
-	
 	@Override
 	public void onPause() {
 		super.onPause();
@@ -521,15 +509,6 @@ public class ActivityMain extends AppCompatActivity {
 
             cleanupCacheFile();
 
-//			mZipFileMgr.cleanZipFileManager();
-//			System.gc();
-//			Handler hndl=new Handler();
-//			hndl.postDelayed(new Runnable(){
-//				@Override
-//				public void run() {
-//					android.os.Process.killProcess(android.os.Process.myPid());
-//				}
-//			}, 100);
 		} else {
 			mGp.activityIsDestroyed=true;
 		}
@@ -1705,42 +1684,6 @@ public class ActivityMain extends AppCompatActivity {
 
     };
 
-//    private class MainOnTabChange implements OnTabChangeListener {
-//		@Override
-//		public void onTabChanged(String tabId){
-//			mUtil.addDebugMsg(1,"I",CommonUtilities.getExecutedMethodName()+" entered. tab="+tabId);
-//
-//			mMainViewPager.setCurrentItem(mMainTabHost.getCurrentTab());
-//
-//			if (tabId.equals(mContext.getString(R.string.msgs_main_tab_name_local))) {
-//				mLocalFileMgr.refreshFileList(true);
-//			} else {
-//			    if (mZipFileMgr!=null) mZipFileMgr.refreshFileList();
-//			}
-//
-//			refreshOptionMenu();
-//		};
-//	};
-//
-//	private class MainPageChangeListener implements ViewPager.OnPageChangeListener {
-//	    @Override
-//	    public void onPageSelected(int position) {
-//	    	mUtil.addDebugMsg(1,"I","onPageSelected entered, pos="+position);
-//	        mMainTabWidget.setCurrentTab(position);
-//	        mMainTabHost.setCurrentTab(position);
-//	    }
-//
-//	    @Override
-//	    public void onPageScrollStateChanged(int state) {
-////	    	mUtil.addDebugMsg(1,"I","onPageScrollStateChanged entered, state="+state);
-//	    }
-//
-//	    @Override
-//	    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-////	    	mUtil.addDebugMsg(1, "I","onPageScrolled entered, pos="+position);
-//	    }
-//	};
-//
 	private ISvcClient mSvcClient=null;
 	private ServiceConnection mSvcConnection=null;
 
@@ -1756,10 +1699,6 @@ public class ActivityMain extends AppCompatActivity {
     		public void onServiceDisconnected(ComponentName name) {
     			mSvcConnection = null;
    				mUtil.addDebugMsg(1,"I",CommonUtilities.getExecutedMethodName()+" entered");
-//    	    	mSvcClient=null;
-//    	    	synchronized(tcService) {
-//        	    	tcService.notify();
-//    	    	}
     		}
         };
     	
@@ -1774,18 +1713,10 @@ public class ActivityMain extends AppCompatActivity {
 
         unsetCallbackListener();
     	if (mSvcConnection!=null) {
-//    		try {
-//				if (mSvcClient!=null) mSvcClient.aidlStopService();
-//			} catch (RemoteException e) {
-//				e.printStackTrace();
-//			}
     		mSvcClient=null;
     		unbindService(mSvcConnection);
 	    	mSvcConnection=null;
-//	    	Log.v("","close service");
     	}
-//        Intent intent = new Intent(this, SyncService.class);
-//        stopService(intent);
 	};
 	
 	final private void setCallbackListener() {

@@ -1269,16 +1269,6 @@ public class ZipFileManager {
         setUiDisabled();
         final Dialog pd=CommonDialog.showProgressSpinIndicator(mActivity);
         final ThreadCtrl tc=new ThreadCtrl();
-//        showDialogProgress();
-//        mDialogProgressSpinCancel.setEnabled(true);
-//        mDialogProgressSpinMsg1.setVisibility(TextView.GONE);
-//        mDialogProgressSpinCancel.setOnClickListener(new OnClickListener(){
-//            @Override
-//            public void onClick(View v) {
-//                confirmCancel(tc,mDialogProgressSpinCancel);
-//            }
-//        });
-//        putProgressMessage(mContext.getString(R.string.msgs_zip_file_create_file_list_title));
         pd.show();
         mFileEmpty.setText("");//.setVisibility(TextView.GONE);
         Thread th=new Thread() {
@@ -1386,22 +1376,6 @@ public class ZipFileManager {
         mFileInfo.setVisibility(TextView.INVISIBLE);
     }
 
-//	private void saveZipFileList(ArrayList<ZipFileListItem>fl, String fp) {
-//		File lf=new File(mGp.applicationCacheDirectory+"/ZipSearchList");
-//		try {
-//			FileOutputStream fos=new FileOutputStream(lf);
-//			BufferedOutputStream bos=new BufferedOutputStream(fos,1024*1024*4);
-//			ObjectOutputStream oos=new ObjectOutputStream(bos);
-//			oos.writeObject(fl);
-//			oos.flush();
-//			oos.close();
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//	};
-
 	private ArrayList<TreeFilelistItem> createTreeFileList(ArrayList<ZipFileListItem> zip_file_list, String target_dir) {
 		ArrayList<TreeFilelistItem> tfl=new ArrayList<TreeFilelistItem>();
 		for (ZipFileListItem zfli:mZipFileList) {
@@ -1457,8 +1431,6 @@ public class ZipFileManager {
             tfi.setZipFileEncryptionMethod(zfli.getEncryptionMethod());
 			tfi.setZipFileCompressedSize(zfli.getCompressedFileLength());
             tfi.setZipFileItem(true);
-//            tfi.dump("zfli");
-//			Log.v("","ft="+ft+", mt="+mt);
 		}
 		return tfi;
 	};
@@ -1647,20 +1619,11 @@ public class ZipFileManager {
 		boolean enabled=true;
 		if (mGp.copyCutList.size()>0) {
 			if (mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)) {
-//				for(TreeFilelistItem tfli:mGp.copyCutList) {
-//					if (!tfli.isDirectory()) {
-//						String zfp=tfli.getPath()+"/"+tfli.getName();
-//						if (zfp.equals(zip_file_path)) {
-//							enabled=false;
-//							break;
-//						}
-//					}
-//				}
+			    //NOP
 			} else if (mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_ZIP)) {
 				if (!mGp.copyCutFilePath.equals(zip_file_path)) enabled=true;
 				else {
 					String curr_dir=fp.equals("")?"":fp;
-//					Log.v("","size="+mGp.copyCutList.size());
 					for(TreeFilelistItem s_item:mGp.copyCutList) {
 						String sel_path="";
 						if (s_item.isDirectory()){
@@ -1670,7 +1633,6 @@ public class ZipFileManager {
 						}
 						String[] item_array=sel_path.equals("")?new String[]{"/"}:sel_path.substring(1).split("/");
 						String[] cdir_array=curr_dir.equals("/")?new String[]{""}:curr_dir.split("/");
-//						Log.v("","item length="+item_array.length+", cdir length="+cdir_array.length);
 						if (item_array.length>1) {
 							if (cdir_array.length!=0){
 								if (sel_path.equals(curr_dir)) enabled=false;
@@ -3262,26 +3224,6 @@ public class ZipFileManager {
 
 	}
 
-//    static public BufferedZipFile3 createBufferedZipFile(GlobalParameters gp, CommonUtilities util, String dest_path, String out_path) {
-//        BufferedZipFile3 bzf=null;
-//        util.addDebugMsg(1,"I","createBufferedZipFile entered");
-//        long b_time= System.currentTimeMillis();
-//        SafFile3 out=new SafFile3(gp.appContext, out_path);
-//        SafFile3 dest=dest_path==null?null:new SafFile3(gp.appContext, dest_path);
-//        try {
-//            if (dest!=null) if (!dest.exists()) dest.createNewFile();
-//            if (!out.exists()) out.createNewFile();
-//            bzf=new BufferedZipFile3(gp.appContext, dest, out, ZipUtil.DEFAULT_ZIP_FILENAME_ENCODING, out.getAppDirectoryCache());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            util.addLogMsg("E","createBufferedZipFile failed. msg="+e.getMessage());
-//            util.addLogMsg("E","dest="+dest_path+", out="+out_path);
-//            try {if (out!=null && out.exists()) out.delete();} catch(Exception e2){};
-//        }
-//        util.addDebugMsg(1,"I","createBufferedZipFile elapsed time="+(System.currentTimeMillis()-b_time));
-//        return bzf;
-//    }
-
     static public void renameBufferedZipFile(GlobalParameters gp, CommonUtilities util, String dest_path, String out_path, String zip_file_name) {
         util.addDebugMsg(1,"I","renameBufferedZipFile entered");
         long b_time= System.currentTimeMillis();
@@ -3292,11 +3234,6 @@ public class ZipFileManager {
         util.addDebugMsg(1,"I","renameBufferedZipFile elapsed time="+(System.currentTimeMillis()-b_time));
     }
 
-//    static public void deleteBufferedZipWork(GlobalParameters gp, CommonUtilities util, String dest_path, String out_path) {
-//        SafFile3 of=new SafFile3(gp.appContext, out_path);
-//        of.deleteIfExists();
-//    }
-//
     private void putProgressMessage(final String msg) {
         putProgressMessage(mDialogProgressSpinMsg2, msg);
     }
@@ -3450,8 +3387,6 @@ public class ZipFileManager {
 					dli.file_list=mTreeFilelistAdapter.getDataList();
 					dli.pos_x=mTreeFilelistView.getFirstVisiblePosition();
 					dli.pos_y=mTreeFilelistView.getChildAt(0)==null?0:mTreeFilelistView.getChildAt(0).getTop();
-//					Log.v("","saved="+zipFileSpinner.getSelectedItem().toString()+"/"+curr_dir);
-//					Log.v("","x="+dli.pos_x+", y="+dli.pos_y);
 					String dir=tfi.getPath().equals("")?tfi.getName():tfi.getPath()+"/"+tfi.getName();
 					ArrayList<TreeFilelistItem> tfl=createTreeFileList(mZipFileList, dir);
 					mTreeFilelistAdapter.setDataList(tfl);
@@ -3513,9 +3448,6 @@ public class ZipFileManager {
 					String n_dir=dir.lastIndexOf("/")>0?dir.substring(1,dir.lastIndexOf("/")):"";
 					FileManagerDirectoryListItem p_dli=
 							CommonUtilities.getDirectoryItem(mDirectoryList, mZipFileSpinner.getSelectedItem().toString()+"/"+n_dir);
-//					Log.v("","loaded="+zipFileSpinner.getSelectedItem().toString()+"/"+n_dir);
-//					Log.v("","x="+p_dli.pos_x+", y="+p_dli.pos_y);
-//					Log.v("","dir="+dir+", idx="+dir.lastIndexOf("/"));
 					ArrayList<TreeFilelistItem> tfl=createTreeFileList(mZipFileList, n_dir);
 					mTreeFilelistAdapter.setDataList(tfl);
 					mCurrentDirectory.setText("/"+n_dir);
@@ -3754,17 +3686,6 @@ public class ZipFileManager {
 				cutItem(tfa);
 			}
 	  	});
-//		if (mGp.copyCutList.size()>0 &&
-//				isCopyCutDestValid(mZipFileSpinner.getSelectedItem().toString(),mZipFileCurrentDirectory.getText().toString().substring(1))) {
-//			mCcMenu.addMenuItem(mContext.getString(R.string.msgs_main_local_file_ccmenu_paste),R.drawable.context_button_paste)
-//		  		.setOnClickListener(new CustomContextMenuOnClickListener() {
-//				@Override
-//				public void onClick(CharSequence menuTitle) {
-//					if (mGp.copyCutModeIsCut) confirmMove();
-//					else confirmCopy();
-//				}
-//		  	});
-//		}
 
 		if (sel_count==1) {
 			if (!tfi.isDirectory()) {
