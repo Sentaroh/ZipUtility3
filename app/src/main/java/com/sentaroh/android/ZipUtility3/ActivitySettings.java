@@ -57,12 +57,12 @@ public class ActivitySettings extends PreferenceActivity {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		mContext=this;
+		mContext=ActivitySettings.this;
 		mGp=GlobalWorkArea.getGlobalParameters(mContext);
 		setTheme(mGp.applicationTheme);
 		super.onCreate(savedInstanceState);
-		mPrefActivity=this;
-		if (mUtil==null) mUtil=new CommonUtilities(this, "SettingsActivity", mGp, null);
+		mPrefActivity=ActivitySettings.this;
+		if (mUtil==null) mUtil=new CommonUtilities(mContext, "SettingsActivity", mGp, null);
 		mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" entered");
 		if (mGp.settingFixDeviceOrientationToPortrait) setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -89,10 +89,10 @@ public class ActivitySettings extends PreferenceActivity {
 
 	@Override
 	public boolean onIsMultiPane () {
-		mContext=this;
+		mContext=ActivitySettings.this.getApplicationContext();
 		mGp=GlobalWorkArea.getGlobalParameters(mContext);
 //    	mPrefActivity=this;
-		mUtil=new CommonUtilities(this, "SettingsActivity", mGp, null);
+		mUtil=new CommonUtilities(mContext, "SettingsActivity", mGp, null);
 		mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" entered");
 		return true;
 	};

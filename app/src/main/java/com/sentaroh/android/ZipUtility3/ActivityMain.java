@@ -180,8 +180,8 @@ public class ActivityMain extends AppCompatActivity {
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
 
-        mContext=this;
-        mActivity=this;
+        mContext=ActivityMain.this.getApplicationContext();
+        mActivity=ActivityMain.this;
         mUiHandler=new Handler();
         mFragmentManager=getSupportFragmentManager();
         mRestartStatus=0;
@@ -997,7 +997,7 @@ public class ActivityMain extends AppCompatActivity {
 	private void invokeSettingsActivity() {
 		mUtil.addDebugMsg(1,"I","Invoke Settings.");
 		Intent intent=null;
-		intent = new Intent(this, ActivitySettings.class);
+		intent = new Intent(mContext, ActivitySettings.class);
 		startActivityForResult(intent,0);
 	};
 
@@ -1099,7 +1099,7 @@ public class ActivityMain extends AppCompatActivity {
         privacy_view.getSettings().setBuiltInZoomControls(true);
 //        privacy_view.getSettings().setDisplayZoomControls(true);
 
-        final CustomViewPagerAdapter adapter=new CustomViewPagerAdapter(this, new WebView[]{func_view, privacy_view, change_view});
+        final CustomViewPagerAdapter adapter=new CustomViewPagerAdapter(mActivity, new WebView[]{func_view, privacy_view, change_view});
         final CustomViewPager mAboutViewPager=(CustomViewPager)dialog.findViewById(R.id.about_view_pager);
 //	    mMainViewPager.setBackgroundColor(mThemeColorList.window_color_background);
 
@@ -1597,7 +1597,7 @@ public class ActivityMain extends AppCompatActivity {
 //		mZipView.setBackgroundColor(mGp.themeColorList.window_background_color_content);
 
         mMainViewPager=(CustomViewPager)findViewById(R.id.main_screen_pager);
-        CustomViewPagerAdapter adapter=new CustomViewPagerAdapter(this,
+        CustomViewPagerAdapter adapter=new CustomViewPagerAdapter(mActivity,
                 new View[]{mLocalView, mZipView});
 
 //	    mMainViewPager.setBackgroundColor(mGp.themeColorList.window_background_color_content);

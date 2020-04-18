@@ -3617,7 +3617,7 @@ public class LocalFileManager {
                 mUiHandler.post(new Runnable(){
                     @Override
                     public void run() {
-                        pd.dismiss();
+                        if (pd.isShowing()) pd.dismiss();
                         p_ntfy.notifyToListener(true, new Object[]{tfl});
                     }
                 });
@@ -3701,7 +3701,7 @@ public class LocalFileManager {
                 mUiHandler.post(new Runnable(){
                     @Override
                     public void run() {
-                        pd.dismiss();
+                        if (pd.isShowing()) pd.dismiss();
                         p_ntfy.notifyToListener(true, new Object[]{tfl});
                         mTreeFilelistAdapter.sort();
 //                        p_ntfy.notifyToListener(true, new Object[]{tfl});
@@ -3744,8 +3744,7 @@ public class LocalFileManager {
                 mUiHandler.post(new Runnable(){
                     @Override
                     public void run() {
-                        pd.dismiss();
-//                        mTreeFilelistAdapter.sort();
+                        if (pd.isShowing()) pd.dismiss();
                         p_ntfy.notifyToListener(true, new Object[]{tfl});
                     }
                 });
