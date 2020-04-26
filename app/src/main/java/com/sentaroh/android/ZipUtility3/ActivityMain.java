@@ -754,15 +754,28 @@ public class ActivityMain extends AppCompatActivity {
                 });
                 createZipWorkFileForUnknownUuid(in_file, ntfy);
             } else {
-                mLocalFileMgr.showLocalFileView(false);
-                showZipFile(false, in_file);
-                hndl.post(new Runnable(){
-                    @Override
-                    public void run() {
-                        mLocalFileMgr.showLocalFileView(true);
-                    }
-                });
-                refreshOptionMenu();
+                if (in_file.getName()!=null) {
+                    mLocalFileMgr.showLocalFileView(false);
+                    showZipFile(false, in_file);
+                    hndl.post(new Runnable(){
+                        @Override
+                        public void run() {
+                            mLocalFileMgr.showLocalFileView(true);
+                        }
+                    });
+                    refreshOptionMenu();
+                } else {
+                    mCommonDlg.showCommonDialog(false, "E", "ZIP file display error",
+                            "Unable to display ZIP file because File name is null, PATH="+in_file.getPath()+", URI="+in_file.getUri(), null);
+                    mLocalFileMgr.showLocalFileView(false);
+                    hndl.post(new Runnable(){
+                        @Override
+                        public void run() {
+                            mLocalFileMgr.showLocalFileView(true);
+                        }
+                    });
+                    refreshOptionMenu();
+                }
             }
         }
     }
