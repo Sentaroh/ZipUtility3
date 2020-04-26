@@ -225,12 +225,12 @@ public final class CommonUtilities {
         return mLog.getLogLevel();
     };
 
-    final public boolean getSettingsLogOption() {
-		boolean result = false;
-		result=getPrefMgr().getBoolean(mContext.getString(R.string.settings_log_option), false);
-		addDebugMsg(2,"I","LogOption="+result);
-		return result;
-	};
+//    final public boolean getSettingsLogOption() {
+//		boolean result = false;
+//		result=getPrefMgr().getBoolean(mContext.getString(R.string.settings_log_option), false);
+//		addDebugMsg(2,"I","LogOption="+result);
+//		return result;
+//	};
 
 	static public long getSettingsParmSaveDate(Context c, String dir, String fn) {
 		File lf=new File(dir+"/"+fn);

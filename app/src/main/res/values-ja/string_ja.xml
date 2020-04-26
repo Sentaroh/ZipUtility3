@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+    <!-- About -->
+        <string name="msgs_about_dlg_func_btn">機能</string>
+        <string name="msgs_about_dlg_privacy_btn">プライバシー</string>
+        <string name="msgs_about_dlg_change_btn">更新履歴</string>
+        <string name="msgs_dlg_title_about">ZipUtility3について</string>
+        <string name="msgs_dlg_title_about_func_desc">ZipUtility3_Desc_JA_Short.htm</string>
+        <string name="msgs_dlg_title_about_privacy_desc">ZipUtility3_Privacy_JA.htm</string>
+        <string name="msgs_dlg_title_about_change_desc">ZipUtility3_Change_JA.htm</string>
+    <!-- Log -->
+        <string name="msgs_log_management_title">ログ管理</string>
+        <string name="msgs_log_management_enable_log_file_warning">有効にすることにより下記のデータがログファイルに記録されます。\nAndroidバージョン、端末名、ディレクトリー名、ファイル名、システム設定、アプリ情報</string>
+        <string name="msgs_log_management_send_log_file_warning">ログを開発者にE-Mailを使用して送信します。ログファイルにはAndroidバージョン、端末名、ディレクトリー名、ファイル名、システム設定、アプリ情報が含まれます。\n１．内容表示ボタンを押しtemp_log.txtを表示し、内容を確認してください（テキストファイルを表示するためのアプリケーション選択の画面が表示されたら、アプリケーションを表示してください）\n2．送信する内容を確認したら、送信ボタンを押しE-Mail選択ダイアログでE-Mailを選択\n３. E-Mail本文に問題/疑問を入力し、E-Mailを送信してください。（ログはzipに圧縮し、添付ファイルになっています）</string>
+    <!-- Main -->
+        <string name="msgs_main_restart_by_killed">アプリケーションがバックグラウンドに遷移後、強制終了しました。</string>
+        <string name="msgs_main_restart_by_destroyed">アプリケーションはアクティビティの破棄により終了しました。 設定->開発者向オプションで「アクティビティを保持しない」を有効にしているのであれば無効にしてください。</string>
+        <string name="msgs_main_no_external_storage">外部メディアが使用できないため、いくつかの機能が使用できません。</string>
+        <string name="msgs_main_exit_confirm_msg">アプリケーションを終了しますか？</string>
+        <string name="msgs_main_kill_confirm_msg">アプリケーションを強制終了しますか？</string>
+        <string name="msgs_main_about_title">About ZipUtility3</string>
+        <string name="msgs_main_confirm_cancel">キャンセルしてよろしいでしょうか？</string>
+        <string name="msgs_main_theme_changed_msg">テーマが変更されましたがアプリケーションを再起動するまで反映されません。</string>
+        <string name="msgs_main_select_file">ZIPファイルの選択</string>
+        <string name="msgs_main_invalid_zip_file_specified">指定されたファイルは、ZIPファイルではありません。</string>
+        <string name="msgs_main_tab_name_local">ローカルフォルダー</string>
+        <string name="msgs_main_tab_name_zip">ZIPフォルダー</string>
+        <string name="msgs_main_notification_title">ZipUtility3</string>
+        <string name="msgs_main_notification_message">バックグラウンドで処理を実行中です。</string>
+        <string name="msgs_main_notification_end_message">バックグラウンドの処理が終了しました。</string>
+        <string name="msgs_main_local_file_ccmenu_force_zip">ZIPファイルとして開く</string>
+        <string name="msgs_main_local_file_ccmenu_force_text">テキストファイルとして開く</string>
+        <string name="msgs_main_local_file_ccmenu_open_file">ファイルを開く</string>
+        <string name="msgs_main_local_file_ccmenu_open_directory">ディレクトリーを開く</string>
+        <string name="msgs_main_local_file_ccmenu_extract">展開</string>
+        <string name="msgs_main_local_file_ccmenu_delete">削除</string>
+        <string name="msgs_main_local_file_ccmenu_scan_media_store">スキャン メディア ファイル</string>
+        <string name="msgs_main_local_file_ccmenu_compress">圧縮</string>
+        <string name="msgs_main_local_file_ccmenu_copy">コピー</string>
+        <string name="msgs_main_local_file_ccmenu_cut">切取り</string>
+        <string name="msgs_main_local_file_ccmenu_paste">貼付け</string>
+        <string name="msgs_main_local_file_ccmenu_property">プロパティー</string>
+        <string name="msgs_main_local_file_ccmenu_rename">改名</string>
+        <string name="msgs_main_local_file_ccmenu_top">最上部に移動</string>
+        <string name="msgs_main_local_file_ccmenu_bottom">最下部に移動</string>
+        <string name="msgs_main_local_file_ccmenu_select">選択する</string>
+        <string name="msgs_local_file_item_property_directory" formatted="false">ディレクトリー数=%s\nファイル数=%,d\nファイルサイズ=%,d</string>
+        <string name="msgs_main_confirm_no_btn">取消</string>
+        <string name="msgs_main_confirm_noall_btn">以後全て取消</string>
+        <string name="msgs_main_confirm_yes_btn">了解</string>
+        <string name="msgs_main_confirm_yesall_btn">以後全て了解</string>
+        <string name="msgs_main_confirm_cancel_btn">キャンセル</string>
+        <string name="msgs_zip_cont_label_select_all">全て選択</string>
+        <string name="msgs_zip_cont_label_unselect_all">全て選択解除</string>
+        <string name="msgs_zip_cont_label_delete">削除</string>
+        <string name="msgs_zip_cont_label_extract">展開</string>
+        <string name="msgs_zip_cont_label_add">追加</string>
+        <string name="msgs_zip_cont_label_create">新規</string>
+        <string name="msgs_zip_cont_label_rename">改名</string>
+        <string name="msgs_zip_cont_label_open">Open</string>
+        <string name="msgs_zip_cont_label_new">New ZIP</string>
+        <string name="msgs_zip_cont_label_copy">コピー</string>
+        <string name="msgs_zip_cont_label_cut">切取り</string>
+        <string name="msgs_zip_cont_label_paste">貼付け</string>
+        <string name="msgs_zip_cont_label_share">共有</string>
+        <string name="msgs_zip_cont_header_copy">コピー</string>
+        <string name="msgs_zip_cont_header_cut">切取り</string>
+        <string name="msgs_zip_local_file_clear_copy_cut_item">消去</string>
+        <string name="msgs_zip_local_file_rename_title">名前の変更</string>
+        <string name="msgs_zip_local_file_rename_confirm_title">下記の項目を改名しますか？</string>
+        <string name="msgs_zip_local_file_rename_completed">改名しました, 名前=%s</string>
+        <string name="msgs_zip_local_file_rename_failed">改名に失敗しました, 名前=%s</string>
+        <string name="msgs_zip_local_file_move_confirm_title">下記の項目を移動しますか？</string>
+        <string name="msgs_zip_local_file_move_moved">ファイルを移動しました, 名前=%s</string>
+        <string name="msgs_zip_local_file_move_failed">ファイルの移動に失敗しました, 名前=%s</string>
+        <string name="msgs_zip_local_file_move_cancelled">ファイルの移動が中止されました</string>
+        <string name="msgs_zip_local_file_move_moving" formatted="false">%s ファイルの移動中  %s%%完了</string>
+        <string name="msgs_zip_local_file_move_completed">移動が完了しました。</string>
+        <string name="msgs_zip_local_file_copy_confirm_title">下記の項目をコピーしますか？</string>
+        <string name="msgs_zip_local_file_copy_copied">ファイルをコピーしました, 名前=%s</string>
+        <string name="msgs_zip_local_file_copy_failed">ファイルのコピーに失敗しました, 名前=%s</string>
+        <string name="msgs_zip_local_file_copy_cancelled">ファイルのコピーが中止されました</string>
+        <string name="msgs_zip_local_file_copy_copying" formatted="false">%s ファイルのコピー中  %s%%完了</string>
+        <string name="msgs_zip_local_file_copy_completed">コピーが完了しました。</string>
+        <string name="msgs_zip_file_create_file_list_title">ファイルリストを作成中</string>
+        <string name="msgs_zip_file_create_file_list_msg">お待ちください。</string>
+        <string name="msgs_zip_add_select_add_item">取り込む項目の選択</string>
+        <string name="msgs_zip_zip_file_was_not_found">ファイル%sが見つかりません。</string>
+        <string name="msgs_zip_write_zip_file_copy_from_work">更新したZIPファイルをワークファイルから書き戻しています。</string>
+        <string name="msgs_zip_write_zip_file_canelled">ZIPファイル保存がキャンセルされました。</string>
+        <string name="msgs_zip_write_zip_file_writing">ZIPファイルを保存中。</string>
+        <string name="msgs_zip_write_zip_file_confirm_override">ファイルが既に存在します、上書きしますか？</string>
+        <string name="msgs_zip_create_new_zip_file_title">新規ZIPファイルの作成</string>
+        <string name="msgs_zip_create_new_zip_file_confirm">下記項目を圧縮してよろしいでしょうか?</string>
+        <string name="msgs_zip_create_new_zip_file_already_exists">%sは既に存在しています。上書きしてよろしいでしょうか？</string>
+        <string name="msgs_zip_create_new_zip_file_select_dest">書き出し先を選択してください。</string>
+        <string name="msgs_zip_create_new_zip_file_dir_can_not_used">ディレクトリーが指定されています。再度指定してください。</string>
+        <string name="msgs_zip_create_new_zip_file_not_exists">指定されたファイルは存在しません、選択しなおしてください。</string>
+        <string name="msgs_zip_folder_not_specified">ZIPファイルが読み込まれていません。</string>
+        <string name="msgs_zip_zip_folder_empty">フォルダーは空です。</string>
+        <string name="msgs_zip_local_folder_empty">フォルダーは空です。</string>
+        <string name="msgs_zip_zip_file_info">サイズ=%s, 項目=%s, 文字コード=%s</string>
+        <string name="msgs_zip_zip_file_info_temporary" formatted="false">書込不可ZIPファイル</string>
+        <string name="msgs_zip_zip_item_property_file" formatted="false">最終更新日時=%s\n圧縮方法=%s\n暗号方式=%s\n圧縮後サイズ=%,d\n圧縮前サイズ=%,d\n圧縮率=%d%%</string>
+        <string name="msgs_zip_zip_item_property_directory" formatted="false">項目数=%s\n圧縮後サイズ=%,d\n圧縮前サイズ=%,d\n圧縮率=%d%%</string>
+        <string name="msgs_zip_zip_item_property_encrypted_yes">有り</string>
+        <string name="msgs_zip_zip_item_property_encrypted_no">無し</string>
+        <string name="msgs_zip_zip_file_being_updated">ZIPファイルを更新しています。しばらくお待ちください。</string>
+        <string name="msgs_zip_zip_file_creation_failed">BufferedZipFile作成に失敗しました。</string>
+        <string name="msgs_zip_sdcard_create_zip_file_start">ZIPの作成を開始しました。</string>
+        <string name="msgs_zip_sdcard_create_zip_file_end">ZIPの作成が完了しました。</string>
+        <string name="msgs_zip_sdcard_create_zip_file_cancelled">ZIPの作成を中止しました。</string>
+        <string name="msgs_zip_sdcard_create_zip_file_failed">ZIPの作成が失敗しました。</string>
+        <string name="msgs_folder_view_up_btn">上へ</string>
+        <string name="msgs_folder_view_top_btn">トップ</string>
+        <string name="msgs_search_file_dlg_title">ファイル検索</string>
+        <string name="msgs_search_file_dlg_search_show_option">オプションを表示する</string>
+        <string name="msgs_search_file_dlg_searching">ファイル検索中</string>
+        <string name="msgs_search_file_dlg_search_progress">%s%%検索終了。</string>
+        <string name="msgs_search_file_dlg_search_cancelled">ファイル検索を中止しました</string>
+        <string name="msgs_search_file_dlg_search_result" formatted="false">項目数=%,d, サイズ=%,d バイト</string>
+        <string name="msgs_search_file_dlg_search_hidden_item">隠しディレクトリーと隠しファイルを検索する。</string>
+        <string name="msgs_search_file_dlg_file_name_filter">フィルター</string>
+        <string name="msgs_search_file_dlg_search_case_sensitive">大文字・小文字を区別する</string>
+        <string name="msgs_search_file_dlg_sorting">並び替え中</string>
+        <string name="msgs_search_file_dlg_sort_wait">お待ちください。</string>
+        <string name="msgs_search_file_dlg_sort_btn_sort">並び替え実行</string>
+        <string name="msgs_search_file_dlg_sort_title">並び替え</string>
+        <string name="msgs_search_file_dlg_sort_order_title">順序</string>
+        <string name="msgs_search_file_dlg_sort_order_asc">昇順</string>
+        <string name="msgs_search_file_dlg_sort_order_dsc">降順</string>
+        <string name="msgs_search_file_dlg_sort_key_title">キー</string>
+        <string name="msgs_search_file_dlg_sort_key_name">名前</string>
+        <string name="msgs_search_file_dlg_sort_key_size">サイズ</string>
+        <string name="msgs_search_file_dlg_sort_key_time">最終更新時刻</string>
+        <string name="msgs_zip_open_file_not_supported_file">指定されたファイルの拡張子はサポートされていません。</string>
+        <string name="msgs_zip_parm_dlg_title">ZIPパラメーターの指定</string>
+        <string name="msgs_zip_parm_pswd_not_specified">パスワードを指定してください。</string>
+        <string name="msgs_zip_parm_confirm_pswd_unmatched">パスワードと確認用パスワードが一致しません。</string>
+        <string name="msgs_zip_parm_zip_comp_level_promopt">圧縮レベルの選択</string>
+        <string name="msgs_zip_parm_zip_comp_level_fastest">FASTEST</string>
+        <string name="msgs_zip_parm_zip_comp_level_fast">FAST</string>
+        <string name="msgs_zip_parm_zip_comp_level_normal">NORMAL</string>
+        <string name="msgs_zip_parm_zip_comp_level_maximum">MAXIMUM</string>
+        <string name="msgs_zip_parm_zip_comp_level_title">圧縮レベル</string>
+        <string name="msgs_zip_parm_zip_encrypt_method_title">暗号化</string>
+        <string name="msgs_zip_parm_zip_encrypt_method_none">無し</string>
+        <string name="msgs_zip_parm_zip_encrypt_method_zip_crypto">Zip2.0互換</string>
+        <string name="msgs_zip_parm_zip_encrypt_method_aes128">AES-128ビット</string>
+        <string name="msgs_zip_parm_zip_encrypt_method_aes256">AES-256ビット</string>
+        <string name="msgs_zip_parm_zip_encoding_auto">自動判別</string>
+        <string name="msgs_zip_parm_zip_encoding_auto_detect_failed">文字コードの自動判別ができませんでした。</string>
+        <string name="msgs_zip_extract_zip_password_title">Zipファイルのパスワード</string>
+        <string name="msgs_zip_extract_zip_password_wrong">パスワードが間違っています。</string>
+        <string name="msgs_zip_extract_zip_password_not_specified">パスワードを指定してください。</string>
+        <string name="msgs_zip_extract_select_dest_directory">展開先の選択</string>
+        <string name="msgs_zip_extract_directory_was_created">%sを作成しました。</string>
+        <string name="msgs_zip_extract_file_was_extracted">%sを作成しました。</string>
+        <string name="msgs_zip_extract_file_was_failed">展開でエラーが発生しました。</string>
+        <string name="msgs_zip_extract_file_was_cancelled">キャンセルされました。</string>
+        <string name="msgs_zip_extract_file_was_not_replaced">ファイルの上書きがユーザーにより拒否されました。 ファイル=%s</string>
+        <string name="msgs_zip_extract_file_confirm_replace_copy">ファイルを上書きしてよろしいでしょうか。</string>
+        <string name="msgs_zip_extract_file_extracting" formatted="false">%sを展開しています、%s%%完了。</string>
+        <string name="msgs_zip_extract_file_confirm_extract">下記項目を%sに展開しますか？</string>
+        <string name="msgs_zip_extract_file_started">展開を開始しました。</string>
+        <string name="msgs_zip_extract_file_completed">展開が終了しました。</string>
+        <string name="msgs_zip_extract_file_error">展開エラー</string>
+        <string name="msgs_zip_extract_file_end_with_error">Extraction end with error.</string>
+        <string name="msgs_confirm_item_replace">下記項目を上書きしますか？</string>
+        <string name="msgs_zip_file_was_changed">ZIPファイルが変更されています、ファイルリストの再読み込み後にやり直してください。</string>
+        <string name="msgs_zip_move_file_confirm">下記項目を移動してよろしいでしょうか?</string>
+        <string name="msgs_zip_move_file_completed">移動が完了しました。</string>
+        <string name="msgs_zip_add_file_confirm">下記項目を追加してよろしいでしょうか?</string>
+        <string name="msgs_zip_add_file_added">%sを追加しました。</string>
+        <string name="msgs_zip_add_file_failed">%sの追加が失敗しました。</string>
+        <string name="msgs_zip_add_file_cancelled">%sの追加が中止されました。</string>
+        <string name="msgs_zip_add_file_adding" formatted="false">%sを追加しています、%s%%完了。</string>
+        <string name="msgs_zip_add_file_starting">追加を開始しています。</string>
+        <string name="msgs_zip_add_file_completed">追加が完了しました。</string>
+        <string name="msgs_zip_add_file_close_failed">追加が失敗しました。</string>
+        <string name="msgs_local_file_add_file_confirm">下記項目を圧縮してよろしいでしょうか?</string>
+        <string name="msgs_local_file_add_file_adding">%s を圧縮しています。</string>
+        <string name="msgs_local_file_add_file_added">%sを圧縮しました。</string>
+        <string name="msgs_local_file_add_file_failed">%sの圧縮が失敗しました。</string>
+        <string name="msgs_local_file_add_file_cancelled">%sの圧縮が中止されました。</string>
+        <string name="msgs_local_file_add_file_begin">圧縮を開始しています。</string>
+        <string name="msgs_local_file_add_file_completed">圧縮が完了しました。</string>
+        <string name="msgs_local_file_share_file_max_file_count_reached">共有できるファイルの数は100までです。</string>
+        <string name="msgs_local_file_share_file_no_file_selected">共有するファイルが選択されていません。</string>
+        <string name="msgs_zip_delete_file_has_been_started">削除中です。</string>
+        <string name="msgs_zip_delete_confirm_delete">選択した項目を削除しますか?</string>
+        <string name="msgs_zip_delete_file_was_deleted">%sを削除しました。</string>
+        <string name="msgs_zip_delete_file_is_deleting">%sを削除しています。</string>
+        <string name="msgs_zip_delete_file_was_cancelled">%sの削除が中止されました。</string>
+        <string name="msgs_zip_delete_file_was_failed">%sの削除が失敗しました。</string>
+        <string name="msgs_zip_delete_file_completed">削除が完了しました。</string>
+        <string name="msgs_zip_delete_file_aborted">削除が失敗しました。</string>
+        <string name="msgs_zip_specific_extract_file_extracting">ファイルを展開しています, ファイル名=%s</string>
+        <string name="msgs_zip_specific_extract_file_viewer_not_found" formatted="false">表示するアプリケーションが見つかりません。 ファイル=%s, MIMEタイプ=%s</string>
+        <string name="msgs_zip_specific_extract_mime_type_not_found">MIMEタイプが見つかりません、 ファイル=%s</string>
+        <string name="msgs_file_list_size_calculating">計算中</string>
+        <string name="msgs_main_local_mount_point_unmounted">外部ストレージが取り外されたためローカルフォルダーは内部ストレージを表示しています。</string>
+        <string name="msgs_main_local_mount_point_select_local_storage_title">ストレージの選択</string>
+        <string name="msgs_main_saf_file_creation_error">SafFile creation error, File path=%s</string>
+        <string name="msgs_zip_zip_select_file">ZIPファイルの選択</string>
+    <!-- Menu -->
+        <string name="msgs_menu_log_management">ログ管理</string>
+        <string name="msgs_menu_about">アプリケーションについて</string>
+        <string name="msgs_menu_settings">設定</string>
+        <string name="msgs_menu_open_zip">開く</string>
+        <string name="msgs_menu_create_new_zip">作成</string>
+        <string name="msgs_menu_refresh">再読み込み</string>
+        <string name="msgs_menu_find">ファイル検索</string>
+        <string name="msgs_menu_quit">終了</string>
+        <string name="msgs_menu_kill">強制終了</string>
+        <string name="msgs_menu_sort">並び替え</string>
+        <string name="msgs_menu_save_zip_file">名前を付けて保存</string>
+        <string name="msgs_menu_storage_permission">外部ストレージ使用許可</string>
+    <!-- Storage permission -->
+        <string name="msgs_storage_permission_title">ストレージの許可</string>
+        <string name="msgs_main_external_storage_select_required_title">外部ストレージアクセス許可</string>
+        <string name="msgs_main_external_storage_select_required_select_msg">外部ストレージにアクセスをするために、ステップ１.「SDCARD」または「USB」をタップしてください、ステップ２.その後表示された画面で「選択」をタップしてください。\n(ステップ２で左上に「ＳＤＣＡＲＤ」または「USB」の画面が直接表示された時は「選択」をタップしてください。左上に「ＳＤＣＡＲＤ」または「USB」以外が表示されている場合は左上のメニューをタップし、ステップ１からやり直してください。)</string>
+        <string name="msgs_main_external_storage_select_retry_select_msg">外部ストレージのルートディレクトリが選択されませんでした。選択しなおしますか？</string>
+        <string name="msgs_main_external_storage_select_deny_msg">外部ストレージへのアクセス許可が拒否されました。外部ストレージへのアクセス許可がされるまでは外部ストレージにファイルを保存できません。</string>
+        <string name="msgs_main_external_storage_required_select_msg_file">SMBSync_STORAGE_10.0_JA.png</string>
+        <string name="msgs_main_permission_primary_storage_title">内部ストレージ許可</string>
+        <string name="msgs_main_permission_primary_storage_request_msg">内部ストレージにデータや管理用データの読み書きを行うために内部ストレージにアクセスする許可を与えてください。</string>
+        <string name="msgs_main_permission_primary_storage_denied_msg">内部ストレージにアクセスする許可が与えられていないためアプリケーションを続行できません、アプリケーションを終了します。</string>
+        <string name="msgs_main_suppress_add_external_storage_notification_title">外部ストレージ追加の通知</string>
+        <string name="msgs_main_suppress_add_external_storage_notification_msg">新しい外部ストレージが検出されました。外部ストレージを追加しますか？</string>
+        <string name="msgs_main_suppress_add_external_storage_notification_suppress">この通知を次回以降表示しない （アプリ設定で再表示できます）</string>
+    <!-- System info -->
+        <string name="msgs_menu_list_system_info">システム情報</string>
+        <string name="msgs_info_storage_copy_clipboard">コピー</string>
+        <string name="msgs_info_storage_copy_completed">クリップボードにコピーしました</string>
+        <string name="msgs_info_storage_send_btn_title">開発者に送る</string>
+        <string name="msgs_info_storage_title">ストレージ情報</string>
+        <string name="msgs_your_problem_title">質問・問題</string>
+        <string name="msgs_your_problem_msg">質問・問題を記述してください。</string>
+        <string name="msgs_your_problem_hint">例：SDCARDが認識されません</string>
+        <string name="msgs_your_problem_no_desc">問題・質問が記述されていません。ZipUtility3の問題・質問が記述されていないと回答することができません。</string>
+    <!-- Setting Main -->
+        <string name="settings_main_title">設定</string>
+        <string name="settings_compress_title">圧縮</string>
+        <string name="settings_no_compress_file_type_title">圧縮しないファイルタイプ</string>
+        <string name="settings_no_compress_file_type">settings_no_compress_file_type</string>
+        <string name="settings_zip_default_encoding_title">自動判別失敗時のエンコーディング</string>
+        <string name="settings_zip_default_encoding_dialog_title">エンコーディングの選択</string>
+        <string name="settings_zip_default_encoding">settings_zip_default_encoding</string>
+        <string-array name="settings_zip_default_encoding_list_entries">
+            <item>EUC-JP</item>
+            <item>EUC-KR</item>
+            <item>EUC-CN</item>
+            <item>EUC-TW</item>
+            <item>GB18030</item>
+            <item>SHIFT_JIS</item>
+            <item>US-ASCII</item>
+            <item>UTF-8</item>
+        </string-array >
+        <string-array name="settings_zip_default_encoding_list_values">
+            <item>EUC-JP</item>
+            <item>EUC-KR</item>
+            <item>EUC-CN</item>
+            <item>EUC-TW</item>
+            <item>GB18030</item>
+            <item>SHIFT_JIS</item>
+            <item>US-ASCII</item>
+            <item>UTF-8</item>
+        </string-array >
+        <string name="settings_confirm_exit_title">アプリ終了時の確認</string>
+        <string name="settings_confirm_exit_summary_ena">アプリ終了時の確認</string>
+        <string name="settings_confirm_exit">settings_confirm_exit</string>
+        <string name="settings_ui_title">ユーザーインターフェース</string>
+        <string name="settings_use_light_theme_title">画面テーマ</string>
+        <string name="settings_use_light_theme_summary_ena">ライトテーマを使用する</string>
+        <string name="settings_use_light_theme">settings_use_light_theme</string>
+        <string name="settings_open_as_text_file_type_title">テキストとして開くファイルタイプ</string>
+        <string name="settings_open_as_text_file_type">settings_open_as_text_file_type</string>
+        <string name="settings_device_orientation_portrait_title">端末の向き</string>
+        <string name="settings_device_orientation_portrait_summary_ena">端末の向きをポートレイトに固定する</string>
+        <string name="settings_default_current_setting">現設定=</string>
+        <string name="settings_device_orientation_portrait">settings_device_orientation_portrait</string>
+        <string name="settings_other_title">Other</string>
+        <string name="settings_exit_clean_title">Exit cleanly</string>
+        <string name="settings_exit_clean_summary_dis">Do not kill application process</string>
+        <string name="settings_exit_clean_summary_ena">Kill application process after application cleanup</string>
+        <string name="settings_exit_clean">settings_exit_clean</string>
+        <string name="settings_misc_title">その他</string>
+        <string name="settings_suppress_add_external_storage_notification">settings_suppress_add_external_storage_notification</string>
+        <string name="settings_suppress_add_external_storage_notification_summary_ena">外部ストレージ追加の通知を表示しない</string>
+        <string name="settings_suppress_add_external_storage_notification_title">外部ストレージ追加の通知</string>
+</resources>

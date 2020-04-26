@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+    <!-- About -->
+        <string name="msgs_about_dlg_func_btn">Function</string>
+        <string name="msgs_about_dlg_privacy_btn">Privacy</string>
+        <string name="msgs_about_dlg_change_btn">Change Log</string>
+        <string name="msgs_dlg_title_about">About ZipUtility3</string>
+        <string name="msgs_dlg_title_about_func_desc">ZipUtility3_Desc_EN_Short.htm</string>
+        <string name="msgs_dlg_title_about_privacy_desc">ZipUtility3_Privacy_EN.htm</string>
+        <string name="msgs_dlg_title_about_change_desc">ZipUtility3_Change_EN.htm</string>
+    <!-- Log -->
+        <string name="msgs_log_management_title">Log management</string>
+        <string name="msgs_log_management_enable_log_file_warning">The following data will be recorded in the log file by enabling it.\nAndroid version, Device name, Directory name, File name, System settings, App information</string>
+        <string name="msgs_log_management_send_log_file_warning">Send log file by E-Mail to the developer. The log file contains Android version, Device name, Directory name, File name, System settings and App information.\n1.Press the Preview button to see the temp_log.txt, then please check the contents.(If the selection screen of the application is displayed, and then select the FAVORIT application to display the text file.)\n2.When you are finished reading file to send, then select the E-Mail in EMail selection dialog.\n3.Please enter a problem/question in the E-Mail body and send an E-Mail.(The log file is attached with compressed into zip and )</string>
+    <!-- Main -->
+        <string name="msgs_main_restart_by_killed">Application was restarted, because application is killed after the move to the background in last time.</string>
+        <string name="msgs_main_restart_by_destroyed">Application was restarted because destroyed of the activity is requested.　Please disable it if you&#8217;re to enable the &#8220;Don&#8217;t keep activities&#8221; in the Settings->developer options.</string>
+        <string name="msgs_main_no_external_storage">For the external media is not available, some of the function can not be used.</string>
+        <string name="msgs_main_exit_confirm_msg">Do you want to terminate application.</string>
+        <string name="msgs_main_kill_confirm_msg">Do you want to kill the application.</string>
+        <string name="msgs_main_about_title">About ZipUtility3</string>
+        <string name="msgs_main_confirm_cancel">Do you want to cancel</string>
+        <string name="msgs_main_theme_changed_msg">Theme has been changed but does not take effect until you restart the application.</string>
+        <string name="msgs_main_select_file">Select ZIP file</string>
+        <string name="msgs_main_invalid_zip_file_specified">The specified file is not a ZIP file.</string>
+        <string name="msgs_main_tab_name_local">Local Folder</string>
+        <string name="msgs_main_tab_name_zip">ZIP Folder</string>
+        <string name="msgs_main_notification_title">ZipUtility3</string>
+        <string name="msgs_main_notification_message">Running processed in the background.</string>
+        <string name="msgs_main_notification_end_message">Processing of background has ended.</string>
+        <string name="msgs_main_local_file_ccmenu_force_zip">Open with ZIP</string>
+        <string name="msgs_main_local_file_ccmenu_force_text">Open with text</string>
+        <string name="msgs_main_local_file_ccmenu_open_file">Open file</string>
+        <string name="msgs_main_local_file_ccmenu_open_directory">Open directory</string>
+        <string name="msgs_main_local_file_ccmenu_extract">Extract</string>
+        <string name="msgs_main_local_file_ccmenu_delete">Delete</string>
+        <string name="msgs_main_local_file_ccmenu_scan_media_store">Scan media file</string>
+        <string name="msgs_main_local_file_ccmenu_compress">Compress</string>
+        <string name="msgs_main_local_file_ccmenu_copy">Copy</string>
+        <string name="msgs_main_local_file_ccmenu_cut">Cut</string>
+        <string name="msgs_main_local_file_ccmenu_paste">Paste</string>
+        <string name="msgs_main_local_file_ccmenu_property">Property</string>
+        <string name="msgs_main_local_file_ccmenu_rename">Rename</string>
+        <string name="msgs_main_local_file_ccmenu_top">Move to top</string>
+        <string name="msgs_main_local_file_ccmenu_bottom">Move to bottom</string>
+        <string name="msgs_main_local_file_ccmenu_select">Select item</string>
+        <string name="msgs_local_file_item_property_directory" formatted="false">Directory Count=%s\nFile Count=%,d\nFile Size=%,d</string>
+        <string name="msgs_main_confirm_no_btn">No</string>
+        <string name="msgs_main_confirm_noall_btn">No at All</string>
+        <string name="msgs_main_confirm_yes_btn">Yes</string>
+        <string name="msgs_main_confirm_yesall_btn">Yes at All</string>
+        <string name="msgs_main_confirm_cancel_btn">Cancel</string>
+        <string name="msgs_zip_cont_label_select_all">Select all item</string>
+        <string name="msgs_zip_cont_label_unselect_all">Unselect all item</string>
+        <string name="msgs_zip_cont_label_delete">Delete</string>
+        <string name="msgs_zip_cont_label_extract">Extract</string>
+        <string name="msgs_zip_cont_label_add">Add</string>
+        <string name="msgs_zip_cont_label_create">Create</string>
+        <string name="msgs_zip_cont_label_rename">Rename</string>
+        <string name="msgs_zip_cont_label_open">Open</string>
+        <string name="msgs_zip_cont_label_new">New ZIP</string>
+        <string name="msgs_zip_cont_label_copy">Copy</string>
+        <string name="msgs_zip_cont_label_cut">Cut</string>
+        <string name="msgs_zip_cont_label_paste">Paste</string>
+        <string name="msgs_zip_cont_label_share">Share</string>
+        <string name="msgs_zip_cont_header_copy">Copy</string>
+        <string name="msgs_zip_cont_header_cut">Cut</string>
+        <string name="msgs_zip_local_file_clear_copy_cut_item">Clear</string>
+        <string name="msgs_zip_local_file_rename_title">Rename</string>
+        <string name="msgs_zip_local_file_rename_confirm_title">Do you want to rename following item?</string>
+        <string name="msgs_zip_local_file_rename_completed">Rename completed, Name=%s</string>
+        <string name="msgs_zip_local_file_rename_failed">Rename failed, Name=%s</string>
+        <string name="msgs_zip_local_file_move_confirm_title">Do you want to move the following items</string>
+        <string name="msgs_zip_local_file_move_moved">File was moved, name=%s</string>
+        <string name="msgs_zip_local_file_move_failed">Move file was failed</string>
+        <string name="msgs_zip_local_file_move_cancelled">Move file was cancelled</string>
+        <string name="msgs_zip_local_file_move_moving" formatted="false">While moving file %s, %s%% complete</string>
+        <string name="msgs_zip_local_file_move_completed">Moe was completed.</string>
+        <string name="msgs_zip_local_file_copy_confirm_title">Do you want to copy the following items</string>
+        <string name="msgs_zip_local_file_copy_copied">File was copied, name=%s</string>
+        <string name="msgs_zip_local_file_copy_failed">File copy was failed</string>
+        <string name="msgs_zip_local_file_copy_cancelled">File copy was cancelled</string>
+        <string name="msgs_zip_local_file_copy_copying" formatted="false">%s File copying %s%% completed.</string>
+        <string name="msgs_zip_local_file_copy_completed">Copy was completed.</string>
+        <string name="msgs_zip_file_create_file_list_title">Creating the Zip file list</string>
+        <string name="msgs_zip_file_create_file_list_msg">Please wait.</string>
+        <string name="msgs_zip_add_select_add_item">Select add directory/File</string>
+        <string name="msgs_zip_zip_file_was_not_found">File %s could not be found.</string>
+        <string name="msgs_zip_write_zip_file_copy_from_work">The updated ZIP file is being written back from the work file.</string>
+        <string name="msgs_zip_write_zip_file_canelled">Zip file writing has been canceled.</string>
+        <string name="msgs_zip_write_zip_file_writing">Witing ZIP file.</string>
+        <string name="msgs_zip_write_zip_file_confirm_override">File already exists, do you want to overwrite it?</string>
+        <string name="msgs_zip_create_new_zip_file_title">Create new ZIP file</string>
+        <string name="msgs_zip_create_new_zip_file_confirm">Do you want to compress following items?</string>
+        <string name="msgs_zip_create_new_zip_file_already_exists">%s is already existed, do you want to override?</string>
+        <string name="msgs_zip_create_new_zip_file_select_dest">Select destination file</string>
+        <string name="msgs_zip_create_new_zip_file_dir_can_not_used">Directory has been specified. Please specify the file.</string>
+        <string name="msgs_zip_create_new_zip_file_not_exists">The specified file does not exist, please re-selection.</string>
+        <string name="msgs_zip_folder_not_specified">ZIP file has not been Loaded.</string>
+        <string name="msgs_zip_zip_folder_empty">Folder is empty.</string>
+        <string name="msgs_zip_local_folder_empty">Folder is empty.</string>
+        <string name="msgs_zip_zip_file_info">Size=%s, Items=%s, Encoding=%s</string>
+        <string name="msgs_zip_zip_file_info_temporary" formatted="false">Readonly ZIP file</string>
+        <string name="msgs_zip_zip_item_property_file" formatted="false">Last modified time=%s\nCompress Method=%s\nEncryption Method=%s\nCompressed size=%,d\nUncmpress size=%,d\nCompression ratio=%d%%</string>
+        <string name="msgs_zip_zip_item_property_directory" formatted="false">Item count=%s\nCompressed size=%,d\nUncmpress size=%,d\nCompression ratio=%d%%</string>
+        <string name="msgs_zip_zip_item_property_encrypted_yes">Yes</string>
+        <string name="msgs_zip_zip_item_property_encrypted_no">No</string>
+        <string name="msgs_zip_zip_file_being_updated">The zip file is being updated. Please wait.</string>
+        <string name="msgs_zip_zip_file_creation_failed">BufferedZipFile create failed.</string>
+        <string name="msgs_zip_sdcard_create_zip_file_start">Began the creation of the ZIP file.</string>
+        <string name="msgs_zip_sdcard_create_zip_file_end">Creating a ZIP file was completed.</string>
+        <string name="msgs_zip_sdcard_create_zip_file_cancelled">Aborted the creation of a ZIP file.</string>
+        <string name="msgs_zip_sdcard_create_zip_file_failed">Creating a ZIP file failed.</string>
+        <string name="msgs_folder_view_up_btn">Up</string>
+        <string name="msgs_folder_view_top_btn">Top</string>
+        <string name="msgs_search_file_dlg_title">Search file</string>
+        <string name="msgs_search_file_dlg_search_show_option">Show search option</string>
+        <string name="msgs_search_file_dlg_searching">While searching</string>
+        <string name="msgs_search_file_dlg_search_progress">%s%% Search completed.</string>
+        <string name="msgs_search_file_dlg_search_cancelled">Aborted the file searching.</string>
+        <string name="msgs_search_file_dlg_search_result" formatted="false">Item=%,d, Size=%,d Byte</string>
+        <string name="msgs_search_file_dlg_search_hidden_item">Search hidden directory and file.</string>
+        <string name="msgs_search_file_dlg_file_name_filter">Filter</string>
+        <string name="msgs_search_file_dlg_search_case_sensitive">Case sensitive</string>
+        <string name="msgs_search_file_dlg_sorting">Sorting</string>
+        <string name="msgs_search_file_dlg_sort_wait">Please wait.</string>
+        <string name="msgs_search_file_dlg_sort_btn_sort">Perform Sort</string>
+        <string name="msgs_search_file_dlg_sort_title">Sort</string>
+        <string name="msgs_search_file_dlg_sort_order_title">Order</string>
+        <string name="msgs_search_file_dlg_sort_order_asc">Ascendant</string>
+        <string name="msgs_search_file_dlg_sort_order_dsc">Descendant</string>
+        <string name="msgs_search_file_dlg_sort_key_title">Key</string>
+        <string name="msgs_search_file_dlg_sort_key_name">Name</string>
+        <string name="msgs_search_file_dlg_sort_key_size">Size</string>
+        <string name="msgs_search_file_dlg_sort_key_time">Last modified time</string>
+        <string name="msgs_zip_open_file_not_supported_file">Extension of the specified files are not supported.</string>
+        <string name="msgs_zip_parm_dlg_title">Specify ZIP Parameter</string>
+        <string name="msgs_zip_parm_pswd_not_specified">Specify password.</string>
+        <string name="msgs_zip_parm_confirm_pswd_unmatched">Password and confirm a password does not match.</string>
+        <string name="msgs_zip_parm_zip_comp_level_promopt">Select Deflate level</string>
+        <string name="msgs_zip_parm_zip_comp_level_fastest">FASTEST</string>
+        <string name="msgs_zip_parm_zip_comp_level_fast">FAST</string>
+        <string name="msgs_zip_parm_zip_comp_level_normal">NORMAL</string>
+        <string name="msgs_zip_parm_zip_comp_level_maximum">MAXIMUM</string>
+        <string name="msgs_zip_parm_zip_comp_level_title">Deflate level</string>
+        <string name="msgs_zip_parm_zip_encrypt_method_title">Encryption</string>
+        <string name="msgs_zip_parm_zip_encrypt_method_none">None</string>
+        <string name="msgs_zip_parm_zip_encrypt_method_zip_crypto">ZipCrypto</string>
+        <string name="msgs_zip_parm_zip_encrypt_method_aes128">AES-128 Bit</string>
+        <string name="msgs_zip_parm_zip_encrypt_method_aes256">AES-256 Bit</string>
+        <string name="msgs_zip_parm_zip_encoding_auto">Automatic</string>
+        <string name="msgs_zip_parm_zip_encoding_auto_detect_failed">Unable to determine the encoding.</string>
+        <string name="msgs_zip_extract_zip_password_title">Zip Password</string>
+        <string name="msgs_zip_extract_zip_password_wrong">Specified password is incorrect.</string>
+        <string name="msgs_zip_extract_zip_password_not_specified">Specify password.</string>
+        <string name="msgs_zip_extract_select_dest_directory">Select output directory</string>
+        <string name="msgs_zip_extract_directory_was_created">%s was created</string>
+        <string name="msgs_zip_extract_file_was_extracted">%s was created</string>
+        <string name="msgs_zip_extract_file_was_failed">An error has occurred in the extraction.</string>
+        <string name="msgs_zip_extract_file_was_cancelled">Extraction has been canceled.</string>
+        <string name="msgs_zip_extract_file_was_not_replaced">Overwrite the file has been rejected by the user. Name=%s</string>
+        <string name="msgs_zip_extract_file_confirm_replace_copy">Do you want to overwrite the file</string>
+        <string name="msgs_zip_extract_file_extracting" formatted="false">Extracting %s, %s%% completed.</string>
+        <string name="msgs_zip_extract_file_confirm_extract">Do you want to expand the following items to the %s?</string>
+        <string name="msgs_zip_extract_file_started">Extraction has been started.</string>
+        <string name="msgs_zip_extract_file_completed">Extraction has been completed.</string>
+        <string name="msgs_zip_extract_file_error">Extract error</string>
+        <string name="msgs_zip_extract_file_end_with_error">Extraction end with error.</string>
+        <string name="msgs_confirm_item_replace">Overwrite the following items?</string>
+        <string name="msgs_zip_file_was_changed">ZIP file has been changed, please try again in a reload of the file list.</string>
+        <string name="msgs_zip_move_file_confirm">Do you want to move the following item ?</string>
+        <string name="msgs_zip_move_file_completed">Move was completed.</string>
+        <string name="msgs_zip_add_file_confirm">Do you want to add the following item ?</string>
+        <string name="msgs_zip_add_file_added">%s was added.</string>
+        <string name="msgs_zip_add_file_failed">%s add failed.</string>
+        <string name="msgs_zip_add_file_cancelled">%s add cancelled.</string>
+        <string name="msgs_zip_add_file_adding" formatted="false">Adding %s, %s%% completed.</string>
+        <string name="msgs_zip_add_file_starting">It start adding.</string>
+        <string name="msgs_zip_add_file_completed">Add was completed.</string>
+        <string name="msgs_zip_add_file_close_failed">Add was failed.</string>
+        <string name="msgs_local_file_add_file_confirm">Do you want to compress following item ?</string>
+        <string name="msgs_local_file_add_file_adding">%s is compressing.</string>
+        <string name="msgs_local_file_add_file_added">%s was compressed.</string>
+        <string name="msgs_local_file_add_file_failed">%s Compress failed.</string>
+        <string name="msgs_local_file_add_file_cancelled">%s Compress cancelled.</string>
+        <string name="msgs_local_file_add_file_begin">Compress has bee started.</string>
+        <string name="msgs_local_file_add_file_completed">Compress was completed.</string>
+        <string name="msgs_local_file_share_file_max_file_count_reached">The number of shared files that can be up to 100.</string>
+        <string name="msgs_local_file_share_file_no_file_selected">No file selected.</string>
+        <string name="msgs_zip_delete_file_has_been_started">Are running the Delete.</string>
+        <string name="msgs_zip_delete_confirm_delete">Do you want to delete the selected items?</string>
+        <string name="msgs_zip_delete_file_was_deleted">%s was deleted.</string>
+        <string name="msgs_zip_delete_file_is_deleting">Deleting %s</string>
+        <string name="msgs_zip_delete_file_was_cancelled">Delete cancelled, name=%s</string>
+        <string name="msgs_zip_delete_file_was_failed">Delete failed, name=%s</string>
+        <string name="msgs_zip_delete_file_completed">Delete was completed.</string>
+        <string name="msgs_zip_delete_file_aborted">Delete was failed.</string>
+        <string name="msgs_zip_specific_extract_file_extracting">Extracting the file, File name=%s</string>
+        <string name="msgs_zip_specific_extract_file_viewer_not_found" formatted="false">Corresponding application not found. File name=%s, MIME Type=%s</string>
+        <string name="msgs_zip_specific_extract_mime_type_not_found">MIME type is not found. File name=%s</string>
+        <string name="msgs_file_list_size_calculating">Calculating</string>
+        <string name="msgs_main_local_mount_point_unmounted">The local folder is displaying internal storage because the external storage has been removed.</string>
+        <string name="msgs_main_local_mount_point_select_local_storage_title">Select storage</string>
+        <string name="msgs_main_saf_file_creation_error">SafFile creation error, File path=%s</string>
+        <string name="msgs_zip_zip_select_file">Select ZIP file</string>
+    <!-- Menu -->
+        <string name="msgs_menu_log_management">Log management</string>
+        <string name="msgs_menu_about">About application</string>
+        <string name="msgs_menu_settings">Settings</string>
+        <string name="msgs_menu_open_zip">Open ZIP file</string>
+        <string name="msgs_menu_create_new_zip">Create ZIP file</string>
+        <string name="msgs_menu_refresh">Refresh file list</string>
+        <string name="msgs_menu_find">Find file</string>
+        <string name="msgs_menu_quit">Quit</string>
+        <string name="msgs_menu_kill">Kill the application</string>
+        <string name="msgs_menu_sort">Sort</string>
+        <string name="msgs_menu_save_zip_file">Save as</string>
+        <string name="msgs_menu_storage_permission">Allow use external storage</string>
+    <!-- Storage permission -->
+        <string name="msgs_storage_permission_title">Permission to use storage</string>
+        <string name="msgs_main_external_storage_select_required_title">External Storage Access Permission</string>
+        <string name="msgs_main_external_storage_select_required_select_msg">In order to write the storage, Step 1 please tap the &#8220;SDCARD&#8221; or &#8220;USB&#8221;, Step2 then　Please tap the &#8220;Select&#8221; in the displayed screen.\n(Please tap the &#8220;Select&#8221; when the screen of &#8220;SDCARD&#8221; or &#8220;USB&#8221; in step2 is displayed directly in the upper left corner. If the upper left is other than &#8220;SDCARD&#8221; or &#8220;USB&#8221; are displayed, tap the upper left corner of the menu, from step 1 please try again.)</string>
+        <string name="msgs_main_external_storage_select_retry_select_msg">The root directory of the external storage was not selected. Do you wants to re select?</string>
+        <string name="msgs_main_external_storage_select_deny_msg">Permission to access external storage has been denied. You cannot save files to the external storage until you have permission to access the external storage.</string>
+        <string name="msgs_main_external_storage_required_select_msg_file">SMBSync_STORAGE_10.0_EN.png</string>
+        <string name="msgs_main_permission_primary_storage_title">Internal storage permission</string>
+        <string name="msgs_main_permission_primary_storage_request_msg">Please give permission to access internal storage in order to read and write photos of internal storage and management data.</string>
+        <string name="msgs_main_permission_primary_storage_denied_msg">Since permission to access internal storage is not given, it is impossible to read and write photos and management data, quit the application.</string>
+        <string name="msgs_main_suppress_add_external_storage_notification_title">Notification of adding external storage</string>
+        <string name="msgs_main_suppress_add_external_storage_notification_msg">New external storage has been detected. Add external storage?</string>
+        <string name="msgs_main_suppress_add_external_storage_notification_suppress">Disable this notification (can be enabled in sync settings)</string>
+    <!-- System info -->
+        <string name="msgs_menu_list_system_info">System information</string>
+        <string name="msgs_info_storage_copy_clipboard">Copy</string>
+        <string name="msgs_info_storage_copy_completed">Copied to clipboard</string>
+        <string name="msgs_info_storage_send_btn_title">Send to developer</string>
+        <string name="msgs_info_storage_title">Storage Information</string>
+        <string name="msgs_your_problem_title">Your problem/question</string>
+        <string name="msgs_your_problem_msg">Please fill in the details of your problem or question.</string>
+        <string name="msgs_your_problem_hint">Example: The sdcard is not recognized.</string>
+        <string name="msgs_your_problem_no_desc">Problem/question is not described. If the problem/question of ZipUtility3 is not described, it cannot be answered.</string>
+    <!-- Setting Main -->
+        <string name="settings_main_title">Settings</string>
+        <string name="settings_compress_title">Compress</string>
+        <string name="settings_no_compress_file_type_title">File type for no compress</string>
+        <string name="settings_no_compress_file_type">settings_no_compress_file_type</string>
+        <string name="settings_zip_default_encoding_title">Encoding when auto detect failed</string>
+        <string name="settings_zip_default_encoding_dialog_title">Select encoding</string>
+        <string name="settings_zip_default_encoding">settings_zip_default_encoding</string>
+        <string-array name="settings_zip_default_encoding_list_entries">
+            <item>EUC-JP</item>
+            <item>EUC-KR</item>
+            <item>EUC-CN</item>
+            <item>EUC-TW</item>
+            <item>GB18030</item>
+            <item>SHIFT_JIS</item>
+            <item>US-ASCII</item>
+            <item>UTF-8</item>
+        </string-array >
+        <string-array name="settings_zip_default_encoding_list_values">
+            <item>EUC-JP</item>
+            <item>EUC-KR</item>
+            <item>EUC-CN</item>
+            <item>EUC-TW</item>
+            <item>GB18030</item>
+            <item>SHIFT_JIS</item>
+            <item>US-ASCII</item>
+            <item>UTF-8</item>
+        </string-array >
+        <string name="settings_confirm_exit_title">Confirmation when app exit</string>
+        <string name="settings_confirm_exit_summary_ena">Confirmation when app exit</string>
+        <string name="settings_confirm_exit">settings_confirm_exit</string>
+        <string name="settings_ui_title">User interface</string>
+        <string name="settings_use_light_theme_title">Screen theme</string>
+        <string name="settings_use_light_theme_summary_ena">Use light theme</string>
+        <string name="settings_use_light_theme">settings_use_light_theme</string>
+        <string name="settings_open_as_text_file_type_title">File type to open as text</string>
+        <string name="settings_open_as_text_file_type">settings_open_as_text_file_type</string>
+        <string name="settings_device_orientation_portrait_title">The orientation of the device</string>
+        <string name="settings_device_orientation_portrait_summary_ena">Fix the orientation of the device to portrait</string>
+        <string name="settings_default_current_setting">current settings=</string>
+        <string name="settings_device_orientation_portrait">settings_device_orientation_portrait</string>
+        <string name="settings_other_title">Other</string>
+        <string name="settings_exit_clean_title">Exit cleanly</string>
+        <string name="settings_exit_clean_summary_dis">Do not kill application process</string>
+        <string name="settings_exit_clean_summary_ena">Kill application process after application cleanup</string>
+        <string name="settings_exit_clean">settings_exit_clean</string>
+        <string name="settings_misc_title">Miscellaneous</string>
+        <string name="settings_suppress_add_external_storage_notification">settings_suppress_add_external_storage_notification</string>
+        <string name="settings_suppress_add_external_storage_notification_summary_ena">Do not show notification of external storage addition.</string>
+        <string name="settings_suppress_add_external_storage_notification_title">Notification of adding external storage</string>
+</resources>
