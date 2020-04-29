@@ -10,6 +10,7 @@
         <string name="msgs_dlg_title_about_change_desc">ZipUtility3_Change_EN.htm</string>
     <!-- Log -->
         <string name="msgs_log_management_title">Log management</string>
+        <string name="msgs_log_management_enable_log_file_hint">Write a question/problem about ZipUtility3.</string>
         <string name="msgs_log_management_enable_log_file_warning">The following data will be recorded in the log file by enabling it.\nAndroid version, Device name, Directory name, File name, System settings, App information</string>
         <string name="msgs_log_management_send_log_file_warning">Send log file by E-Mail to the developer. The log file contains Android version, Device name, Directory name, File name, System settings and App information.\n1.Press the Preview button to see the temp_log.txt, then please check the contents.(If the selection screen of the application is displayed, and then select the FAVORIT application to display the text file.)\n2.When you are finished reading file to send, then select the E-Mail in EMail selection dialog.\n3.Please enter a problem/question in the E-Mail body and send an E-Mail.(The log file is attached with compressed into zip and )</string>
     <!-- Main -->
@@ -236,7 +237,7 @@
         <string name="msgs_info_storage_send_btn_title">Send to developer</string>
         <string name="msgs_info_storage_title">Storage Information</string>
         <string name="msgs_your_problem_title">Your problem/question</string>
-        <string name="msgs_your_problem_msg">Please fill in the details of your problem or question.</string>
+        <string name="msgs_your_problem_msg">Write a question/problem about ZipUtility3.</string>
         <string name="msgs_your_problem_hint">Example: The sdcard is not recognized.</string>
         <string name="msgs_your_problem_no_desc">Problem/question is not described. If the problem/question of ZipUtility3 is not described, it cannot be answered.</string>
     <!-- Setting Main -->

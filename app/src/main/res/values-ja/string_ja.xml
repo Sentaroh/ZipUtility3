@@ -10,6 +10,7 @@
         <string name="msgs_dlg_title_about_change_desc">ZipUtility3_Change_JA.htm</string>
     <!-- Log -->
         <string name="msgs_log_management_title">ログ管理</string>
+        <string name="msgs_log_management_enable_log_file_hint">ZipUtility3に関する質問・問題を記述してください</string>
         <string name="msgs_log_management_enable_log_file_warning">有効にすることにより下記のデータがログファイルに記録されます。\nAndroidバージョン、端末名、ディレクトリー名、ファイル名、システム設定、アプリ情報</string>
         <string name="msgs_log_management_send_log_file_warning">ログを開発者にE-Mailを使用して送信します。ログファイルにはAndroidバージョン、端末名、ディレクトリー名、ファイル名、システム設定、アプリ情報が含まれます。\n１．内容表示ボタンを押しtemp_log.txtを表示し、内容を確認してください（テキストファイルを表示するためのアプリケーション選択の画面が表示されたら、アプリケーションを表示してください）\n2．送信する内容を確認したら、送信ボタンを押しE-Mail選択ダイアログでE-Mailを選択\n３. E-Mail本文に問題/疑問を入力し、E-Mailを送信してください。（ログはzipに圧縮し、添付ファイルになっています）</string>
     <!-- Main -->
@@ -236,7 +237,7 @@
         <string name="msgs_info_storage_send_btn_title">開発者に送る</string>
         <string name="msgs_info_storage_title">ストレージ情報</string>
         <string name="msgs_your_problem_title">質問・問題</string>
-        <string name="msgs_your_problem_msg">質問・問題を記述してください。</string>
+        <string name="msgs_your_problem_msg">ZipUtility3への質問・問題を記述してください。</string>
         <string name="msgs_your_problem_hint">例：SDCARDが認識されません</string>
         <string name="msgs_your_problem_no_desc">問題・質問が記述されていません。ZipUtility3の問題・質問が記述されていないと回答することができません。</string>
     <!-- Setting Main -->

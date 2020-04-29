@@ -17,6 +17,7 @@ public class LogManagementFragment extends CommonLogManagementFragment {
         bundle.putString("msgtext", c.getString(R.string.msgs_log_management_send_log_file_warning));
         bundle.putString("enableMsg", c.getString(R.string.msgs_log_management_enable_log_file_warning));
         bundle.putString("subject", APPLICATION_TAG+" log");
+        bundle.putString("hint", c.getString(R.string.msgs_log_management_enable_log_file_hint));
         frag.setArguments(bundle);
         return frag;
     }

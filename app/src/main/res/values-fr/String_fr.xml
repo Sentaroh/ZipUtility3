@@ -10,6 +10,7 @@
         <string name="msgs_dlg_title_about_change_desc">ZipUtility3_Change_EN.htm</string>
     <!-- Log -->
         <string name="msgs_log_management_title">Gestion des journaux</string>
+        <string name="msgs_log_management_enable_log_file_hint">Rédigez une question/problème sur ZipUtility3.</string>
         <string name="msgs_log_management_enable_log_file_warning">Les données suivantes seront enregistrées dans le fichier journal en l\'activant.\nLa version d\'Android, le nom de l\'appareil, le nom du répertoire, le nom du fichier, les paramètres du système, les informations sur l\'application</string>
         <string name="msgs_log_management_send_log_file_warning">Envoyez le fichier journal par courrier électronique au développeur. Le fichier journal contient la version d\'Android, le nom de l\'appareil, le nom du répertoire, le nom du fichier, les paramètres du système et les informations sur l\'application.\n1.Appuyez sur le bouton Aperçu pour voir le fichier temp_log.txt, puis vérifiez son contenu (si l\'écran de sélection de l\'application est affiché, puis sélectionnez l\'application FAVORIS pour afficher le fichier texte). )\n2 Lorsque vous avez fini de lire le fichier à envoyer, sélectionnez le message électronique dans la boîte de dialogue de sélection des messages électroniques. \n3 Veuillez saisir un problème/une question dans le corps du message électronique et envoyer un message électronique (le fichier journal est joint et compressé dans un fichier zip).</string>
     <!-- Main -->
@@ -236,7 +237,7 @@
         <string name="msgs_info_storage_send_btn_title">Envoyer au développeur</string>
         <string name="msgs_info_storage_title">Informations sur le stockage</string>
         <string name="msgs_your_problem_title">Votre problème/question</string>
-        <string name="msgs_your_problem_msg">Veuillez indiquer les détails de votre problème ou de votre question.</string>
+        <string name="msgs_your_problem_msg">Rédigez une question/problème sur ZipUtility3.</string>
         <string name="msgs_your_problem_hint">Exemple : La sdcard n\'est pas reconnue.</string>
         <string name="msgs_your_problem_no_desc">Le problème/la question n\'est pas décrit(e). Si le problème/la question de ZipUtility3 n\'est pas décrit, il est impossible d\'y répondre.</string>
     <!-- Setting Main -->
