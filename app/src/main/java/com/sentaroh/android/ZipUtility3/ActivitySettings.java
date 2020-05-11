@@ -26,15 +26,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
 
 import com.sentaroh.android.Utilities3.LocalMountPoint;
 
 import java.util.List;
+import java.util.Locale;
 
 import static com.sentaroh.android.ZipUtility3.GlobalParameters.DEFAULT_OPEN_AS_TEXT_FILE_TYPE;
 
@@ -94,8 +97,25 @@ public class ActivitySettings extends PreferenceActivity {
 //    	mPrefActivity=this;
 		mUtil=new CommonUtilities(mContext, "SettingsActivity", mGp, null);
 		mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" entered");
-		return true;
+		return isTablet(mContext, mUtil);
 	};
+
+    public static boolean isTablet(Context context, CommonUtilities cu) {
+        int multiPaneDP=540;
+        String lang_code= Locale.getDefault().getLanguage();
+        if (lang_code.equals("en")) multiPaneDP=500;
+        else if (lang_code.equals("fr")) multiPaneDP=540;
+        else if (lang_code.equals("ja")) multiPaneDP=500;
+        else if (lang_code.equals("ru")) multiPaneDP=1000;
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        final float x_px = (float) Math.min(metrics.heightPixels, metrics.widthPixels);
+        boolean sz_mp = (x_px/metrics.density) >= multiPaneDP;
+        int orientation = context.getResources().getConfiguration().orientation;
+//        boolean sc_or= orientation == Configuration.ORIENTATION_LANDSCAPE;
+//        cu.addDebugMsg(1, "I", "orientation="+orientation+", density="+metrics.density+", x_dpi="+metrics.xdpi+", y_dpi="+metrics.ydpi+
+//                ", densityDpi="+metrics.densityDpi+", heightPixels="+metrics.heightPixels+", widthPixels="+metrics.widthPixels+", sz_mp="+sz_mp+", sc_or="+sc_or);
+        return sz_mp;
+    }
 
 	@Override
 	protected void onPause() {
