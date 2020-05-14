@@ -86,7 +86,7 @@
         <string name="msgs_zip_file_create_file_list_title">Création de la liste des fichiers Zip</string>
         <string name="msgs_zip_file_create_file_list_msg">Veuillez patienter.</string>
         <string name="msgs_zip_add_select_add_item">Sélectionnez ajouter un répertoire/fichier</string>
-        <string name="msgs_zip_zip_file_was_not_found">Les % de fichiers n\'ont pas pu être trouvés.</string>
+        <string name="msgs_zip_zip_file_was_not_found">Les %s de fichiers n\'ont pas pu être trouvés.</string>
         <string name="msgs_zip_write_zip_file_copy_from_work">Le fichier ZIP mis à jour est en cours de réécriture à partir du fichier de travail.</string>
         <string name="msgs_zip_write_zip_file_canelled">L\'écriture du fichier ZIP a été annulée.</string>
         <string name="msgs_zip_write_zip_file_writing">Fichier ZIP d\'écriture.</string>
