@@ -32,12 +32,22 @@ android {
                     variant.outputs.all {
                         def versionName = variant.versionName
                         def versionNumber = variant.versionCode.toString()
-                        def date = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date())
                         def mod_name = "${rootProject.name}"
                         def fileExtension= outputFileName.toString().substring(outputFileName.toString().lastIndexOf(".")+1)
                         def newName = "${mod_name}_debug.${fileExtension}"
-                        outputFileName = "../../../../../release/"+newName
-//                        outputFileName = newName
+//                        outputFileName = "../../../../../release/"+newName
+                        outputFileName = newName
+
+                        task copyDebugApk(type: Copy) {
+                            from 'build/outputs/apk/debug'
+                            into '../release/' // Into the project root, one level above the app folder
+                            include '**/*.apk'
+                        }
+
+                        afterEvaluate {
+                            packageDebug.finalizedBy(copyDebugApk)
+                        }
+
                     }
                 }
             }
@@ -52,7 +62,6 @@ android {
                     variant.outputs.all {
                         def versionName = variant.versionName
                         def versionNumber = variant.versionCode.toString()
-                        def date = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date())
                         def mod_name = "${rootProject.name}"
                         def fileExtension= outputFileName.toString().substring(outputFileName.toString().lastIndexOf(".")+1)
                         def newName = "${mod_name}_${versionName}_${versionNumber}_release.${fileExtension}"
