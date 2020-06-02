@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
-	xmlns:android="http://schemas.android.com/apk/res/android">
+	xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory android:title="@string/settings_compress_title">
         <com.sentaroh.android.Utilities3.Preference.ListEditPreference
             android:key="@string/settings_no_compress_file_type"
             android:title="@string/settings_no_compress_file_type_title"
-            android:inputType="text"/>
+            android:inputType="text"
+            app:hint="@string/settings_no_compress_file_type_hint"/>
         <ListPreference
             android:key="@string/settings_zip_default_encoding"
             android:title="@string/settings_zip_default_encoding_title"

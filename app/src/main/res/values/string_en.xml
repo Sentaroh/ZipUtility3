@@ -100,8 +100,8 @@
         <string name="msgs_zip_folder_not_specified">ZIP file has not been Loaded.</string>
         <string name="msgs_zip_zip_folder_empty">Folder is empty.</string>
         <string name="msgs_zip_local_folder_empty">Folder is empty.</string>
-        <string name="msgs_zip_zip_file_info">Size=%s, Items=%s, Encoding=%s</string>
-        <string name="msgs_zip_zip_file_info_temporary" formatted="false">Readonly ZIP file</string>
+        <string name="msgs_zip_zip_file_info" formatted="false">Size=%s, Items=%s, Encoding=%s</string>
+        <string name="msgs_zip_zip_file_info_temporary">Readonly ZIP file</string>
         <string name="msgs_zip_zip_item_property_file" formatted="false">Last modified time=%s\nCompress Method=%s\nEncryption Method=%s\nCompressed size=%,d\nUncmpress size=%,d\nCompression ratio=%d%%</string>
         <string name="msgs_zip_zip_item_property_directory" formatted="false">Item count=%s\nCompressed size=%,d\nUncmpress size=%,d\nCompression ratio=%d%%</string>
         <string name="msgs_zip_zip_item_property_encrypted_yes">Yes</string>
@@ -244,6 +244,7 @@
         <string name="settings_main_title">Settings</string>
         <string name="settings_compress_title">Compress</string>
         <string name="settings_no_compress_file_type_title">File type for no compress</string>
+        <string name="settings_no_compress_file_type_hint">File type</string>
         <string name="settings_no_compress_file_type">settings_no_compress_file_type</string>
         <string name="settings_zip_default_encoding_title">Encoding when auto detect failed</string>
         <string name="settings_zip_default_encoding_dialog_title">Select encoding</string>
