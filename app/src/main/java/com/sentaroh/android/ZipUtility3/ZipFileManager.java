@@ -461,7 +461,7 @@ public class ZipFileManager {
                                     tmp.createNewFile();
                                     InputStream is=in_file.getInputStream();
                                     OutputStream os=tmp.getOutputStream();
-                                    copyFile(tc, is, os, new CallBackListener() {
+                                    copyFile(tc, in_file.length(), is, os, new CallBackListener() {
                                         @Override
                                         public boolean onCallBack(Context context, Object o, Object[] objects) {
                                             putProgressMessage(mContext.getString(R.string.msgs_zip_write_zip_file_writing)+" "+(int)o+"%");
@@ -535,10 +535,10 @@ public class ZipFileManager {
 
     }
 
-    private void copyFile(ThreadCtrl tc, InputStream is, OutputStream os, CallBackListener cbl) throws IOException {
+    private void copyFile(ThreadCtrl tc, long input_file_size, InputStream is, OutputStream os, CallBackListener cbl) throws IOException {
         int rc=0;
         long read_size=0;
-        long tot_size=is.available();
+        long tot_size=input_file_size;
         long progress=0, prev_progress=-1;
         byte[] buff=new byte[1024*1024*2];
         cbl.onCallBack(mContext, 0, null);
@@ -3800,37 +3800,39 @@ public class ZipFileManager {
 			if (tc.isEnabled()) {
                 InputStream is=getZipInputStream(tc, zf, fh, mUtil);
 
-				String w_path=dest_path.endsWith("/")?dest_path+dest_file_name:dest_path+"/"+dest_file_name;
+				String dest_fpath=dest_path.endsWith("/")?dest_path+dest_file_name:dest_path+"/"+dest_file_name;
 				SafFile3 out_dir_sf=new SafFile3(mContext, dest_path);
-				if (!out_dir_sf.exists()) out_dir_sf.mkdirs();
-                SafFile3 out_file_sf=new SafFile3(mContext, w_path);
-                out_file_sf.deleteIfExists();
-                out_file_sf.createNewFile();
-				OutputStream os=out_file_sf.getOutputStream();
-
-				long fsz=fh.getUncompressedSize();
-				long frc=0;
-				byte[] buff=new byte[IO_AREA_SIZE/2];
-				int rc=0;
-				String msg_txt=mContext.getString(R.string.msgs_zip_extract_file_extracting);
-				boolean prog_enable=fsz>(1024*1024);
-				int prog_value=0, prev_prog_value=-1;
-				while((rc=is.read(buff))>0) {
-//				    mUtil.addDebugMsg(1,"I","size="+rc);
-					if (!tc.isEnabled()) break;
-					os.write(buff,0,rc);
-					frc+=rc;
-					prog_value=(int)((frc*100)/(fsz));
-					if (prog_enable && prev_prog_value!=prog_value) {
-					    prev_prog_value=prog_value;
-					    putProgressMessage(msg_view, String.format(msg_txt, zip_file_name, prog_value));
+                if (!out_dir_sf.exists()) out_dir_sf.mkdirs();
+                final String msg_text=mContext.getString(R.string.msgs_zip_extract_file_extracting);
+                CallBackListener cbl=new CallBackListener() {
+                    @Override
+                    public boolean onCallBack(Context context, Object o, Object[] objects) {
+                        putProgressMessage(String.format(msg_text, zip_file_name, (int)o));
+                        return true;
                     }
-				}
-				os.flush();
-				os.close();
-				is.close();
+                };
+				if (out_dir_sf.getAppDirectoryCache()==null) {
+                    SafFile3 out_file_sf=new SafFile3(mContext, dest_fpath);
+                    out_file_sf.deleteIfExists();
+                    out_file_sf.createNewFile();
+                    OutputStream os=out_file_sf.getOutputStream();
+                    copyFile(tc, fh.getUncompressedSize(), is, os, cbl);
+                    if (!tc.isEnabled()) out_file_sf.delete();
+                } else {
+				    String work_fpath=out_dir_sf.getAppDirectoryCache()+"/"+System.currentTimeMillis();
+                    SafFile3 out_file_work=new SafFile3(mContext, work_fpath);
+                    File out_os_file=new File(work_fpath);
+                    OutputStream os=new FileOutputStream(out_os_file);
+                    copyFile(tc, fh.getUncompressedSize(), is, os, cbl);
+                    if (!tc.isEnabled()) out_file_work.delete();
+                    else {
+                        SafFile3 out_file_sf=new SafFile3(mContext, dest_fpath);
+                        out_os_file.setLastModified(ZipUtil.dosToJavaTme((int) fh.getLastModifiedTime()));
+                        out_file_sf.deleteIfExists();
+                        out_file_work.moveToWithRename(out_file_sf);
+                    }
+                }
 
-				if (!tc.isEnabled()) out_file_sf.delete();
 			}
 			result=true;
 		} catch (Exception e) {
