@@ -58,8 +58,8 @@
         <string name="msgs_zip_cont_label_add">追加</string>
         <string name="msgs_zip_cont_label_create">新規</string>
         <string name="msgs_zip_cont_label_rename">改名</string>
-        <string name="msgs_zip_cont_label_open">Open</string>
-        <string name="msgs_zip_cont_label_new">New ZIP</string>
+        <string name="msgs_zip_cont_label_open">ZIPを開く</string>
+        <string name="msgs_zip_cont_label_new">ZIPを作成</string>
         <string name="msgs_zip_cont_label_copy">コピー</string>
         <string name="msgs_zip_cont_label_cut">切取り</string>
         <string name="msgs_zip_cont_label_paste">貼付け</string>

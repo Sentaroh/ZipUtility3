@@ -432,7 +432,7 @@ public class LocalFileManager {
                 }
             }
         });
-        ContextButtonUtil.setButtonLabelListener(mContext, mContextButtonCreate, mContext.getString(R.string.msgs_zip_cont_label_create));
+        ContextButtonUtil.setButtonLabelListener(mActivity, mContextButtonCreate, mContext.getString(R.string.msgs_zip_cont_label_create));
 
         mContextButtonShare.setOnClickListener(new OnClickListener() {
             @Override
@@ -444,7 +444,7 @@ public class LocalFileManager {
                 }
             }
         });
-        ContextButtonUtil.setButtonLabelListener(mContext, mContextButtonShare, mContext.getString(R.string.msgs_zip_cont_label_share));
+        ContextButtonUtil.setButtonLabelListener(mActivity, mContextButtonShare, mContext.getString(R.string.msgs_zip_cont_label_share));
 
         mContextButtonRename.setOnClickListener(new OnClickListener() {
             @Override
@@ -456,7 +456,7 @@ public class LocalFileManager {
                 }
             }
         });
-        ContextButtonUtil.setButtonLabelListener(mContext, mContextButtonRename, mContext.getString(R.string.msgs_zip_cont_label_rename));
+        ContextButtonUtil.setButtonLabelListener(mActivity, mContextButtonRename, mContext.getString(R.string.msgs_zip_cont_label_rename));
 
         mContextButtonArchive.setOnClickListener(new OnClickListener() {
             @Override
@@ -468,7 +468,7 @@ public class LocalFileManager {
                 }
             }
         });
-        ContextButtonUtil.setButtonLabelListener(mContext, mContextButtonArchive, mContext.getString(R.string.msgs_zip_cont_label_paste));
+        ContextButtonUtil.setButtonLabelListener(mActivity, mContextButtonArchive, mContext.getString(R.string.msgs_zip_cont_label_paste));
 
         mContextButtonPaste.setOnClickListener(new OnClickListener() {
             @Override
@@ -480,7 +480,7 @@ public class LocalFileManager {
                 }
             }
         });
-        ContextButtonUtil.setButtonLabelListener(mContext, mContextButtonPaste, mContext.getString(R.string.msgs_zip_cont_label_paste));
+        ContextButtonUtil.setButtonLabelListener(mActivity, mContextButtonPaste, mContext.getString(R.string.msgs_zip_cont_label_paste));
 
         mContextButtonCopy.setOnClickListener(new OnClickListener() {
             @Override
@@ -492,7 +492,7 @@ public class LocalFileManager {
                 }
             }
         });
-        ContextButtonUtil.setButtonLabelListener(mContext, mContextButtonCopy, mContext.getString(R.string.msgs_zip_cont_label_copy));
+        ContextButtonUtil.setButtonLabelListener(mActivity, mContextButtonCopy, mContext.getString(R.string.msgs_zip_cont_label_copy));
 
         mContextButtonCut.setOnClickListener(new OnClickListener() {
             @Override
@@ -504,7 +504,7 @@ public class LocalFileManager {
                 }
             }
         });
-        ContextButtonUtil.setButtonLabelListener(mContext, mContextButtonCut, mContext.getString(R.string.msgs_zip_cont_label_cut));
+        ContextButtonUtil.setButtonLabelListener(mActivity, mContextButtonCut, mContext.getString(R.string.msgs_zip_cont_label_cut));
 
         mContextButtonDelete.setOnClickListener(new OnClickListener() {
             @Override
@@ -516,7 +516,7 @@ public class LocalFileManager {
                 }
             }
         });
-        ContextButtonUtil.setButtonLabelListener(mContext, mContextButtonDelete, mContext.getString(R.string.msgs_zip_cont_label_delete));
+        ContextButtonUtil.setButtonLabelListener(mActivity, mContextButtonDelete, mContext.getString(R.string.msgs_zip_cont_label_delete));
 
         mContextButtonSelectAll.setOnClickListener(new OnClickListener() {
             @Override
@@ -532,7 +532,7 @@ public class LocalFileManager {
                 }
             }
         });
-        ContextButtonUtil.setButtonLabelListener(mContext, mContextButtonSelectAll, mContext.getString(R.string.msgs_zip_cont_label_select_all));
+        ContextButtonUtil.setButtonLabelListener(mActivity, mContextButtonSelectAll, mContext.getString(R.string.msgs_zip_cont_label_select_all));
 
         mContextButtonUnselectAll.setOnClickListener(new OnClickListener() {
             @Override
@@ -545,7 +545,7 @@ public class LocalFileManager {
                 }
             }
         });
-        ContextButtonUtil.setButtonLabelListener(mContext, mContextButtonUnselectAll, mContext.getString(R.string.msgs_zip_cont_label_unselect_all));
+        ContextButtonUtil.setButtonLabelListener(mActivity, mContextButtonUnselectAll, mContext.getString(R.string.msgs_zip_cont_label_unselect_all));
     }
 
     static private void setCheckedTextView(final CheckedTextView ctv) {

@@ -54,11 +54,11 @@
         <string name="msgs_zip_cont_label_select_all">Select all item</string>
         <string name="msgs_zip_cont_label_unselect_all">Unselect all item</string>
         <string name="msgs_zip_cont_label_delete">Delete</string>
-        <string name="msgs_zip_cont_label_extract">Extract</string>
+        <string name="msgs_zip_cont_label_extract">Extract To</string>
         <string name="msgs_zip_cont_label_add">Add</string>
         <string name="msgs_zip_cont_label_create">Create</string>
         <string name="msgs_zip_cont_label_rename">Rename</string>
-        <string name="msgs_zip_cont_label_open">Open</string>
+        <string name="msgs_zip_cont_label_open">Open ZIP File</string>
         <string name="msgs_zip_cont_label_new">New ZIP</string>
         <string name="msgs_zip_cont_label_copy">Copy</string>
         <string name="msgs_zip_cont_label_cut">Cut</string>
