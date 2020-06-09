@@ -40,8 +40,8 @@ android {
 
                         task copyDebugApk(type: Copy) {
                             from 'build/outputs/apk/debug'
-                            into '../release/' // Into the project root, one level above the app folder
-                            include '**/*.apk'
+                            into '../debug_apk/' // Into the project root, one level above the app folder
+                            include '**/*debug.apk'
                         }
 
                         afterEvaluate {

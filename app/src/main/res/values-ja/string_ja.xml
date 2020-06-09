@@ -51,6 +51,7 @@
         <string name="msgs_main_confirm_yes_btn">了解</string>
         <string name="msgs_main_confirm_yesall_btn">以後全て了解</string>
         <string name="msgs_main_confirm_cancel_btn">キャンセル</string>
+        <string name="msgs_zip_cont_label_compress">圧縮</string>
         <string name="msgs_zip_cont_label_select_all">全て選択</string>
         <string name="msgs_zip_cont_label_unselect_all">全て選択解除</string>
         <string name="msgs_zip_cont_label_delete">削除</string>

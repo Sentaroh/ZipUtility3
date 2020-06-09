@@ -51,6 +51,7 @@
         <string name="msgs_main_confirm_yes_btn">Oui</string>
         <string name="msgs_main_confirm_yesall_btn">Oui, tout à fait</string>
         <string name="msgs_main_confirm_cancel_btn">Annuler</string>
+        <string name="msgs_zip_cont_label_compress">Compresser</string>
         <string name="msgs_zip_cont_label_select_all">Sélectionner tout</string>
         <string name="msgs_zip_cont_label_unselect_all">Désélectionner tous les éléments</string>
         <string name="msgs_zip_cont_label_delete">Supprimer</string>

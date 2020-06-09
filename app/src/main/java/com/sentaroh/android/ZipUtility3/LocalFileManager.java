@@ -468,7 +468,7 @@ public class LocalFileManager {
                 }
             }
         });
-        ContextButtonUtil.setButtonLabelListener(mActivity, mContextButtonArchive, mContext.getString(R.string.msgs_zip_cont_label_paste));
+        ContextButtonUtil.setButtonLabelListener(mActivity, mContextButtonArchive, mContext.getString(R.string.msgs_zip_cont_label_compress));
 
         mContextButtonPaste.setOnClickListener(new OnClickListener() {
             @Override

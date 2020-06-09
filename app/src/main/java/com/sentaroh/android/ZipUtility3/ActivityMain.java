@@ -189,7 +189,7 @@ public class ActivityMain extends AppCompatActivity {
         setTheme(mGp.applicationTheme);
         mGp.themeColorList= ThemeUtil.getThemeColorList(mActivity);
         super.onCreate(savedInstanceState);
-        
+
 		mActionBar=getSupportActionBar();
 		mActionBar.setDisplayShowHomeEnabled(false);
 		mActionBar.setHomeButtonEnabled(false);
@@ -609,7 +609,7 @@ public class ActivityMain extends AppCompatActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		mUtil.addDebugMsg(1, "I", "onCreateOptionsMenu Entered");
-		MenuInflater inflater = getMenuInflater();
+		MenuInflater inflater = mActivity.getMenuInflater();
 		inflater.inflate(R.menu.menu_top, menu);
 		return true;
 	};
@@ -621,7 +621,7 @@ public class ActivityMain extends AppCompatActivity {
 
         menu.findItem(R.id.menu_top_save_zip_file).setVisible(false);
 //        if (mMainTabHost.getCurrentTabTag().equals(mContext.getString(R.string.msgs_main_tab_name_local))) {
-        if (mTabLayout.getSelectedTabName().equals(mContext.getString(R.string.msgs_main_tab_name_local))) {
+        if (mTabLayout.getSelectedTabName().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) {
         	if (mLocalFileMgr!=null) {
         		if (mLocalFileMgr.isFileListSortAscendant()) menu.findItem(R.id.menu_top_sort).setIcon(R.drawable.ic_128_sort_asc_gray);
         		else menu.findItem(R.id.menu_top_sort).setIcon(R.drawable.ic_128_sort_dsc_gray);
@@ -638,24 +638,38 @@ public class ActivityMain extends AppCompatActivity {
         		menu.findItem(R.id.menu_top_sort).setIcon(R.drawable.ic_128_sort_asc_gray);
         	}
         }
-        if (isUiEnabled()) {
-            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_find), true);
-            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_refresh),true);
-            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_sort), true);
-            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_log_management), true);
-            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_about), true);
-            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_settings), true);
-            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_save_zip_file), true);
-        } else {
-            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_find), false);
-            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_refresh), false);
-            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_sort), false);
-            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_log_management), false);
-            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_about), false);
-            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_settings), false);
-            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_save_zip_file), false);
-        }
 
+        if (isUiEnabled()) {
+            menu.findItem(R.id.menu_top_find).setVisible(true);
+            menu.findItem(R.id.menu_top_refresh).setVisible(true);
+            menu.findItem(R.id.menu_top_sort).setVisible(true);
+            menu.findItem(R.id.menu_top_log_management).setVisible(true);
+            menu.findItem(R.id.menu_top_about).setVisible(true);
+            menu.findItem(R.id.menu_top_settings).setVisible(true);
+            menu.findItem(R.id.menu_top_save_zip_file).setVisible(true);
+//            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_find), true);
+//            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_refresh),true);
+//            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_sort), true);
+//            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_log_management), true);
+//            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_about), true);
+//            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_settings), true);
+//            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_save_zip_file), true);
+        } else {
+            menu.findItem(R.id.menu_top_find).setVisible(false);
+            menu.findItem(R.id.menu_top_refresh).setVisible(false);
+            menu.findItem(R.id.menu_top_sort).setVisible(false);
+            menu.findItem(R.id.menu_top_log_management).setVisible(false);
+            menu.findItem(R.id.menu_top_about).setVisible(false);
+            menu.findItem(R.id.menu_top_settings).setVisible(false);
+            menu.findItem(R.id.menu_top_save_zip_file).setVisible(false);
+//            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_find), false);
+//            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_refresh), false);
+//            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_sort), false);
+//            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_log_management), false);
+//            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_about), false);
+//            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_settings), false);
+//            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_save_zip_file), false);
+        }
         if (mGp.safMgr.isStoragePermissionRequired()) menu.findItem(R.id.menu_top_storage_permission).setVisible(true);
         else menu.findItem(R.id.menu_top_storage_permission).setVisible(false);
 
