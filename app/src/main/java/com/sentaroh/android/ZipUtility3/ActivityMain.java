@@ -102,7 +102,6 @@ import java.util.ArrayList;
 
 import static com.sentaroh.android.Utilities3.SafFile3.SAF_FILE_PRIMARY_UUID;
 import static com.sentaroh.android.Utilities3.SafFile3.SAF_FILE_UNKNOWN_UUID;
-import static com.sentaroh.android.Utilities3.SafManager3.SCOPED_STORAGE_SDK;
 import static com.sentaroh.android.ZipUtility3.Constants.APPLICATION_TAG;
 
 @SuppressLint("NewApi")
@@ -296,18 +295,10 @@ public class ActivityMain extends AppCompatActivity {
             @Override
             public void negativeResponse(Context context, Object[] objects) { }
         });
-        if (Build.VERSION.SDK_INT>=SCOPED_STORAGE_SDK) {
-            if (isPrimaryStorageAccessGranted()) ntfy_resume.notifyToListener(true, null);
-            else {
-                if (mStoragePermissionPrimaryListener ==null) checkInternalStoragePermission(ntfy_resume);
-            }
-        } else {
-            if (isLegacyStorageAccessGranted()) ntfy_resume.notifyToListener(true, null);
-            else {
-                if (mStoragePermissionPrimaryListener ==null) checkLegacyStoragePermissions(ntfy_resume);
-            }
+        if (isLegacyStorageAccessGranted()) ntfy_resume.notifyToListener(true, null);
+        else {
+            if (mStoragePermissionPrimaryListener ==null) checkLegacyStoragePermissions(ntfy_resume);
         }
-
     }
 
 	private void processOnResumed() {
@@ -1402,8 +1393,7 @@ public class ActivityMain extends AppCompatActivity {
         ArrayList<SafManager3.StorageVolumeInfo>vol_list=SafManager3.getStorageVolumeInfo(mContext);
         for(SafManager3.StorageVolumeInfo svi:vol_list) {
             if (svi.uuid.equals(uuid)) {
-                if (Build.VERSION.SDK_INT>=SCOPED_STORAGE_SDK) intent=svi.volume.createOpenDocumentTreeIntent();
-                else if (Build.VERSION.SDK_INT>=29) intent=svi.volume.createOpenDocumentTreeIntent();
+                if (Build.VERSION.SDK_INT>=29) intent=svi.volume.createOpenDocumentTreeIntent();
                 else intent=svi.volume.createAccessIntent(null);
                 try {
                     startActivityForResult(intent, request_code);

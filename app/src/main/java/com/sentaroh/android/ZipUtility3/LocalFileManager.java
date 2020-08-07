@@ -89,7 +89,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-import static com.sentaroh.android.Utilities3.SafManager3.SCOPED_STORAGE_SDK;
 import static com.sentaroh.android.ZipUtility3.Constants.ENCODING_NAME_UTF8;
 import static com.sentaroh.android.ZipUtility3.Constants.IO_AREA_SIZE;
 import static com.sentaroh.android.ZipUtility3.Constants.MIME_TYPE_TEXT;
@@ -2950,27 +2949,18 @@ public class LocalFileManager {
 	private int mInfoFileCount=0;
 	private long mInfoFileSize=0;
     private void getDirectorySize(SafFile3 file) {
-        if (Build.VERSION.SDK_INT>=SCOPED_STORAGE_SDK) {
-            ContentProviderClient cpc=file.getContentProviderClient();
-            try {
-                getSafApiDirectorySize(cpc, file);
-            } finally {
-                cpc.release();
-            }
+        if (file.getUuid().equals(SafFile3.SAF_FILE_PRIMARY_UUID)) {
+            File lf=new File(file.getPath());
+            getFileApiDirectorySize(lf);
         } else {
-            if (file.getUuid().equals(SafFile3.SAF_FILE_PRIMARY_UUID)) {
-                File lf=new File(file.getPath());
-                getFileApiDirectorySize(lf);
-            } else {
-                File lf=new File(file.getPath());
-                if (lf.canRead()) getFileApiDirectorySize(lf);
-                else {
-                    ContentProviderClient cpc=file.getContentProviderClient();
-                    try {
-                        getSafApiDirectorySize(cpc, file);
-                    } finally {
-                        cpc.release();
-                    }
+            File lf=new File(file.getPath());
+            if (lf.canRead()) getFileApiDirectorySize(lf);
+            else {
+                ContentProviderClient cpc=file.getContentProviderClient();
+                try {
+                    getSafApiDirectorySize(cpc, file);
+                } finally {
+                    cpc.release();
                 }
             }
         }
@@ -3572,16 +3562,12 @@ public class LocalFileManager {
 
     private void createTreeFileList(final String target_dir, final NotifyEvent p_ntfy) {
 	    boolean async=false;
-	    if (Build.VERSION.SDK_INT>=SCOPED_STORAGE_SDK) {
-            createSafApiTreeFileListSync(target_dir, p_ntfy);
-        } else {
-	        if (target_dir.startsWith(SafFile3.SAF_FILE_PRIMARY_STORAGE_PREFIX)) createFileApiTreeFileList(target_dir, p_ntfy);
-	        else {
-                File lf=new File(target_dir);
-                if (lf.canRead()) createFileApiTreeFileList(target_dir, p_ntfy);
-                else {
-                    createSafApiTreeFileListAsync(target_dir, p_ntfy);
-                }
+        if (target_dir.startsWith(SafFile3.SAF_FILE_PRIMARY_STORAGE_PREFIX)) createFileApiTreeFileList(target_dir, p_ntfy);
+        else {
+            File lf=new File(target_dir);
+            if (lf.canRead()) createFileApiTreeFileList(target_dir, p_ntfy);
+            else {
+                createSafApiTreeFileListAsync(target_dir, p_ntfy);
             }
         }
     }

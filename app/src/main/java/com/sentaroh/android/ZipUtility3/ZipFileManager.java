@@ -119,7 +119,6 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-import static com.sentaroh.android.Utilities3.SafManager3.SCOPED_STORAGE_SDK;
 import static com.sentaroh.android.ZipUtility3.Constants.*;
 
 public class ZipFileManager {
@@ -469,22 +468,15 @@ public class ZipFileManager {
                                         }
                                     });
                                     if (tc.isEnabled()) {
-                                        if (Build.VERSION.SDK_INT>=SCOPED_STORAGE_SDK) {
+                                        if (out_file.getPath().startsWith(SafFile3.SAF_FILE_PRIMARY_STORAGE_PREFIX)) {
+//                                                File out_of_file=new File(out_file.getPath());
+                                            if (out_file.exists()) out_file.delete();
+                                            tmp.renameTo(out_file);
+                                        } else {
                                             SafFile3 tmp_sf=new SafFile3(mContext, tmp.getPath());
                                             if (out_file.exists()) out_file.delete();
                                             if (cache_available) tmp_sf.moveTo(out_file);
                                             else tmp_sf.renameTo(out_file);
-                                        } else {
-                                            if (out_file.getPath().startsWith(SafFile3.SAF_FILE_PRIMARY_STORAGE_PREFIX)) {
-//                                                File out_of_file=new File(out_file.getPath());
-                                                if (out_file.exists()) out_file.delete();
-                                                tmp.renameTo(out_file);
-                                            } else {
-                                                SafFile3 tmp_sf=new SafFile3(mContext, tmp.getPath());
-                                                if (out_file.exists()) out_file.delete();
-                                                if (cache_available) tmp_sf.moveTo(out_file);
-                                                else tmp_sf.renameTo(out_file);
-                                            }
                                         }
                                     } else {
                                         tmp.delete();
@@ -565,18 +557,10 @@ public class ZipFileManager {
 		Bundle bd=new Bundle();
 		if (in_file!=null) {
 		    if (!read_only) {
-		        if (Build.VERSION.SDK_INT>=SCOPED_STORAGE_SDK) {
-		            if (in_file.getUuid().equals(SafFile3.SAF_FILE_UNKNOWN_UUID)) {
-                        mCurretnFileIsReadOnly =false;
-                    } else {
-                        if (!SafManager3.isUuidRegistered(mContext, in_file.getUuid())) mCurretnFileIsReadOnly =true;
-                    }
-                } else {
-                    if (in_file.getUuid().equals(SafFile3.SAF_FILE_UNKNOWN_UUID)) {
-                        mCurretnFileIsReadOnly =false;
-                    } else if (!in_file.getUuid().equals(SafFile3.SAF_FILE_PRIMARY_UUID)) {
-                        if (!SafManager3.isUuidRegistered(mContext, in_file.getUuid())) mCurretnFileIsReadOnly =true;
-                    }
+                if (in_file.getUuid().equals(SafFile3.SAF_FILE_UNKNOWN_UUID)) {
+                    mCurretnFileIsReadOnly =false;
+                } else if (!in_file.getUuid().equals(SafFile3.SAF_FILE_PRIMARY_UUID)) {
+                    if (!SafManager3.isUuidRegistered(mContext, in_file.getUuid())) mCurretnFileIsReadOnly =true;
                 }
             }
 			String fid=CommonUtilities.getFileExtention(in_file.getName());
