@@ -1711,22 +1711,24 @@ public class ActivityMain extends AppCompatActivity {
 
 	private void openService(final NotifyEvent p_ntfy) {
  		mUtil.addDebugMsg(1,"I",CommonUtilities.getExecutedMethodName()+" entered");
-        mSvcConnection = new ServiceConnection(){
-    		public void onServiceConnected(ComponentName arg0, IBinder service) {
-    	    	mUtil.addDebugMsg(1,"I",CommonUtilities.getExecutedMethodName()+" entered");
-    	    	mSvcClient=ISvcClient.Stub.asInterface(service);
-                setCallbackListener();
-   	    		p_ntfy.notifyToListener(true, null);
-    		}
-    		public void onServiceDisconnected(ComponentName name) {
-    			mSvcConnection = null;
-   				mUtil.addDebugMsg(1,"I",CommonUtilities.getExecutedMethodName()+" entered");
-    		}
-        };
-    	
-		Intent intmsg = new Intent(mContext, ZipService.class);
-		intmsg.setAction("Bind");
-        bindService(intmsg, mSvcConnection, BIND_AUTO_CREATE);
+ 		if (mSvcConnection==null) {
+            mSvcConnection = new ServiceConnection(){
+                public void onServiceConnected(ComponentName arg0, IBinder service) {
+                    mUtil.addDebugMsg(1,"I",CommonUtilities.getExecutedMethodName()+" entered");
+                    mSvcClient=ISvcClient.Stub.asInterface(service);
+                    setCallbackListener();
+                    p_ntfy.notifyToListener(true, null);
+                }
+                public void onServiceDisconnected(ComponentName name) {
+                    mSvcConnection = null;
+                    mUtil.addDebugMsg(1,"I",CommonUtilities.getExecutedMethodName()+" entered");
+                }
+            };
+
+            Intent intmsg = new Intent(mContext, ZipService.class);
+            intmsg.setAction("Bind");
+            bindService(intmsg, mSvcConnection, BIND_AUTO_CREATE);
+        }
 	};
 
 	private void closeService() {
