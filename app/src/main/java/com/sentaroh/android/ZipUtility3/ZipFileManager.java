@@ -208,7 +208,7 @@ public class ZipFileManager {
         mActivity=a;
 		mCommonDlg=new CommonDialog(a, fm);
         mUiHandler=new Handler();
-        mContext=a.getApplicationContext();
+        mContext=a;
         mFragmentManager=fm;
         mUtil=new CommonUtilities(mContext, "ZipFolder", gp, mCommonDlg);
 

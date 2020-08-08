@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,6 +42,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import com.sentaroh.android.Utilities3.Dialog.CommonDialog;
 import com.sentaroh.android.Utilities3.NotifyEvent;
 import com.sentaroh.android.Utilities3.ThemeColorList;
 import com.sentaroh.android.Utilities3.ThemeUtil;
@@ -190,8 +192,8 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
 	};
 
 	public void setAllItemChecked(boolean checked) {
-		for (int i=0;i<mDataItems.size();i++) 
-			mDataItems.get(i).setChecked(checked); 
+		for (int i=0;i<mDataItems.size();i++)
+		    if (TreeFilelistItem.isSelectableItem(mDataItems.get(i))) mDataItems.get(i).setChecked(checked);
 	};
 
 	public boolean isSingleSelectMode() {
@@ -358,9 +360,12 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
 	
 	@Override
 	public boolean isEnabled(int p) {
-//		Log.v("","n="+getDataItem(p).getName()+", e="+getDataItem(p).isEnableItem());
-        if (p<getCount()) return getItem(p).isEnableItem();
-        else return false;
+	    if (getItem(p).canRead()) {
+            if (p<getCount()) return getItem(p).isEnableItem();
+            else return false;
+        } else {
+            return false;
+        }
 	}
 	
 	private Drawable mDefaultBgColor=null;
@@ -410,18 +415,15 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
             		}
 
             	}
-//            	if (normal_text_color==-1) normal_text_color=holder.tv_name.getCurrentTextColor();
-//            	Log.v("","n="+String.format("0x%08x",holder.tv_name.getCurrentTextColor()));
-            	v.setTag(holder); 
+            	v.setTag(holder);
             } else {
          	   holder= (ViewHolder)v.getTag();
             }
             v.setEnabled(true);
             final TreeFilelistItem o = mDataItems.get(position);
-//            Log.v("","data_items pos="+show_items.get(position)+", pos="+position);
-//            ListView lv=(ListView)parent;
-//            Log.v("","s_pos="+lv.getCheckedItemPosition());
             if (o != null) {
+                boolean selectable=TreeFilelistItem.isSelectableItem(o);
+                setCheckBoxEnabled(selectable);
             	if (o.isEnableItem()) {
 	            	holder.cb_cb1.setEnabled(true);
             		holder.rb_rb1.setEnabled(true);
@@ -446,137 +448,132 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
         			holder.cb_cb1.setVisibility(CheckBox.VISIBLE);
         			holder.rb_rb1.setVisibility(RadioButton.GONE);
         		}
-            	if (o.getName().startsWith("---")) {
-            		holder.cb_cb1.setVisibility(CheckBox.GONE);
-            		holder.rb_rb1.setVisibility(CheckBox.GONE);
-            		holder.iv_expand.setVisibility(ImageView.GONE);
-            		holder.iv_image1.setVisibility(ImageView.GONE);
-            		holder.tv_name.setText(o.getName());
-            	} else {
-                	holder.tv_spacer.setWidth(o.getListLevel()*30);
-                	holder.tv_name.setText(o.getName());
-                    holder.tv_size.setVisibility(TextView.VISIBLE);
+
+                holder.tv_spacer.setWidth(o.getListLevel()*30);
+                holder.tv_name.setText(o.getName());
+                holder.tv_size.setVisibility(TextView.VISIBLE);
+                holder.tv_count.setVisibility(TextView.VISIBLE);
+                if (o.getLength()!=-1) {
+                    holder.tv_size.setText(o.getFileSize());
                     holder.tv_count.setVisibility(TextView.VISIBLE);
-                	if (o.getLength()!=-1) {
-                	    holder.tv_size.setText(o.getFileSize());
-                        holder.tv_count.setVisibility(TextView.VISIBLE);
-                    } else {
+                } else {
 //                	    holder.tv_size.setText(String.format("%3d Item",o.getSubDirItemCount()));
-                        holder.tv_size.setText(mContext.getString(R.string.msgs_file_list_size_calculating));
+                    holder.tv_size.setText(mContext.getString(R.string.msgs_file_list_size_calculating));
 //                        holder.tv_count.setVisibility(TextView.GONE);
-                    }
-                    if (o.isDirectory()) {
-                        if (!o.isZipFileItem()) holder.tv_size.setVisibility(TextView.VISIBLE);
-                        else holder.tv_size.setVisibility(TextView.GONE);
-                    } else {
-                        holder.tv_count.setVisibility(TextView.GONE);
-                    }
-                	if (mShowLastModified) {
-                        holder.tv_moddate.setText(o.getFileLastModDate());
-                        holder.tv_modtime.setText(o.getFileLastModTime());
-                        if (o.isDirectory()) holder.tv_count.setText(String.format("%3d Item",o.getSubDirItemCount()));
-//    		       		int wsz_w=mActivity.getWindow()
-//    	    					.getWindowManager().getDefaultDisplay().getWidth();
-//    		       		int wsz_h=activity.getWindow()
-//    	    					.getWindowManager().getDefaultDisplay().getHeight();
+                }
+                if (o.isDirectory()) {
+                    if (!o.isZipFileItem()) holder.tv_size.setVisibility(TextView.VISIBLE);
+                    else holder.tv_size.setVisibility(TextView.GONE);
+                } else {
+                    holder.tv_count.setVisibility(TextView.GONE);
+                }
+                if (mShowLastModified) {
+                    holder.tv_moddate.setText(o.getFileLastModDate());
+                    holder.tv_modtime.setText(o.getFileLastModTime());
+                    if (o.isDirectory()) holder.tv_count.setText(String.format("%3d Item",o.getSubDirItemCount()));
+                } else {
+                    holder.tv_moddate.setVisibility(TextView.GONE);
+                    holder.tv_modtime.setVisibility(TextView.GONE);
+                }
+                int disabled_color=mThemeColorList.theme_is_light?0xffa0a0a0:Color.GRAY;
 
-//    		       		if (wsz_w>=700) holder.tv_size.setVisibility(TextView.VISIBLE);
-//                       	else holder.tv_size.setVisibility(TextView.GONE);
-
-//    		            if (!o.isDir()) holder.tv_size.setVisibility(TextView.VISIBLE);
-//    		            else holder.tv_size.setVisibility(TextView.GONE);
-                	} else {
-    	            	holder.tv_moddate.setVisibility(TextView.GONE);
-    	            	holder.tv_modtime.setVisibility(TextView.GONE);
-                	}
-                	int disabled_color=mThemeColorList.theme_is_light?0xffa0a0a0:Color.GRAY;
-
-                   	if (!o.isHidden()) {
-                   		if (o.isEnableItem()) {
-                   			if (o.isZipEncrypted()) {
-                           		holder.tv_name.setTextColor(mThemeColorList.text_color_warning);//normal_text_color);
-        		            	holder.tv_size.setTextColor(mThemeColorList.text_color_warning);//normal_text_color);
+                if (!selectable) {
+                    holder.cb_cb1.setVisibility(CheckBox.INVISIBLE);
+                    holder.rb_rb1.setVisibility(RadioButton.GONE);
+                }
+                if (!o.isHidden()) {
+                    if (o.isEnableItem()) {
+                        if (o.canRead()) {
+                            if (o.isZipEncrypted()) {
+                                holder.tv_name.setTextColor(mThemeColorList.text_color_warning);//normal_text_color);
+                                holder.tv_size.setTextColor(mThemeColorList.text_color_warning);//normal_text_color);
                                 holder.tv_count.setTextColor(mThemeColorList.text_color_warning);//Color.GRAY);
                                 holder.tv_comp_info.setTextColor(mThemeColorList.text_color_warning);//Color.GRAY);
-        		            	holder.tv_moddate.setTextColor(mThemeColorList.text_color_warning);//normal_text_color);
-        		            	holder.tv_modtime.setTextColor(mThemeColorList.text_color_warning);//normal_text_color);
-                   			} else {
-                           		holder.tv_name.setTextColor(mDefaultTextColor);//normal_text_color);
-        		            	holder.tv_size.setTextColor(mDefaultTextColor);//normal_text_color);
+                                holder.tv_moddate.setTextColor(mThemeColorList.text_color_warning);//normal_text_color);
+                                holder.tv_modtime.setTextColor(mThemeColorList.text_color_warning);//normal_text_color);
+                            } else {
+                                holder.tv_name.setTextColor(mDefaultTextColor);//normal_text_color);
+                                holder.tv_size.setTextColor(mDefaultTextColor);//normal_text_color);
                                 holder.tv_count.setTextColor(mDefaultTextColor);//Color.GRAY);
                                 holder.tv_comp_info.setTextColor(mDefaultTextColor);//Color.GRAY);
-        		            	holder.tv_moddate.setTextColor(mDefaultTextColor);//normal_text_color);
-        		            	holder.tv_modtime.setTextColor(mDefaultTextColor);//normal_text_color);
-                   			}
-                   		} else {
-                       		holder.tv_name.setTextColor(disabled_color);//Color.GRAY);
-    		            	holder.tv_size.setTextColor(disabled_color);//Color.GRAY);
+                                holder.tv_moddate.setTextColor(mDefaultTextColor);//normal_text_color);
+                                holder.tv_modtime.setTextColor(mDefaultTextColor);//normal_text_color);
+                            }
+                        } else {
+                            holder.tv_name.setTextColor(disabled_color);//Color.GRAY);
+                            holder.tv_size.setTextColor(disabled_color);//Color.GRAY);
                             holder.tv_count.setTextColor(disabled_color);//Color.GRAY);
                             holder.tv_comp_info.setTextColor(disabled_color);//Color.GRAY);
-    		            	holder.tv_moddate.setTextColor(disabled_color);//Color.GRAY);
-    		            	holder.tv_modtime.setTextColor(disabled_color);//Color.GRAY);
-                   		}
-                   	} else {
+                            holder.tv_moddate.setTextColor(disabled_color);//Color.GRAY);
+                            holder.tv_modtime.setTextColor(disabled_color);//Color.GRAY);
+                            holder.cb_cb1.setVisibility(CheckBox.INVISIBLE);
+                            holder.rb_rb1.setVisibility(RadioButton.GONE);
+                        }
+                    } else {
                         holder.tv_name.setTextColor(disabled_color);//Color.GRAY);
                         holder.tv_size.setTextColor(disabled_color);//Color.GRAY);
                         holder.tv_count.setTextColor(disabled_color);//Color.GRAY);
                         holder.tv_comp_info.setTextColor(disabled_color);//Color.GRAY);
                         holder.tv_moddate.setTextColor(disabled_color);//Color.GRAY);
                         holder.tv_modtime.setTextColor(disabled_color);//Color.GRAY);
-                   	}
-                   	if(o.isDirectory()) {
-                        holder.tv_comp_info.setText("");
-                        if (o.getLength()!=-1) holder.tv_count.setVisibility(TextView.VISIBLE);
-                   		if (o.getSubDirItemCount()>0) {
-                   			if (o.isEnableItem()) {
-	                   			if (o.isChildListExpanded()) 
-	                   				holder.iv_expand.setImageResource(mIconImage[0]);//expanded
-	                   			else holder.iv_expand.setImageResource(mIconImage[1]);//collapsed
-                   			} else holder.iv_expand.setImageResource(mIconImage[4]); //blank
-                   		} else {
-                   			holder.iv_expand.setImageResource(mIconImage[4]); //blank
-                   		}
-                   		holder.iv_image1.setImageResource(mIconImage[2]); //folder
-                   	} else {
-                        if (o.isZipFileItem()) {
-                            String cm= ZipUtil.getCompressionMethodName(o.getZipFileCompressionMethod());
-                            String comp_ratio="";
-                            if (o.getZipFileCompressionMethod()!=TreeFilelistItem.ZIP_COMPRESSION_METHOD_STORE) {
-                                if (o.getLength()>0) comp_ratio=(o.getZipFileCompressedSize()*100)/o.getLength()+"%";
-                            }
-                            holder.tv_comp_info.setText(comp_ratio+" "+cm);
-                        } else {
-                            holder.tv_comp_info.setText("");
+                    }
+                } else {
+                    holder.tv_name.setTextColor(disabled_color);//Color.GRAY);
+                    holder.tv_size.setTextColor(disabled_color);//Color.GRAY);
+                    holder.tv_count.setTextColor(disabled_color);//Color.GRAY);
+                    holder.tv_comp_info.setTextColor(disabled_color);//Color.GRAY);
+                    holder.tv_moddate.setTextColor(disabled_color);//Color.GRAY);
+                    holder.tv_modtime.setTextColor(disabled_color);//Color.GRAY);
+                }
+                if(o.isDirectory()) {
+                    holder.tv_comp_info.setText("");
+                    if (o.getLength()!=-1) holder.tv_count.setVisibility(TextView.VISIBLE);
+                    if (o.getSubDirItemCount()>0) {
+                        if (o.isEnableItem()) {
+                            if (o.isChildListExpanded())
+                                holder.iv_expand.setImageResource(mIconImage[0]);//expanded
+                            else holder.iv_expand.setImageResource(mIconImage[1]);//collapsed
+                        } else holder.iv_expand.setImageResource(mIconImage[4]); //blank
+                    } else {
+                        holder.iv_expand.setImageResource(mIconImage[4]); //blank
+                    }
+                    holder.iv_image1.setImageResource(mIconImage[2]); //folder
+                } else {
+                    if (o.isZipFileItem()) {
+                        String cm= ZipUtil.getCompressionMethodName(o.getZipFileCompressionMethod());
+                        String comp_ratio="";
+                        if (o.getZipFileCompressionMethod()!=TreeFilelistItem.ZIP_COMPRESSION_METHOD_STORE) {
+                            if (o.getLength()>0) comp_ratio=(o.getZipFileCompressedSize()*100)/o.getLength()+"%";
                         }
-                        holder.tv_count.setVisibility(TextView.GONE);
-               			if (o.getMimeType().startsWith("image")) {
-               				holder.iv_image1.setImageResource(R.drawable.ic_32_file_image);
-               			} else if (o.getMimeType().startsWith("audio")) {
-               				holder.iv_image1.setImageResource(R.drawable.ic_32_file_music);                   				
-               			} else if (o.getMimeType().startsWith("video")) {
-               				holder.iv_image1.setImageResource(R.drawable.ic_32_file_movie);
-               			} else {
-               				if (o.getFileExtention().equalsIgnoreCase("zip") 
-//               						|| o.getFileExtention().equalsIgnoreCase("gz") || 
-//               						o.getFileExtention().equalsIgnoreCase("tar")
-               						) {
-               					holder.iv_image1.setImageResource(R.drawable.ic_32_file_zip);
+                        holder.tv_comp_info.setText(comp_ratio+" "+cm);
+                    } else {
+                        holder.tv_comp_info.setText("");
+                    }
+                    holder.tv_count.setVisibility(TextView.GONE);
+                    if (o.getMimeType().startsWith("image")) {
+                        holder.iv_image1.setImageResource(R.drawable.ic_32_file_image);
+                    } else if (o.getMimeType().startsWith("audio")) {
+                        holder.iv_image1.setImageResource(R.drawable.ic_32_file_music);
+                    } else if (o.getMimeType().startsWith("video")) {
+                        holder.iv_image1.setImageResource(R.drawable.ic_32_file_movie);
+                    } else {
+                        if (o.getFileExtention().equalsIgnoreCase("zip")) {
+                            holder.iv_image1.setImageResource(R.drawable.ic_32_file_zip);
 //               				} else if (o.getFileExtention().equals("doc") || o.getFileExtention().equals("docx")) {
 //               					holder.iv_image1.setImageResource(R.drawable.ic_32_file_doc);
 //               				} else if (o.getFileExtention().equals("xls") || o.getFileExtention().equals("xlsx")) {
 //               					holder.iv_image1.setImageResource(R.drawable.ic_32_file_xls);
 //               				} else if (o.getFileExtention().equals("ppt") || o.getFileExtention().equals("pptx")) {
 //               					holder.iv_image1.setImageResource(R.drawable.ic_32_file_ppt);
-               				} else if (o.getFileExtention().equalsIgnoreCase("pdf")) {
-               					holder.iv_image1.setImageResource(R.drawable.ic_32_file_pdf);
-               				} else {
-                           		holder.iv_image1.setImageResource(mIconImage[3]); //sheet
-               				}
-               			}
-                   		holder.iv_expand.setImageResource(mIconImage[4]); //blank
-                   	}
-            	}
-            	
+                        } else if (o.getFileExtention().equalsIgnoreCase("pdf")) {
+                            holder.iv_image1.setImageResource(R.drawable.ic_32_file_pdf);
+                        } else {
+                            holder.iv_image1.setImageResource(mIconImage[3]); //sheet
+                        }
+                    }
+                    holder.iv_expand.setImageResource(mIconImage[4]); //blank
+                }
+
             	if (o.isChecked()) {
             		if (ThemeUtil.isLightThemeUsed(mContext)) holder.ll_view.setBackgroundColor(Color.CYAN);
             		else holder.ll_view.setBackgroundColor(Color.GRAY);
@@ -595,20 +592,10 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
     					@Override
     					public void onClick(View v) {
     						mNotifyExpand.notifyToListener(true, new Object[]{p});
-//    						Log.v("","clicked");
     					}
        				});
                	}
-               	
-//               	holder.ll_select_view.setOnClickListener(new OnClickListener(){
-//					@Override
-//					public void onClick(View v) {
-//						holder.cb_cb1.setChecked(!holder.cb_cb1.isChecked());
-//						holder.rb_rb1.setChecked(!holder.rb_rb1.isChecked());
-//						notifyDataSetChanged();
-//					}
-//               	});
-               	
+
                	holder.cb_cb1.setEnabled(isCheckBoxEnabled());
            		holder.cb_cb1.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 					public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -616,7 +603,7 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
 						notifyDataSetChanged();
   					}
    				});
-           		holder.rb_rb1.setEnabled(isCheckBoxEnabled());
+                holder.rb_rb1.setEnabled(isCheckBoxEnabled());
            		holder.rb_rb1.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 					public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 						setButton(o,p,isChecked);
@@ -628,14 +615,18 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
     					TreeFilelistItem fi;
     					for (int i=0;i<mDataItems.size();i++) {
     						fi=mDataItems.get(i);
-    						if (fi.isChecked() && p!=i) {
-    							fi.setChecked(false);
-    						}
+    						if (TreeFilelistItem.isSelectableItem(fi)) {
+                                if (fi.isChecked() && p!=i) {
+                                    fi.setChecked(false);
+                                }
+                            }
     					}
            			}
            			holder.rb_rb1.setChecked(mDataItems.get(position).isChecked());
-           		} else holder.cb_cb1.setChecked(mDataItems.get(position).isChecked());
-       			
+           		} else {
+           		    holder.cb_cb1.setChecked(mDataItems.get(position).isChecked());
+                }
+
             }
             return v;
     };
@@ -655,20 +646,12 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
 						}
 					}
 				}else{ 
-					//process child entry
-//					if (o.getSubDirItemCount()>0 && o.isSubDirLoaded() &&
-//							o.isChk()!=isChecked) 
-//						processChildEntry(o, data_item_pos,isChecked);
-					//process parent entry
-//					if (o.getListLevel()>0 && o.isChk()!=isChecked) 
-//						processParentEntry(o,data_item_pos,isChecked );
 				}
 				enableListener=true;
 		}
 		boolean c_chk=o.isChecked();
 		o.setChecked(isChecked);
-//		mDataItems.set(data_item_pos,o);
-		
+
 		if (cb_ntfy!=null) cb_ntfy.notifyToListener(isChecked, new Object[]{p, c_chk});
 
     };

@@ -10,6 +10,12 @@
             android:key="@string/settings_use_light_theme"
             android:title="@string/settings_use_light_theme_title"
             android:summary="@string/settings_use_light_theme_summary_ena" />
+        <ListPreference
+            android:key="@string/settings_language"
+            android:title="@string/settings_language_title"
+            android:dialogTitle="@string/settings_language_dialog_title"
+            android:entries="@array/settings_language_list_entries"
+            android:entryValues="@array/settings_language_list_values" />
         <CheckBoxPreference
             android:key="@string/settings_confirm_exit"
             android:title="@string/settings_confirm_exit_title"

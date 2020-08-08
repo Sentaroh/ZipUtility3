@@ -23,23 +23,23 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
+import android.os.LocaleList;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.widget.Button;
 
+import androidx.annotation.RequiresApi;
+
 import com.sentaroh.android.Utilities3.SafManager3;
-import com.sentaroh.android.Utilities3.ThemeColorList;
 import com.sentaroh.android.Utilities3.ThemeColorList;
 import com.sentaroh.android.ZipUtility3.Log.LogUtil;
 
@@ -47,14 +47,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.LoggerWriter;
 
-import java.io.File;
 import java.util.ArrayList;
-
-import static com.sentaroh.android.ZipUtility3.Constants.APPLICATION_TAG;
-import static com.sentaroh.android.ZipUtility3.Constants.LOG_FILE_NAME;
+import java.util.LinkedHashSet;
+import java.util.Locale;
+import java.util.Set;
 
 public class GlobalParameters {
-    private static Logger slf4jLog = LoggerFactory.getLogger(GlobalParameters.class);
+    private static Logger log = LoggerFactory.getLogger(GlobalParameters.class);
 
 	public boolean activityIsDestroyed=false;
 	public boolean activityIsBackground=false;
@@ -88,8 +87,14 @@ public class GlobalParameters {
 	public boolean settingFixDeviceOrientationToPortrait=false;
 
     public boolean settingConfirmAppExit=true;
-	
-	public String settingZipDefaultEncoding="UTF-8";
+
+    public static final String LANGUAGE_USE_SYSTEM_SETTING = "0";
+    public static final String LANGUAGE_INIT = "-99";//ensure onStartSettingScreenThemeLanguageValue is assigned language value only at first app start and when language change by user
+    public static String settingLanguage = LANGUAGE_USE_SYSTEM_SETTING;//holds language code (fr, en... or "0" for system default)
+    public static String settingLanguageValue = LANGUAGE_USE_SYSTEM_SETTING;//language value (array index) in listPreferences: "0" for system default, "1" for english...
+//    public static String onStartSettingLanguageValue = LANGUAGE_INIT;//on first App start, it will be assigned the active language value
+
+    public String settingZipDefaultEncoding="UTF-8";
 	public String settingNoCompressFileType=DEFAULT_NOCOMPRESS_FILE_TYPE;
 	static final public String DEFAULT_NOCOMPRESS_FILE_TYPE=
 			"aac;avi;gif;ico;gz;jpe;jpeg;jpg;m3u;m4a;m4u;mov;movie;mp2;mp3;mpe;mpeg;mpg;mpga;ogg;png;qt;ra;ram;svg;tgz;wmv;zip;";
@@ -123,7 +128,7 @@ public class GlobalParameters {
 
         final LogUtil slf4j_lu = new LogUtil(appContext, "SLF4J");
         Slf4jLogWriter slf4j_lw=new Slf4jLogWriter(slf4j_lu);
-        slf4jLog.setWriter(slf4j_lw);
+        log.setWriter(slf4j_lw);
 
 
         initSettingsParms(c);
@@ -173,7 +178,11 @@ public class GlobalParameters {
         if (!prefs.contains(c.getString(R.string.settings_confirm_exit))) {
             prefs.edit().putBoolean(c.getString(R.string.settings_confirm_exit), true).commit();
         }
-	};
+
+        if (!prefs.contains(c.getString(R.string.settings_language)))
+            prefs.edit().putString(c.getString(R.string.settings_language), LANGUAGE_USE_SYSTEM_SETTING).commit();
+
+    };
 
 	public void loadSettingsParms(Context c) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
@@ -200,9 +209,92 @@ public class GlobalParameters {
         settingSupressAddExternalStorageNotification=
                 prefs.getBoolean(c.getString(R.string.settings_suppress_add_external_storage_notification), false);
 
+        loadLanguagePreference(c);
+
     };
-	
-	private boolean isDebuggable() {
+
+    //+ To use createConfigurationContext() non deprecated method:
+    //  - set LANGUAGE_LOCALE_USE_NEW_API to true
+    //  - use as wrapper in attachBaseContext() for all activities and App or extend all App/Activities from a base Activity Class with attachBaseContext()
+    //  - for App: implement also in onConfigurationChanged(), not needed in AppCompatActivity class
+    //  - in ActivityMain, when wrapping language in attachBaseContext(), we must first load language value by calling loadLanguagePreference(context)
+    //    because preferences manager is init later in onCreate()
+    //+ To use updateConfiguration() deprecated method on new API:
+    //  - set LANGUAGE_LOCALE_USE_NEW_API to false
+    //  - no need to use wrapper in attachBaseContext()
+    //  - call "mGp.setNewLocale(this, false)" in onCreate() and onConfigurationChanged() of all activities and App, not needed in Activity fragments
+    //  - SyncTaskEditor.java onCreate() and onConfigurationChanged() must be also edited
+    //  - all activities and App in AndroidManifest must have: android:configChanges="locale|orientation|screenSize|keyboardHidden|layoutDirection"
+    public Context setNewLocale(Context c, boolean init) {
+        if (init) loadLanguagePreference(c);
+        return updateLanguageResources(c, settingLanguage);
+    }
+
+    // wrap language layout in the base context for all activities
+    private Context updateLanguageResources(Context context, String language) {
+        //if language is set to system default (defined as "0"), do not apply non existing language code "0" and return current context without wrapped language
+        if (!language.equals(LANGUAGE_USE_SYSTEM_SETTING)) {
+            Locale locale = new Locale(language);
+            Locale.setDefault(locale);
+
+            Resources res = context.getResources();
+            Configuration config = new Configuration(res.getConfiguration());
+            if (Build.VERSION.SDK_INT >= 24) {//we can ignore and use "config.setLocale(locale)" like Build.VERSION.SDK_INT >= 21 if we target above API 24 (API 24 only bug)
+                setLocaleForApi24(config, locale);
+                context = context.createConfigurationContext(config);
+            } else if (Build.VERSION.SDK_INT >= 21) {
+                config.setLocale(locale);
+                context = context.createConfigurationContext(config);
+            } else {
+                config.locale = locale;
+                res.updateConfiguration(config, res.getDisplayMetrics());
+            }
+        }
+        return context;
+    }
+
+    //workaround a bug issue in Android N, but not needed after N
+    @RequiresApi(api = 24)
+    private void setLocaleForApi24(Configuration config, Locale target) {
+        Set<Locale> set = new LinkedHashSet<>();
+        // bring the target locale to the front of the list
+        set.add(target);
+
+        LocaleList all = LocaleList.getDefault();
+        for (int i = 0; i < all.size(); i++) {
+            // append other locales supported by the user
+            set.add(all.get(i));
+        }
+
+        Locale[] locales = set.toArray(new Locale[0]);
+        config.setLocales(new LocaleList(locales));
+    }
+
+    //load language list value from listPreferences. New languages can be added with Excel template without any change in code.
+    //Language list entries must contain "(language_code)" string, exp "English (en)"
+    //"English" will be the preferences menu description and "en" the language code
+    //settingScreenThemeLanguageValue and settingScreenThemeLanguage are updated only here by loadLanguagePreference()
+    //loadLanguagePreference() is called on mainActivity start, any mainActivity result, SyncReceiver, and any init to GlobalParameters (onCreate of most activities)
+    //onStartSettingScreenThemeLanguageValue: is the currently selected language by user that will be applied on next app launch
+    //it is assigned the value of current active language (settingScreenThemeLanguage) at first app start
+    //if user changes language or when import config file with new language, settingScreenThemeLanguage is immeadiately assigned the new language
+    //when back to MainActivity, if settingScreenThemeLanguage != onStartSettingScreenThemeLanguageValue, prompted to restart
+    //onStartSettingScreenThemeLanguageValue is assigned the new selected language even if user doesn't restart app
+    //it reflects current user selected language that will be effective on next app start
+    public void loadLanguagePreference(Context c) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+        settingLanguageValue = prefs.getString(c.getString(R.string.settings_language), LANGUAGE_USE_SYSTEM_SETTING);
+        String[] lang_entries = c.getResources().getStringArray(R.array.settings_language_list_entries);
+        if (settingLanguageValue.equals(LANGUAGE_USE_SYSTEM_SETTING)) {
+            settingLanguage = LANGUAGE_USE_SYSTEM_SETTING;
+        } else {
+            settingLanguage = lang_entries[Integer.parseInt(settingLanguageValue)].split("[\\(\\)]")[1]; // language entries are in the format "description (languageCode)"
+        }
+//        if (onStartSettingLanguageValue.equals(LANGUAGE_INIT))
+//            onStartSettingLanguageValue = settingLanguageValue;
+    }
+
+    private boolean isDebuggable() {
 		boolean result=false;
         PackageManager manager = appContext.getPackageManager();
         ApplicationInfo appInfo = null;

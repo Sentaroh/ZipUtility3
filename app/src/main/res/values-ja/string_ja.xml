@@ -16,12 +16,11 @@
     <!-- Main -->
         <string name="msgs_main_restart_by_killed">アプリケーションがバックグラウンドに遷移後、強制終了しました。</string>
         <string name="msgs_main_restart_by_destroyed">アプリケーションはアクティビティの破棄により終了しました。 設定->開発者向オプションで「アクティビティを保持しない」を有効にしているのであれば無効にしてください。</string>
-        <string name="msgs_main_no_external_storage">外部メディアが使用できないため、いくつかの機能が使用できません。</string>
         <string name="msgs_main_exit_confirm_msg">アプリケーションを終了しますか？</string>
         <string name="msgs_main_kill_confirm_msg">アプリケーションを強制終了しますか？</string>
-        <string name="msgs_main_about_title">About ZipUtility3</string>
+        <string name="msgs_main_about_title">ZipUtility3について</string>
         <string name="msgs_main_confirm_cancel">キャンセルしてよろしいでしょうか？</string>
-        <string name="msgs_main_theme_changed_msg">テーマが変更されましたがアプリケーションを再起動するまで反映されません。</string>
+        <string name="msgs_main_theme_changed_msg">テーマまたは言語を変更した場合はアプリケーションを再起動するまで反映されません。</string>
         <string name="msgs_main_select_file">ZIPファイルの選択</string>
         <string name="msgs_main_invalid_zip_file_specified">指定されたファイルは、ZIPファイルではありません。</string>
         <string name="msgs_main_tab_name_local">ローカルフォルダー</string>
@@ -35,7 +34,7 @@
         <string name="msgs_main_local_file_ccmenu_open_directory">ディレクトリーを開く</string>
         <string name="msgs_main_local_file_ccmenu_extract">展開</string>
         <string name="msgs_main_local_file_ccmenu_delete">削除</string>
-        <string name="msgs_main_local_file_ccmenu_scan_media_store">スキャン メディア ファイル</string>
+        <string name="deleted_msgs_main_local_file_ccmenu_scan_media_store">スキャン メディア ファイル</string>
         <string name="msgs_main_local_file_ccmenu_compress">圧縮</string>
         <string name="msgs_main_local_file_ccmenu_copy">コピー</string>
         <string name="msgs_main_local_file_ccmenu_cut">切取り</string>
@@ -64,7 +63,7 @@
         <string name="msgs_zip_cont_label_copy">コピー</string>
         <string name="msgs_zip_cont_label_cut">切取り</string>
         <string name="msgs_zip_cont_label_paste">貼付け</string>
-        <string name="msgs_zip_cont_label_share">共有</string>
+        <string name="msgs_zip_cont_label_share">ファイル共有</string>
         <string name="msgs_zip_cont_header_copy">コピー</string>
         <string name="msgs_zip_cont_header_cut">切取り</string>
         <string name="msgs_zip_local_file_clear_copy_cut_item">消去</string>
@@ -113,7 +112,7 @@
         <string name="msgs_zip_sdcard_create_zip_file_end">ZIPの作成が完了しました。</string>
         <string name="msgs_zip_sdcard_create_zip_file_cancelled">ZIPの作成を中止しました。</string>
         <string name="msgs_zip_sdcard_create_zip_file_failed">ZIPの作成が失敗しました。</string>
-        <string name="msgs_folder_view_up_btn">上へ</string>
+        <string name="msgs_folder_view_up_btn">戻る</string>
         <string name="msgs_folder_view_top_btn">トップ</string>
         <string name="msgs_search_file_dlg_title">ファイル検索</string>
         <string name="msgs_search_file_dlg_search_show_option">オプションを表示する</string>
@@ -167,7 +166,7 @@
         <string name="msgs_zip_extract_file_started">展開を開始しました。</string>
         <string name="msgs_zip_extract_file_completed">展開が終了しました。</string>
         <string name="msgs_zip_extract_file_error">展開エラー</string>
-        <string name="msgs_zip_extract_file_end_with_error">Extraction end with error.</string>
+        <string name="msgs_zip_extract_file_end_with_error">展開がエラーで終了しました。</string>
         <string name="msgs_confirm_item_replace">下記項目を上書きしますか？</string>
         <string name="msgs_zip_file_was_changed">ZIPファイルが変更されています、ファイルリストの再読み込み後にやり直してください。</string>
         <string name="msgs_zip_move_file_confirm">下記項目を移動してよろしいでしょうか?</string>
@@ -189,6 +188,7 @@
         <string name="msgs_local_file_add_file_completed">圧縮が完了しました。</string>
         <string name="msgs_local_file_share_file_max_file_count_reached">共有できるファイルの数は100までです。</string>
         <string name="msgs_local_file_share_file_no_file_selected">共有するファイルが選択されていません。</string>
+        <string name="msgs_local_file_ignore_android_directory">Androidディレクトリーはカット/削除/改名はできません。</string>
         <string name="msgs_zip_delete_file_has_been_started">削除中です。</string>
         <string name="msgs_zip_delete_confirm_delete">選択した項目を削除しますか?</string>
         <string name="msgs_zip_delete_file_was_deleted">%sを削除しました。</string>
@@ -277,16 +277,28 @@
         <string name="settings_use_light_theme_title">画面テーマ</string>
         <string name="settings_use_light_theme_summary_ena">ライトテーマを使用する</string>
         <string name="settings_use_light_theme">settings_use_light_theme</string>
+        <string name="settings_language_title">言語</string>
+        <string name="settings_language_dialog_title">言語を変更</string>
+        <string-array name="settings_language_list_entries">
+            <item>システム設定</item>
+            <item>English (en)</item>
+            <item>Français (fr)</item>
+            <item>日本語 (ja)</item>
+        </string-array >
+        <string-array name="settings_language_list_values">
+            <item>0</item>
+            <item>1</item>
+            <item>2</item>
+            <item>3</item>
+        </string-array >
+        <string name="settings_language">settings_language</string>
         <string name="settings_open_as_text_file_type_title">テキストとして開くファイルタイプ</string>
         <string name="settings_open_as_text_file_type">settings_open_as_text_file_type</string>
         <string name="settings_device_orientation_portrait_title">端末の向き</string>
         <string name="settings_device_orientation_portrait_summary_ena">端末の向きをポートレイトに固定する</string>
-        <string name="settings_default_current_setting">現設定=</string>
         <string name="settings_device_orientation_portrait">settings_device_orientation_portrait</string>
-        <string name="settings_other_title">Other</string>
-        <string name="settings_exit_clean_title">Exit cleanly</string>
-        <string name="settings_exit_clean_summary_dis">Do not kill application process</string>
-        <string name="settings_exit_clean_summary_ena">Kill application process after application cleanup</string>
+        <string name="settings_exit_clean_title">アプリ終了時の処理</string>
+        <string name="settings_exit_clean_summary_ena">プロセスをKillする</string>
         <string name="settings_exit_clean">settings_exit_clean</string>
         <string name="settings_misc_title">その他</string>
         <string name="settings_suppress_add_external_storage_notification">settings_suppress_add_external_storage_notification</string>

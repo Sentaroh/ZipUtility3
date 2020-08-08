@@ -129,7 +129,12 @@ public class ActivityMain extends AppCompatActivity {
 
 	private Handler mUiHandler=null;
 
-	@Override
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(new GlobalParameters().setNewLocale(base, true));
+    }
+
+    @Override
 	public void onConfigurationChanged(final Configuration newConfig) {
 	    super.onConfigurationChanged(newConfig);
 	    if (mUtil!=null) {
@@ -179,7 +184,7 @@ public class ActivityMain extends AppCompatActivity {
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
 
-        mContext=ActivityMain.this.getApplicationContext();
+        mContext=ActivityMain.this;
         mActivity=ActivityMain.this;
         mUiHandler=new Handler();
         mFragmentManager=getSupportFragmentManager();
@@ -217,41 +222,6 @@ public class ActivityMain extends AppCompatActivity {
 
         cleanupCacheFile();
 
-
-//        Thread th=new Thread(){
-//          @Override
-//          public void run() {
-//              File out_file=new File("/storage/emulated/0/dec_test");
-//              File in_file=new File("/storage/emulated/0/enc_test");
-//              try {
-//                  mUtil.addDebugMsg(1, "I", "encode started");
-//                  long b_time=System.currentTimeMillis();
-//                  InputStream is=new FileInputStream(in_file);
-//                  BufferedInputStream bis=new BufferedInputStream(is, 1024*1024*4);
-//                  OutputStream fos=new FileOutputStream(out_file);
-//                  BufferedOutputStream bos=new BufferedOutputStream(fos, 1024*1024*4);
-////                  LZMACompressorOutputStream zos=new LZMACompressorOutputStream(bos);
-////                  DeflaterOutputStream zos=new DeflaterOutputStream(bos);
-////                  BZip2CompressorOutputStream zos=new BZip2CompressorOutputStream(bos);
-//                  XZCompressorOutputStream zos=new XZCompressorOutputStream(bos);
-//                  int rc=0;
-//                  byte[] buff=new byte[1024*1024*4];
-//                  while((rc=bis.read(buff))>0) {
-//                      zos.write(buff, 0, rc);
-//                      mUtil.addDebugMsg(1, "I", "size="+rc);
-//                  }
-//                  zos.finish();
-//                  zos.flush();
-//                  zos.close();
-//                  bis.close();
-//                  mUtil.addDebugMsg(1, "I", "Encode ended, elapsed="+(System.currentTimeMillis()-b_time));
-//
-//              } catch (IOException e) {
-//                  e.printStackTrace();
-//              }
-//          }
-//        };
-//        th.start();
     };
 
     private class MyUncaughtExceptionHandler extends AppUncaughtExceptionHandler {
@@ -613,6 +583,7 @@ public class ActivityMain extends AppCompatActivity {
         menu.findItem(R.id.menu_top_save_zip_file).setVisible(false);
 //        if (mMainTabHost.getCurrentTabTag().equals(mContext.getString(R.string.msgs_main_tab_name_local))) {
         if (mTabLayout.getSelectedTabName().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) {
+            menu.findItem(R.id.menu_top_save_zip_file).setVisible(false);
         	if (mLocalFileMgr!=null) {
         		if (mLocalFileMgr.isFileListSortAscendant()) menu.findItem(R.id.menu_top_sort).setIcon(R.drawable.ic_128_sort_asc_gray);
         		else menu.findItem(R.id.menu_top_sort).setIcon(R.drawable.ic_128_sort_dsc_gray);
@@ -637,7 +608,7 @@ public class ActivityMain extends AppCompatActivity {
             menu.findItem(R.id.menu_top_log_management).setVisible(true);
             menu.findItem(R.id.menu_top_about).setVisible(true);
             menu.findItem(R.id.menu_top_settings).setVisible(true);
-            menu.findItem(R.id.menu_top_save_zip_file).setVisible(true);
+//            menu.findItem(R.id.menu_top_save_zip_file).setVisible(true);
 //            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_find), true);
 //            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_refresh),true);
 //            CommonDialog.setMenuItemEnabled(mActivity, menu, menu.findItem(R.id.menu_top_sort), true);
@@ -1011,11 +982,10 @@ public class ActivityMain extends AppCompatActivity {
         mZipFileMgr.showZipFile(read_only, in_file);
         mTabLayout.setCurrentTabByName(mContext.getString(R.string.msgs_main_tab_name_zip));
 	};
-	
+
 	private void invokeSettingsActivity() {
 		mUtil.addDebugMsg(1,"I","Invoke Settings.");
-		Intent intent=null;
-		intent = new Intent(mContext, ActivitySettings.class);
+		Intent intent=new Intent(mContext, ActivitySettings.class);
 		startActivityForResult(intent,0);
 	};
 
@@ -1079,7 +1049,7 @@ public class ActivityMain extends AppCompatActivity {
     };
 
     private void aboutApplicaion() {
-        final Dialog dialog = new Dialog(mActivity);
+        final Dialog dialog = new Dialog(mActivity, mGp.applicationTheme);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.about_dialog);
 
@@ -1093,6 +1063,7 @@ public class ActivityMain extends AppCompatActivity {
         tab_layout.addTab(mContext.getString(R.string.msgs_about_dlg_func_btn));
         tab_layout.addTab(mContext.getString(R.string.msgs_about_dlg_privacy_btn));
         tab_layout.addTab(mContext.getString(R.string.msgs_about_dlg_change_btn));
+        tab_layout.adjustTabWidth();
 
         LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout ll_func=(LinearLayout)vi.inflate(R.layout.about_dialog_func,null);
@@ -1510,7 +1481,7 @@ public class ActivityMain extends AppCompatActivity {
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		mUtil.addDebugMsg(1, "I", "Return from external activity");
-		if (requestCode==0) applySettingParms();
+		if (requestCode==0) applySettingParms(data);
 		else {
             mUtil.addDebugMsg(1, "I", "Return from Storage Picker. id=" + requestCode + ", result=" + resultCode);
             if (requestCode== mStoragePermissionPrimaryRequestCode && mStoragePermissionPrimaryListener !=null) {
@@ -1528,22 +1499,23 @@ public class ActivityMain extends AppCompatActivity {
         }
 	};
 
-    private void applySettingParms() {
+    private void applySettingParms(Intent in) {
 		int prev_theme=mGp.applicationTheme;
+		String prev_language=in.getExtras().getString(ActivitySettings.LANGUAGE_KEY, "");
 		mGp.loadSettingsParms(mContext);
 		mGp.refreshMediaDir(mContext);
 		
         if (mGp.settingFixDeviceOrientationToPortrait) setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         
-        if (prev_theme!=mGp.applicationTheme) {
+        if (prev_theme!=mGp.applicationTheme || (!prev_language.equals("") && !prev_language.equals(mGp.settingLanguageValue))) {
         	mCommonDlg.showCommonDialog(false, "W", mContext.getString(R.string.msgs_main_theme_changed_msg), "", null);
         	mGp.settingExitClean=true;
         }
 
 	};
 
-	private boolean enableMainUi=true; 
+    private boolean enableMainUi=true;
 
 	public void setUiEnabled() {
 		enableMainUi=true;
@@ -1628,7 +1600,14 @@ public class ActivityMain extends AppCompatActivity {
                 mTabLayout.setCurrentTabByPosition(position);
                 if (mTabLayout.getSelectedTabName()!=null) {
                     if (mTabLayout.getSelectedTabName().equals(mContext.getString(R.string.msgs_main_tab_name_local))) {
-                        if (mLocalFileMgr!=null) mLocalFileMgr.refreshFileList();
+                        if (mLocalFileMgr!=null) {
+                            mUiHandler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mLocalFileMgr.refreshFileList();
+                                }
+                            },100);
+                        }
                     } else {
                         if (mZipFileMgr!=null) mZipFileMgr.refreshFileList();
                     }

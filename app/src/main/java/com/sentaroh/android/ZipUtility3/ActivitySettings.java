@@ -23,7 +23,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -33,8 +35,6 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
-
-import com.sentaroh.android.Utilities3.LocalMountPoint;
 
 import java.util.List;
 import java.util.Locale;
@@ -51,6 +51,7 @@ public class ActivitySettings extends PreferenceActivity {
 
 	private CommonUtilities mUtil=null;
 
+    private static String mCurrentThemeLangaue= GlobalParameters.LANGUAGE_USE_SYSTEM_SETTING;
 //	private GlobalParameters mGp=null;
 
 	@Override
@@ -58,17 +59,30 @@ public class ActivitySettings extends PreferenceActivity {
 		return true;
 	}
 
-	@Override
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(new GlobalParameters().setNewLocale(base, false));
+    }
+
+    static final public String LANGUAGE_KEY="language";
+
+    @Override
 	public void onCreate(Bundle savedInstanceState) {
 		mContext=ActivitySettings.this;
+        SharedPreferences shared_pref = PreferenceManager.getDefaultSharedPreferences(mContext);
 		mGp=GlobalWorkArea.getGlobalParameters(mContext);
 		setTheme(mGp.applicationTheme);
 		super.onCreate(savedInstanceState);
 		mPrefActivity=ActivitySettings.this;
+        mCurrentThemeLangaue=shared_pref.getString(getString(R.string.settings_language), GlobalParameters.LANGUAGE_USE_SYSTEM_SETTING);
 		if (mUtil==null) mUtil=new CommonUtilities(mContext, "SettingsActivity", mGp, null);
 		mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" entered");
 		if (mGp.settingFixDeviceOrientationToPortrait) setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+
+		Intent in=new Intent();
+		in.putExtra(LANGUAGE_KEY, mCurrentThemeLangaue);
+		setResult(Activity.RESULT_OK, in);
 	}
 
 	@Override
@@ -169,11 +183,6 @@ public class ActivitySettings extends PreferenceActivity {
 
             if (key_string.equals(c.getString(R.string.settings_exit_clean))) {
                 isChecked=true;
-                if (shared_pref.getBoolean(key_string, true)) {
-                    pref_key.setSummary(c.getString(R.string.settings_exit_clean_summary_ena));
-                } else {
-                    pref_key.setSummary(c.getString(R.string.settings_exit_clean_summary_dis));
-                }
             }
 
             return isChecked;
@@ -273,7 +282,10 @@ public class ActivitySettings extends PreferenceActivity {
 
 			SharedPreferences shared_pref = PreferenceManager.getDefaultSharedPreferences(mContext);
 
+//            mCurrentThemeLangaue=shared_pref.getString(getString(R.string.settings_language), GlobalParameters.LANGUAGE_USE_SYSTEM_SETTING);
+
 			checkSettingValue(getContext(), mUtil, shared_pref,getString(R.string.settings_use_light_theme));
+            checkSettingValue(getContext(), mUtil, shared_pref,getString(R.string.settings_language));
 			checkSettingValue(getContext(), mUtil, shared_pref,getString(R.string.settings_device_orientation_portrait));
             checkSettingValue(getContext(), mUtil, shared_pref,getString(R.string.settings_open_as_text_file_type));
             checkSettingValue(getContext(), mUtil, shared_pref,getString(R.string.settings_confirm_exit));
@@ -285,6 +297,20 @@ public class ActivitySettings extends PreferenceActivity {
             Preference pref_key=mPrefFrag.findPreference(key_string);
             if (key_string.equals(c.getString(R.string.settings_use_light_theme))) {
                 isChecked=true;
+            } else if (key_string.equals(c.getString(R.string.settings_language))) {
+                isChecked=true;
+                String lang_value=shared_pref.getString(key_string, GlobalParameters.LANGUAGE_USE_SYSTEM_SETTING);
+                String[] lang_msgs = c.getResources().getStringArray(R.array.settings_language_list_entries);
+                String sum_msg = lang_msgs[Integer.parseInt(lang_value)];
+                pref_key.setSummary(sum_msg);
+                if (!lang_value.equals(mCurrentThemeLangaue)) {
+                    getActivity().finish();//relaunch current preferences activity. Will trigger to prompt for restart app when back to main activity
+                    mGp.setNewLocale(getActivity(), true);
+                    Intent intent = new Intent(getActivity(), ActivitySettings.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    getActivity().startActivity(intent);
+                }
+
             } else if (key_string.equals(c.getString(R.string.settings_device_orientation_portrait))) {
                 isChecked=true;
             } else if (key_string.equals(c.getString(R.string.settings_confirm_exit))) {

@@ -16,26 +16,25 @@
     <!-- Main -->
         <string name="msgs_main_restart_by_killed">Application was restarted, because application is killed after the move to the background in last time.</string>
         <string name="msgs_main_restart_by_destroyed">Application was restarted because destroyed of the activity is requested.　Please disable it if you&#8217;re to enable the &#8220;Don&#8217;t keep activities&#8221; in the Settings->developer options.</string>
-        <string name="msgs_main_no_external_storage">For the external media is not available, some of the function can not be used.</string>
         <string name="msgs_main_exit_confirm_msg">Do you want to terminate application.</string>
         <string name="msgs_main_kill_confirm_msg">Do you want to kill the application.</string>
         <string name="msgs_main_about_title">About ZipUtility3</string>
         <string name="msgs_main_confirm_cancel">Do you want to cancel</string>
-        <string name="msgs_main_theme_changed_msg">Theme has been changed but does not take effect until you restart the application.</string>
+        <string name="msgs_main_theme_changed_msg">It is recommended to restart the application after changing the theme or language.</string>
         <string name="msgs_main_select_file">Select ZIP file</string>
         <string name="msgs_main_invalid_zip_file_specified">The specified file is not a ZIP file.</string>
         <string name="msgs_main_tab_name_local">Local Folder</string>
         <string name="msgs_main_tab_name_zip">ZIP Folder</string>
         <string name="msgs_main_notification_title">ZipUtility3</string>
         <string name="msgs_main_notification_message">Running processed in the background.</string>
-        <string name="msgs_main_notification_end_message">Processing of background has ended.</string>
+        <string name="msgs_main_notification_end_message">The background process has been completed.</string>
         <string name="msgs_main_local_file_ccmenu_force_zip">Open with ZIP</string>
         <string name="msgs_main_local_file_ccmenu_force_text">Open with text</string>
         <string name="msgs_main_local_file_ccmenu_open_file">Open file</string>
         <string name="msgs_main_local_file_ccmenu_open_directory">Open directory</string>
         <string name="msgs_main_local_file_ccmenu_extract">Extract</string>
         <string name="msgs_main_local_file_ccmenu_delete">Delete</string>
-        <string name="msgs_main_local_file_ccmenu_scan_media_store">Scan media file</string>
+        <string name="deleted_msgs_main_local_file_ccmenu_scan_media_store">Scan media file</string>
         <string name="msgs_main_local_file_ccmenu_compress">Compress</string>
         <string name="msgs_main_local_file_ccmenu_copy">Copy</string>
         <string name="msgs_main_local_file_ccmenu_cut">Cut</string>
@@ -189,6 +188,7 @@
         <string name="msgs_local_file_add_file_completed">Compress was completed.</string>
         <string name="msgs_local_file_share_file_max_file_count_reached">The number of shared files that can be up to 100.</string>
         <string name="msgs_local_file_share_file_no_file_selected">No file selected.</string>
+        <string name="msgs_local_file_ignore_android_directory">You cannot cut/delete/rename the Android directory.</string>
         <string name="msgs_zip_delete_file_has_been_started">Are running the Delete.</string>
         <string name="msgs_zip_delete_confirm_delete">Do you want to delete the selected items?</string>
         <string name="msgs_zip_delete_file_was_deleted">%s was deleted.</string>
@@ -277,15 +277,27 @@
         <string name="settings_use_light_theme_title">Screen theme</string>
         <string name="settings_use_light_theme_summary_ena">Use light theme</string>
         <string name="settings_use_light_theme">settings_use_light_theme</string>
+        <string name="settings_language_title">Language</string>
+        <string name="settings_language_dialog_title">Change Language</string>
+        <string-array name="settings_language_list_entries">
+            <item>System settings</item>
+            <item>English (en)</item>
+            <item>Français (fr)</item>
+            <item>日本語 (ja)</item>
+        </string-array >
+        <string-array name="settings_language_list_values">
+            <item>0</item>
+            <item>1</item>
+            <item>2</item>
+            <item>3</item>
+        </string-array >
+        <string name="settings_language">settings_language</string>
         <string name="settings_open_as_text_file_type_title">File type to open as text</string>
         <string name="settings_open_as_text_file_type">settings_open_as_text_file_type</string>
         <string name="settings_device_orientation_portrait_title">The orientation of the device</string>
         <string name="settings_device_orientation_portrait_summary_ena">Fix the orientation of the device to portrait</string>
-        <string name="settings_default_current_setting">current settings=</string>
         <string name="settings_device_orientation_portrait">settings_device_orientation_portrait</string>
-        <string name="settings_other_title">Other</string>
         <string name="settings_exit_clean_title">Exit cleanly</string>
-        <string name="settings_exit_clean_summary_dis">Do not kill application process</string>
         <string name="settings_exit_clean_summary_ena">Kill application process after application cleanup</string>
         <string name="settings_exit_clean">settings_exit_clean</string>
         <string name="settings_misc_title">Miscellaneous</string>

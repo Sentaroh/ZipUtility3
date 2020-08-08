@@ -16,26 +16,25 @@
     <!-- Main -->
         <string name="msgs_main_restart_by_killed">L\'application a été relancée, parce que l\'application est tuée après le passage à l\'arrière-plan dans le dernier temps.</string>
         <string name="msgs_main_restart_by_destroyed">L\'application a été relancée car la destruction de l\'activité est demandée.　Veuillez le désactiver si vous souhaitez activer l\'option &#8220;Ne pas conserver les activités ; dans les options Paramètres->Développeurs.</string>
-        <string name="msgs_main_no_external_storage">Pour les médias externes n\'est pas disponible, une partie de la fonction ne peut pas être utilisée.</string>
         <string name="msgs_main_exit_confirm_msg">Vous souhaitez mettre fin à la demande.</string>
         <string name="msgs_main_kill_confirm_msg">Voulez-vous tuer l\'application.</string>
         <string name="msgs_main_about_title">À propos de ZipUtility3</string>
         <string name="msgs_main_confirm_cancel">Voulez-vous annuler</string>
-        <string name="msgs_main_theme_changed_msg">Le thème a été modifié mais ne prend pas effet tant que vous ne redémarrez pas l\'application.</string>
+        <string name="msgs_main_theme_changed_msg">Il est recommandé de redémarrer l\'application après avoir changé de thème ou de langue.</string>
         <string name="msgs_main_select_file">Sélectionnez le fichier ZIP</string>
         <string name="msgs_main_invalid_zip_file_specified">Le fichier spécifié n\'est pas un fichier ZIP.</string>
         <string name="msgs_main_tab_name_local">Dossier local</string>
         <string name="msgs_main_tab_name_zip">Dossier ZIP</string>
         <string name="msgs_main_notification_title">ZipUtility3</string>
-        <string name="msgs_main_notification_message">Running processed in the background.</string>
-        <string name="msgs_main_notification_end_message">Processing of background has ended.</string>
+        <string name="msgs_main_notification_message">Le processus se déroule en arrière-plan.</string>
+        <string name="msgs_main_notification_end_message">Le processus de fond a été achevé.</string>
         <string name="msgs_main_local_file_ccmenu_force_zip">Ouvrir avec ZIP</string>
         <string name="msgs_main_local_file_ccmenu_force_text">Ouvrir avec le texte</string>
         <string name="msgs_main_local_file_ccmenu_open_file">Ouvrir le dossier</string>
         <string name="msgs_main_local_file_ccmenu_open_directory">Ouvrir l\'annuaire</string>
         <string name="msgs_main_local_file_ccmenu_extract">Extrait</string>
         <string name="msgs_main_local_file_ccmenu_delete">Supprimer</string>
-        <string name="msgs_main_local_file_ccmenu_scan_media_store">Scanner le fichier média</string>
+        <string name="deleted_msgs_main_local_file_ccmenu_scan_media_store">Scanner le fichier média</string>
         <string name="msgs_main_local_file_ccmenu_compress">Compresser</string>
         <string name="msgs_main_local_file_ccmenu_copy">Copie</string>
         <string name="msgs_main_local_file_ccmenu_cut">Coupez</string>
@@ -47,13 +46,13 @@
         <string name="msgs_main_local_file_ccmenu_select">Sélectionnez un élément</string>
         <string name="msgs_local_file_item_property_directory" formatted="false">Nombre de répertoires=%s\nCompte de fichiers=%,d\nTaille de fichiers=%,d</string>
         <string name="msgs_main_confirm_no_btn">Non</string>
-        <string name="msgs_main_confirm_noall_btn">Pas du tout</string>
+        <string name="msgs_main_confirm_noall_btn">Non à tous</string>
         <string name="msgs_main_confirm_yes_btn">Oui</string>
-        <string name="msgs_main_confirm_yesall_btn">Oui, tout à fait</string>
+        <string name="msgs_main_confirm_yesall_btn">Oui pour tous</string>
         <string name="msgs_main_confirm_cancel_btn">Annuler</string>
         <string name="msgs_zip_cont_label_compress">Compresser</string>
         <string name="msgs_zip_cont_label_select_all">Sélectionner tout</string>
-        <string name="msgs_zip_cont_label_unselect_all">Désélectionner tous les éléments</string>
+        <string name="msgs_zip_cont_label_unselect_all">Désélectionner tout</string>
         <string name="msgs_zip_cont_label_delete">Supprimer</string>
         <string name="msgs_zip_cont_label_extract">Extrait</string>
         <string name="msgs_zip_cont_label_add">Ajouter</string>
@@ -189,6 +188,7 @@
         <string name="msgs_local_file_add_file_completed">La compression a été terminée.</string>
         <string name="msgs_local_file_share_file_max_file_count_reached">Le nombre de fichiers partagés peut aller jusqu\'à 100.</string>
         <string name="msgs_local_file_share_file_no_file_selected">Aucun dossier n\'a été sélectionné.</string>
+        <string name="msgs_local_file_ignore_android_directory">Vous ne pouvez pas couper/supprimer/renommer le répertoire Android.</string>
         <string name="msgs_zip_delete_file_has_been_started">L\'effacement est en cours.</string>
         <string name="msgs_zip_delete_confirm_delete">Voulez-vous supprimer les éléments sélectionnés ?</string>
         <string name="msgs_zip_delete_file_was_deleted">%s a été supprimé.</string>
@@ -277,15 +277,27 @@
         <string name="settings_use_light_theme_title">Thème de l\'écran</string>
         <string name="settings_use_light_theme_summary_ena">Utiliser le thème de la lumière</string>
         <string name="settings_use_light_theme">settings_use_light_theme</string>
+        <string name="settings_language_title">Langue</string>
+        <string name="settings_language_dialog_title">Changer la Langue</string>
+        <string-array name="settings_language_list_entries">
+            <item>Paramètres du système</item>
+            <item>English (en)</item>
+            <item>Français (fr)</item>
+            <item>日本語 (ja)</item>
+        </string-array >
+        <string-array name="settings_language_list_values">
+            <item>0</item>
+            <item>1</item>
+            <item>2</item>
+            <item>3</item>
+        </string-array >
+        <string name="settings_language">settings_language</string>
         <string name="settings_open_as_text_file_type_title">Type de fichier à ouvrir en tant que texte</string>
         <string name="settings_open_as_text_file_type">settings_open_as_text_file_type</string>
         <string name="settings_device_orientation_portrait_title">L\'orientation de l\'appareil</string>
         <string name="settings_device_orientation_portrait_summary_ena">Fixer l\'orientation de l\'appareil au portrait</string>
-        <string name="settings_default_current_setting">paramètres actuels=</string>
         <string name="settings_device_orientation_portrait">settings_device_orientation_portrait</string>
-        <string name="settings_other_title">Autres</string>
         <string name="settings_exit_clean_title">Sortir proprement</string>
-        <string name="settings_exit_clean_summary_dis">Ne pas tuer le processus de candidature</string>
         <string name="settings_exit_clean_summary_ena">Supprimer le processus de demande après le nettoyage de la demande</string>
         <string name="settings_exit_clean">settings_exit_clean</string>
         <string name="settings_misc_title">Divers</string>

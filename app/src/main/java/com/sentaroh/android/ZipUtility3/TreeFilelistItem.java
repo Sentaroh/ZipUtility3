@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 import android.annotation.SuppressLint;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -210,10 +211,38 @@ public class TreeFilelistItem
 //	public void setLastModified(long p){lastModdate=p;}
 	public boolean isChecked(){return isChecked;}
 	public void setChecked(boolean p){
-		isChecked=p;
-		if (p) triState=false;
+	    if (isSelectableItem(this)) {
+            isChecked=p;
+            if (p) triState=false;
+        }
 	};
-	public boolean canRead(){return canRead;}
+
+	static final String[] UNSELECTABLE_DIRECTORY=new String[]{"/Android"};
+    static public boolean isSelectableItem(TreeFilelistItem tfli) {
+        if (Build.VERSION.SDK_INT>=30 && !tfli.isZipFileItem()) {
+            if (tfli.canRead) {
+                String fp=tfli.getPath()+"/"+tfli.getName();
+                String abs_dir="";
+                if (fp.startsWith("/storage/emulated/0")) {
+                    abs_dir=fp.replace("/storage/emulated/0", "");
+                } else {
+                    String[] dir_parts=fp.split("/");
+                    if (dir_parts.length>=4) {
+                        String new_fp="/"+dir_parts[1]+"/"+dir_parts[2];
+                        abs_dir=fp.replace(new_fp, "");
+                    }
+                }
+                for(String item:UNSELECTABLE_DIRECTORY) {
+                    if (abs_dir.equalsIgnoreCase(item)) return false;
+                }
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean canRead(){return canRead;}
 	public boolean canWrite(){return canWrite;}
 	public boolean isHidden(){return isHidden;}
 	public String getPath(){return filePath;}

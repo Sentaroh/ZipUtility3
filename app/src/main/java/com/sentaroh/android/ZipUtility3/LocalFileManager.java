@@ -32,7 +32,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
-import android.telecom.Call;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -55,8 +54,6 @@ import android.widget.TextView;
 
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentManager;
-
-import com.sentaroh.android.ZipUtility3.BuildConfig;
 
 import com.sentaroh.android.Utilities3.CallBackListener;
 import com.sentaroh.android.Utilities3.ContextButton.ContextButtonUtil;
@@ -127,7 +124,7 @@ public class LocalFileManager {
         mActivity = a;
         mCommonDlg = new CommonDialog(a, fm);
         mUiHandler = new Handler();
-        mContext = a.getApplicationContext();
+        mContext = a;
 
         mFragmentManager = fm;
         mMainStoragePath=mMainFilePath = "/storage/emulated/0";//mGp.internalRootDirectory;
@@ -1128,8 +1125,6 @@ public class LocalFileManager {
             public void onClick(View v) {
                 final String new_name = tfli.getPath() + "/" + etDir.getText().toString();
                 final String current_name = tfli.getPath() + "/" + tfli.getName();
-//				NotifyEvent
-//				Log.v("","new name="+new_name+", current name="+current_name);
                 NotifyEvent ntfy = new NotifyEvent(mContext);
                 ntfy.setListener(new NotifyEventListener() {
                     @Override
@@ -2476,10 +2471,27 @@ public class LocalFileManager {
 	}
 
     private void setContextButtonShareVisibility() {
+        mContextButtonShareView.setVisibility(ImageButton.INVISIBLE);
     	if (mTreeFilelistAdapter.isItemSelected()) {
-   			mContextButtonShareView.setVisibility(ImageButton.VISIBLE);
-    	} else {
-    		mContextButtonShareView.setVisibility(ImageButton.INVISIBLE);
+    	    boolean dir_selected=false;
+    	    for(int i=0;i<mTreeFilelistAdapter.getCount();i++) {
+    	        TreeFilelistItem tfli=mTreeFilelistAdapter.getItem(i);
+    	        if (tfli.isChecked()) {
+    	            if (tfli.isDirectory()) {
+    	                dir_selected=true;
+    	                break;
+                    }
+                }
+            }
+    	    if (!dir_selected) {
+                for(int i=0;i<mTreeFilelistAdapter.getCount();i++) {
+                    TreeFilelistItem tfli=mTreeFilelistAdapter.getItem(i);
+                    if (tfli.isChecked()) {
+                        mContextButtonShareView.setVisibility(ImageButton.VISIBLE);
+                        break;
+                    }
+                }
+            }
     	}
     }
 
@@ -2678,13 +2690,16 @@ public class LocalFileManager {
 			public void positiveResponse(Context c, Object[] o) {
 				setContextButtonShareVisibility();
 				mContextButtonCreateView.setVisibility(ImageButton.INVISIBLE);
-				if (mTreeFilelistAdapter.getSelectedItemCount()==1) mContextButtonRenameView.setVisibility(ImageButton.VISIBLE);
-				else mContextButtonRenameView.setVisibility(ImageButton.INVISIBLE);
+				if (mTreeFilelistAdapter.getSelectedItemCount()==1) {
+				    mContextButtonRenameView.setVisibility(ImageButton.VISIBLE);
+                } else {
+				    mContextButtonRenameView.setVisibility(ImageButton.INVISIBLE);
+                }
                 mContextButtonDeleteView.setVisibility(ImageButton.VISIBLE);
 				mContextButtonArchiveView.setVisibility(ImageButton.VISIBLE);
 				mContextButtonCopyView.setVisibility(ImageButton.VISIBLE);
                 mContextButtonCutView.setVisibility(ImageButton.VISIBLE);
-				mContextButtonPasteView.setVisibility(ImageButton.INVISIBLE);
+                mContextButtonPasteView.setVisibility(ImageButton.INVISIBLE);
 				setContextButtonSelectUnselectVisibility();
 			}
 			@Override
@@ -2701,7 +2716,7 @@ public class LocalFileManager {
                     mContextButtonDeleteView.setVisibility(ImageButton.VISIBLE);
 					mContextButtonArchiveView.setVisibility(ImageButton.VISIBLE);
 					mContextButtonCopyView.setVisibility(ImageButton.VISIBLE);
-                    mContextButtonCutView.setVisibility(ImageButton.VISIBLE);;
+                    mContextButtonCutView.setVisibility(ImageButton.VISIBLE);
 				} else {
 					String dir=mMainFilePath;
 					if (isCopyCutDestValid(dir)) {
@@ -2724,12 +2739,9 @@ public class LocalFileManager {
         mTreeFilelistView.setOnItemClickListener(new OnItemClickListener(){
         	public void onItemClick(AdapterView<?> items, View view, int idx, long id) {
         		if (!isUiEnabled()) return;
-//	    		final int pos=mTreeFilelistAdapter.getItem(idx);
 	    		final TreeFilelistItem tfi=mTreeFilelistAdapter.getItem(idx);
-//				if (tfi.getName().startsWith("---")) return;
 				if (!mTreeFilelistAdapter.isItemSelected() && tfi.isDirectory()) {
 					String curr_dir=mCurrentDirectory.getText().toString();
-//					if (mCurrentDirectory.getText().toString().equals("/")) curr_dir=mLocalStorageSelector.getSelectedItem().toString();
 					FileManagerDirectoryListItem dli=CommonUtilities.getDirectoryItem(mDirectoryList, curr_dir);
 					if (dli==null) {
 						dli=new FileManagerDirectoryListItem();
@@ -2740,7 +2752,6 @@ public class LocalFileManager {
 					dli.pos_x=mTreeFilelistView.getFirstVisiblePosition();
 					dli.pos_y=mTreeFilelistView.getChildAt(0)==null?0:mTreeFilelistView.getChildAt(0).getTop();
 
-//					final String dir=tfi.getPath().equals("")?tfi.getName():tfi.getPath()+"/"+tfi.getName();
                     final String dir=mMainFilePath+"/"+tfi.getName();
                     NotifyEvent ntfy=new NotifyEvent(mContext);
                     ntfy.setListener(new NotifyEventListener() {
@@ -3801,8 +3812,8 @@ public class LocalFileManager {
         if (lf.isDirectory()) {
             final TreeFilelistItem tfi=new TreeFilelistItem(lf.getName(),
                     true, -1, lf.lastModified(),
-//					false, item.canRead(), item.canWrite(cpc),
-                    false, true, true,
+					false, lf.canRead(), lf.canWrite(),
+//                    false, true, true,
                     lf.isHidden(), lf.getParent(),0);
             Thread th=new Thread(){
                 @Override
