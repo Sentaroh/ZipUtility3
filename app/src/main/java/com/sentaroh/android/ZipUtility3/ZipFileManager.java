@@ -23,14 +23,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -60,8 +58,6 @@ import android.widget.TextView;
 
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentManager;
-
-import com.sentaroh.android.ZipUtility3.BuildConfig;
 
 import com.sentaroh.android.Utilities3.CallBackListener;
 import com.sentaroh.android.Utilities3.ContextButton.ContextButtonUtil;
@@ -157,16 +153,8 @@ public class ZipFileManager {
 	
 	private LinearLayout mMainView=null;
 	private LinearLayout mDialogProgressSpinView=null;
-	private TextView mDialogProgressSpinMsg1=null;
 	private TextView mDialogProgressSpinMsg2=null;
 	private Button mDialogProgressSpinCancel=null;
-
-	private LinearLayout mDialogMessageView=null;
-//	private TextView mDialogMessageTitle=null;
-//	private TextView mDialogMessageBody=null;
-//	private Button mDialogMessageOk=null;
-//	private Button mDialogMessageClose=null;
-//	private Button mDialogMessageCancel=null;
 
 	private LinearLayout mDialogConfirmView=null;
 	private TextView mDialogConfirmMsg=null;
@@ -287,18 +275,8 @@ public class ZipFileManager {
 
         mDialogProgressSpinView=(LinearLayout)mMainView.findViewById(R.id.main_dialog_progress_spin_view);
         mDialogProgressSpinView.setVisibility(LinearLayout.GONE);
-        mDialogProgressSpinMsg1=(TextView)mMainView.findViewById(R.id.main_dialog_progress_spin_syncprof);
-        mDialogProgressSpinMsg1.setVisibility(TextView.GONE);
         mDialogProgressSpinMsg2=(TextView)mMainView.findViewById(R.id.main_dialog_progress_spin_syncmsg);
         mDialogProgressSpinCancel=(Button)mMainView.findViewById(R.id.main_dialog_progress_spin_btn_cancel);
-
-        mDialogMessageView=(LinearLayout)mMainView.findViewById(R.id.main_dialog_message_view);
-        mDialogMessageView.setVisibility(LinearLayout.GONE);
-//        mDialogMessageTitle=(TextView)mMainView.findViewById(R.id.main_dialog_message_title);
-//        mDialogMessageBody=(TextView)mMainView.findViewById(R.id.main_dialog_message_body);
-//        mDialogMessageClose=(Button)mMainView.findViewById(R.id.main_dialog_message_close_btn);
-//        mDialogMessageCancel=(Button)mMainView.findViewById(R.id.main_dialog_message_cancel_btn);
-//        mDialogMessageOk=(Button)mMainView.findViewById(R.id.main_dialog_message_ok_btn);
 
         mDialogConfirmView=(LinearLayout)mMainView.findViewById(R.id.main_dialog_confirm_view);
         mDialogConfirmView.setVisibility(LinearLayout.GONE);
@@ -436,7 +414,6 @@ public class ZipFileManager {
                         putProgressMessage(mContext.getString(R.string.msgs_zip_write_zip_file_writing));
                         final ThreadCtrl tc=new ThreadCtrl();
                         mDialogProgressSpinCancel.setEnabled(true);
-                        mDialogProgressSpinMsg1.setVisibility(TextView.GONE);
                         mDialogProgressSpinCancel.setOnClickListener(new OnClickListener(){
                             @Override
                             public void onClick(View v) {
@@ -467,7 +444,7 @@ public class ZipFileManager {
                                             return false;
                                         }
                                     });
-                                    if (tc.isEnabled()) {
+                                    if (!checkCancelAndWait(tc)) {
                                         if (out_file.getPath().startsWith(SafFile3.SAF_FILE_PRIMARY_STORAGE_PREFIX)) {
 //                                                File out_of_file=new File(out_file.getPath());
                                             if (out_file.exists()) out_file.delete();
@@ -476,7 +453,7 @@ public class ZipFileManager {
                                             SafFile3 tmp_sf=new SafFile3(mContext, tmp.getPath());
                                             if (out_file.exists()) out_file.delete();
                                             if (cache_available) tmp_sf.moveTo(out_file);
-                                            else tmp_sf.renameTo(out_file);
+                                            else LocalFileManager.renameSafFile(tmp_sf, out_file);//tmp_sf.renameTo(out_file);
                                         }
                                     } else {
                                         tmp.delete();
@@ -535,7 +512,7 @@ public class ZipFileManager {
         byte[] buff=new byte[1024*1024*2];
         cbl.onCallBack(mContext, 0, null);
         while((rc=is.read(buff))>0) {
-            if (!tc.isEnabled()) {
+            if (checkCancelAndWait(tc)) {
                 break;
             }
             os.write(buff, 0, rc);
@@ -1014,7 +991,7 @@ public class ZipFileManager {
 					@Override
 					public void negativeResponse(Context c, Object[] o) {
 						tc.setDisabled();
-						if (!tc.isEnabled()) psd.dismissAllowingStateLoss();
+						if (checkCancel(tc)) psd.dismissAllowingStateLoss();
 					}
 				});
 				psd.showDialog(mFragmentManager, psd, ntfy,true);
@@ -1023,7 +1000,7 @@ public class ZipFileManager {
 					public void run() {
 						buildFileListBySearchKey(tc, psd, s_tfl, s_key);
 						psd.dismissAllowingStateLoss();
-						if (!tc.isEnabled()) {
+						if (checkCancel(tc)) {
 							mCommonDlg.showCommonDialog(false, "W",
 									mContext.getString(R.string.msgs_search_file_dlg_search_cancelled), "", null);
 						} else {
@@ -1327,7 +1304,7 @@ public class ZipFileManager {
 //                        e.printStackTrace();
                 }
                 mUtil.addDebugMsg(2, "I", "createFileList Zip file list created");
-                if (tc.isEnabled()) {
+                if (!checkCancel(tc)) {
                     ntfy_create_file_list.notifyToListener(true, null);
                 } else {
                     ntfy_create_file_list.notifyToListener(false, null);
@@ -1917,20 +1894,17 @@ public class ZipFileManager {
         fsdf.showDialog(false, mActivity.getSupportFragmentManager(), fsdf, ntfy);
 	};
 
-	private void confirmCancel(final ThreadCtrl tc, final Button cancel) {
-		NotifyEvent ntfy=new NotifyEvent(mContext);
-		ntfy.setListener(new NotifyEventListener(){
-			@Override
-			public void positiveResponse(Context c, Object[] o) {
-				tc.setDisabled();
-				cancel.setEnabled(false);
-			}
-			@Override
-			public void negativeResponse(Context c, Object[] o) {}
-		});
-		mCommonDlg.showCommonDialog(true, "W",
-				mContext.getString(R.string.msgs_main_confirm_cancel), "", ntfy);
-	};
+    private boolean checkCancelAndWait(final ThreadCtrl tc) {
+        return LocalFileManager.checkCancelAndWait(tc);
+    }
+
+    private boolean checkCancel(final ThreadCtrl tc) {
+        return LocalFileManager.checkCancel(tc);
+    }
+
+    public void confirmCancel(final ThreadCtrl tc, final Button cancel) {
+        LocalFileManager.confirmCancel(mActivity, tc, cancel);
+    }
 
 	private void addItemDlg() {
 		NotifyEvent ntfy=new NotifyEvent(mContext);
@@ -2154,7 +2128,6 @@ public class ZipFileManager {
 		setUiDisabled();
 		showDialogProgress();
 		final ThreadCtrl tc=new ThreadCtrl();
-		mDialogProgressSpinMsg1.setVisibility(TextView.GONE);
 		mDialogProgressSpinCancel.setEnabled(true);
 		mDialogProgressSpinCancel.setOnClickListener(new OnClickListener(){
 			@Override
@@ -2190,7 +2163,7 @@ public class ZipFileManager {
                                     CallBackListener cbl=new CallBackListener() {
                                         @Override
                                         public boolean onCallBack(Context context, Object o, Object[] objects) {
-                                            if (!tc.isEnabled()) {
+                                            if (checkCancelAndWait(tc)) {
                                                 bzf.abort();
                                             } else {
                                                 int prog=(Integer)o;
@@ -2212,7 +2185,7 @@ public class ZipFileManager {
                                         if (sel_file.isDirectory()) n_zp.setFileNameInZip(file_name_in_zip+"/");
                                         else n_zp.setFileNameInZip(file_name_in_zip);
                                         bzf.addItem(sel_file.getPath(), n_zp, cbl);
-                                        if (!tc.isEnabled()) {
+                                        if (checkCancelAndWait(tc)) {
                                             mCommonDlg.showCommonDialog(false, "W", String.format(mContext.getString(R.string.msgs_zip_add_file_cancelled), sel_file.getPath()), "", null);
                                             try {bzf.destroy();} catch (Exception e) {}
                                             out_temp.deleteIfExists();
@@ -2221,7 +2194,7 @@ public class ZipFileManager {
                                         }
                                         putProgressMessage(mContext.getString(R.string.msgs_zip_add_file_added, sel_file.getPath()));
                                     } else {
-                                        if (tc.isEnabled()) {
+                                        if (!checkCancelAndWait(tc)) {
                                             putProgressMessage(mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced, sel_file.getPath()));
                                             mUtil.addLogMsg("I", mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced, sel_file.getPath()));
                                         }
@@ -2299,7 +2272,7 @@ public class ZipFileManager {
         CallBackListener cbl=new CallBackListener() {
             @Override
             public boolean onCallBack(Context context, Object o, Object[] objects) {
-                if (!tc.isEnabled()) {
+                if (checkCancel(tc)) {
                     bzf.abort();
                 } else {
                     int prog=(Integer)o;
@@ -2566,7 +2539,6 @@ public class ZipFileManager {
 		setUiDisabled();
 		showDialogProgress();
 		final ThreadCtrl tc=new ThreadCtrl();
-		mDialogProgressSpinMsg1.setVisibility(TextView.GONE);
 		mDialogProgressSpinCancel.setEnabled(true);
 		mDialogProgressSpinCancel.setOnClickListener(new OnClickListener(){
 			@Override
@@ -2702,7 +2674,6 @@ public class ZipFileManager {
                                     waitResponse(tc_extract, fh_item.getFileName());
                                 } else {
                                     ntfy_pswd.notifyToListener(true, null);
-//                                    waitResponse(tc_extract, fh_item.getFileName());
                                 }
                             } else {
                                 mUiHandler.post(new Runnable(){
@@ -2715,7 +2686,6 @@ public class ZipFileManager {
                             }
                         } else {
                             ntfy_pswd.notifyToListener(true, null);
-//                            waitResponse(tc_extract, fh_item.getFileName());
                         }
                     } else {
                         tc_extract.setDisabled();
@@ -2727,7 +2697,7 @@ public class ZipFileManager {
 				}
 			}
 			if (p_ntfy!=null) {
-			    p_ntfy.notifyToListener(true, null);
+			    if (!checkCancel(tc)) p_ntfy.notifyToListener(true, null);
             } else {
                 mUiHandler.post(new Runnable(){
                     @Override
@@ -2775,7 +2745,7 @@ public class ZipFileManager {
         if (!lf.isDirectory() && lf.exists()) replace_granted=confirmReplace(tc, "", msg, (dest_path+"/"+fn).replaceAll("//","/"));
         if (replace_granted) {
             if (copyZipItemToFile(tc, zf, fh_item, fh_item.getFileName(), dest_path+"/"+dir, fn)) {
-                if (tc.isEnabled()) {
+                if (!checkCancelAndWait(tc)) {
                     putProgressMessage(String.format(mContext.getString(R.string.msgs_zip_extract_file_was_extracted), fh_item.getFileName()));
                     mUtil.addLogMsg("I", String.format(mContext.getString(R.string.msgs_zip_extract_file_was_extracted), fh_item.getFileName()));
                 } else {
@@ -2791,7 +2761,8 @@ public class ZipFileManager {
                 }
             } else {
                 result=false;
-                mCommonDlg.showCommonDialog(false, "E", mContext.getString(R.string.msgs_zip_extract_file_was_failed), tc.getThreadMessage(), null);
+                if (!checkCancelAndWait(tc))
+                    mCommonDlg.showCommonDialog(false, "E", mContext.getString(R.string.msgs_zip_extract_file_was_failed), tc.getThreadMessage(), null);
                 mUiHandler.post(new Runnable(){
                     @Override
                     public void run() {
@@ -2803,12 +2774,12 @@ public class ZipFileManager {
             }
         } else {
             //Reject replace request
-            if (tc.isEnabled()) {
+            if (!checkCancelAndWait(tc)) {
                 putProgressMessage(mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced)+dest_path+"/"+dir+"/"+fn);
                 mUtil.addLogMsg("I", mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced)+dest_path+"/"+dir+"/"+fn);
             }
         }
-        if (!tc.isEnabled()) {
+        if (checkCancelAndWait(tc)) {
             result=false;
             mCommonDlg.showCommonDialog(false, "W", mContext.getString(R.string.msgs_zip_extract_file_was_cancelled), "", null);
             mUiHandler.post(new Runnable(){
@@ -3132,7 +3103,6 @@ public class ZipFileManager {
 		showDialogProgress();
 		final ThreadCtrl tc=new ThreadCtrl();
 		mDialogProgressSpinCancel.setEnabled(true);
-		mDialogProgressSpinMsg1.setVisibility(TextView.GONE);
 		mDialogProgressSpinCancel.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
@@ -3153,7 +3123,7 @@ public class ZipFileManager {
                     ArrayList<FileHeader> sel_fh=buildSelectedFileHeaderList(zf, tfa);
                     String msg=mContext.getString(R.string.msgs_zip_delete_file_was_deleted);
                     for(FileHeader fh:sel_fh) {
-                        if (!tc.isEnabled()) {
+                        if (checkCancelAndWait(tc)) {
                             mCommonDlg.showCommonDialog(false, "I",
                                     String.format(mContext.getString(R.string.msgs_zip_delete_file_was_cancelled),fh.getFileName()), "", null);
                             try {
@@ -3167,7 +3137,7 @@ public class ZipFileManager {
                             mUtil.addLogMsg("I", String.format(msg,fh.getFileName()));
                         }
                     }
-                    if (tc.isEnabled()) {
+                    if (!checkCancelAndWait(tc)) {
                         CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, mContext.getString(R.string.msgs_zip_zip_file_being_updated));
                         if (bzf.isAborted() || bzf.close(cbl)) {
                             if (!bzf.isAborted()) {
@@ -3214,7 +3184,7 @@ public class ZipFileManager {
         SafFile3 df=new SafFile3(gp.appContext, dest_path);
         SafFile3 of=new SafFile3(gp.appContext, out_path);
         df.deleteIfExists();
-        of.renameTo(df);
+        LocalFileManager.renameSafFile(of, df);
         util.addDebugMsg(1,"I","renameBufferedZipFile elapsed time="+(System.currentTimeMillis()-b_time));
     }
 
@@ -3781,7 +3751,7 @@ public class ZipFileManager {
 		boolean result=false;
 		long b_time=System.currentTimeMillis();
 		try {
-			if (tc.isEnabled()) {
+			if (!checkCancelAndWait(tc)) {
                 InputStream is=getZipInputStream(tc, zf, fh, mUtil);
 
 				String dest_fpath=dest_path.endsWith("/")?dest_path+dest_file_name:dest_path+"/"+dest_file_name;
@@ -3796,36 +3766,41 @@ public class ZipFileManager {
                     }
                 };
 				if (out_dir_sf.getAppDirectoryCache()==null) {
-                    SafFile3 out_file_sf=new SafFile3(mContext, dest_fpath);
-                    out_file_sf.deleteIfExists();
-                    out_file_sf.createNewFile();
-                    OutputStream os=out_file_sf.getOutputStream();
+                    SafFile3 out_file_work=new SafFile3(mContext, dest_fpath+".tmp");
+                    out_file_work.deleteIfExists();
+                    out_file_work.createNewFile();
+                    OutputStream os=out_file_work.getOutputStream();
                     copyFile(tc, fh.getUncompressedSize(), is, os, cbl);
-                    if (!tc.isEnabled()) out_file_sf.delete();
+                    if (checkCancelAndWait(tc)) out_file_work.deleteIfExists();
+                    else {
+                        SafFile3 out_file_sf=new SafFile3(mContext, dest_fpath);
+                        boolean rc_rename=out_file_work.renameTo(out_file_sf);
+                        if (!rc_rename && !out_file_work.exists() && out_file_sf.exists()) result=true;
+                    }
                 } else {
-				    String work_fpath=out_dir_sf.getAppDirectoryCache()+"/"+System.currentTimeMillis();
+				    String work_fpath=out_dir_sf.getAppDirectoryCache()+"/"+dest_file_name;//System.currentTimeMillis();
                     SafFile3 out_file_work=new SafFile3(mContext, work_fpath);
                     File out_os_file=new File(work_fpath);
                     OutputStream os=new FileOutputStream(out_os_file);
                     copyFile(tc, fh.getUncompressedSize(), is, os, cbl);
-                    if (!tc.isEnabled()) out_file_work.delete();
+                    if (checkCancelAndWait(tc)) out_file_work.deleteIfExists();
                     else {
                         SafFile3 out_file_sf=new SafFile3(mContext, dest_fpath);
                         out_os_file.setLastModified(ZipUtil.dosToJavaTme((int) fh.getLastModifiedTime()));
                         out_file_sf.deleteIfExists();
-                        out_file_work.moveToWithRename(out_file_sf);
+                        out_file_work.moveTo(out_file_sf);
+                        result=true;
                     }
                 }
-
 			}
-			result=true;
 		} catch (Exception e) {
 			mUtil.addLogMsg("I", e.getMessage());
 			CommonUtilities.printStackTraceElement(mUtil, e.getStackTrace());
 			tc.setThreadMessage(e.getMessage());
+            result=false;
 		}
 		mUtil.addDebugMsg(1,"I",
-				"extractSpecificFile result="+result+", zip file name="+zip_file_name+", dest="+dest_path+
+				"copyZipItemToFile result="+result+", zip file name="+zip_file_name+", dest="+dest_path+
                         ", dest file name="+dest_file_name+", elapsed="+(System.currentTimeMillis()-b_time));
 		return result;
 	};
@@ -3888,7 +3863,7 @@ public class ZipFileManager {
                                 @Override
                                 public void run() {
                                     setUiEnabled();
-                                    if (rc && tc.isEnabled()) {
+                                    if (rc && !checkCancel(tc)) {
                                         SafFile3 sf=null;
                                         try {
                                             String fp=(work_dir+"/"+f_name).replaceAll("//","/");
@@ -3910,7 +3885,7 @@ public class ZipFileManager {
                                             if (sf!=null) sf.deleteIfExists();
                                         }
                                     } else {
-                                        if (tc.isEnabled())
+                                        if (!checkCancel(tc))
                                             mCommonDlg.showCommonDialog(false, "E", mContext.getString(R.string.msgs_zip_extract_file_was_failed),
                                                     f_name+"\n"+tc.getThreadMessage(), null);
                                     }

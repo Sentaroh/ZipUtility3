@@ -29,6 +29,7 @@ import android.content.ContentProviderClient;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -61,6 +62,7 @@ import com.sentaroh.android.Utilities3.ContextMenu.CustomContextMenu;
 import com.sentaroh.android.Utilities3.ContextMenu.CustomContextMenuItem.CustomContextMenuOnClickListener;
 import com.sentaroh.android.Utilities3.Dialog.CommonDialog;
 import com.sentaroh.android.Utilities3.Dialog.CommonFileSelector2;
+import com.sentaroh.android.Utilities3.Dialog.MessageDialogFragment;
 import com.sentaroh.android.Utilities3.Dialog.ProgressSpinDialogFragment;
 import com.sentaroh.android.Utilities3.MiscUtil;
 import com.sentaroh.android.Utilities3.NotifyEvent;
@@ -227,7 +229,6 @@ public class LocalFileManager {
     private Spinner mLocalStorageSelector;
 
     private LinearLayout mDialogProgressSpinView = null;
-    private TextView mDialogProgressSpinMsg1 = null;
     private TextView mDialogProgressSpinMsg2 = null;
     private Button mDialogProgressSpinCancel = null;
 
@@ -325,18 +326,8 @@ public class LocalFileManager {
 
         mDialogProgressSpinView = (LinearLayout) mMainView.findViewById(R.id.main_dialog_progress_spin_view);
         mDialogProgressSpinView.setVisibility(LinearLayout.GONE);
-        mDialogProgressSpinMsg1 = (TextView) mMainView.findViewById(R.id.main_dialog_progress_spin_syncprof);
-        mDialogProgressSpinMsg1.setVisibility(TextView.GONE);
         mDialogProgressSpinMsg2 = (TextView) mMainView.findViewById(R.id.main_dialog_progress_spin_syncmsg);
         mDialogProgressSpinCancel = (Button) mMainView.findViewById(R.id.main_dialog_progress_spin_btn_cancel);
-
-        mDialogMessageView = (LinearLayout) mMainView.findViewById(R.id.main_dialog_message_view);
-        mDialogMessageView.setVisibility(LinearLayout.GONE);
-        mDialogMessageTitle = (TextView) mMainView.findViewById(R.id.main_dialog_message_title);
-        mDialogMessageBody = (TextView) mMainView.findViewById(R.id.main_dialog_message_body);
-        mDialogMessageClose = (Button) mMainView.findViewById(R.id.main_dialog_message_close_btn);
-        mDialogMessageCancel = (Button) mMainView.findViewById(R.id.main_dialog_message_cancel_btn);
-        mDialogMessageOk = (Button) mMainView.findViewById(R.id.main_dialog_message_ok_btn);
 
         mDialogConfirmView = (LinearLayout) mMainView.findViewById(R.id.main_dialog_confirm_view);
         mDialogConfirmView.setVisibility(LinearLayout.GONE);
@@ -873,7 +864,7 @@ public class LocalFileManager {
                     @Override
                     public void negativeResponse(Context c, Object[] o) {
                         tc.setDisabled();
-                        if (!tc.isEnabled()) psd.dismissAllowingStateLoss();
+                        if (checkCancel(tc)) psd.dismissAllowingStateLoss();
                     }
                 });
                 psd.showDialog(mFragmentManager, psd, ntfy, true);
@@ -888,7 +879,7 @@ public class LocalFileManager {
                             if (cpc!=null) cpc.release();
                         }
                         psd.dismissAllowingStateLoss();
-                        if (!tc.isEnabled()) {
+                        if (checkCancel(tc)) {
                             mCommonDlg.showCommonDialog(false, "W",
                                     mContext.getString(R.string.msgs_search_file_dlg_search_cancelled), "", null);
                         } else {
@@ -942,13 +933,13 @@ public class LocalFileManager {
                 SafFile3[] fl = s_file.listFiles(cpc);
                 if (fl != null) {
                     for (SafFile3 item : fl) {
-                        if (!tc.isEnabled()) break;
+                        if (checkCancel(tc)) break;
                         buildFileListBySearchKey(cpc, tc, search_hidden_item, psd, s_tfl, s_key, item);
                     }
                 }
-                if (!tc.isEnabled()) return;
+                if (checkCancel(tc)) return;
             } else {
-                if (!tc.isEnabled()) return;
+                if (checkCancel(tc)) return;
                 if (s_key.matcher(s_file.getName()).matches()) {
                     TreeFilelistItem tfli = createSafApiFileListItem(cpc, s_file);
                     s_tfl.add(tfli);
@@ -1129,34 +1120,22 @@ public class LocalFileManager {
                 ntfy.setListener(new NotifyEventListener() {
                     @Override
                     public void positiveResponse(Context c, Object[] o) {
-
                         setUiDisabled();
-                        showDialogProgress();
-                        final ThreadCtrl tc = new ThreadCtrl();
-                        mDialogProgressSpinCancel.setEnabled(true);
-                        mDialogProgressSpinMsg1.setVisibility(TextView.GONE);
-                        mDialogProgressSpinCancel.setOnClickListener(new OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                confirmCancel(tc, mDialogProgressSpinCancel);
-                            }
-                        });
                         Thread th = new Thread() {
                             @Override
                             public void run() {
                                 mUtil.addDebugMsg(1, "I", "Rename started");
-                                boolean rc_create = false;
+                                boolean rc_rename = false;
                                 String e_msg_tmp="";
                                 SafFile3 cf=new SafFile3(mContext, current_name);
                                 SafFile3 nf=new SafFile3(mContext, new_name);
                                 try {
-                                    rc_create=cf.renameTo(nf);
-                                    e_msg_tmp=cf.getLastErrorMessage();
+                                    rc_rename=renameSafFile(cf, nf);
                                 } catch(Exception e) {
                                     e.printStackTrace();
                                     e_msg_tmp=MiscUtil.getStackTraceString(e);
                                 }
-                                if (!rc_create) {
+                                if (!rc_rename) {
                                     final String e_msg=e_msg_tmp;
                                     mUiHandler.post(new Runnable(){
                                         @Override
@@ -1168,14 +1147,12 @@ public class LocalFileManager {
                                     });
                                     return;
                                 }
+                                scanMediaFile(mGp, mUtil, nf.getPath());
                                 mUtil.addDebugMsg(1, "I", "Rename ended");
 
-//								final String cdir=mLocalFileCurrentDirectory.getText().toString();
                                 mUiHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
-//                                        mCommonDlg.showCommonDialog(false, "I",
-//                                                String.format(mContext.getString(R.string.msgs_zip_local_file_rename_completed), new_name), "", null);
                                         showToast(mActivity, mContext.getString(R.string.msgs_zip_local_file_rename_completed, new_name));
                                         mGp.copyCutList.clear();
                                         mGp.copyCutType = GlobalParameters.COPY_CUT_FROM_LOCAL;
@@ -1283,21 +1260,40 @@ public class LocalFileManager {
         return enabled;
     }
 
-    private void confirmCancel(final ThreadCtrl tc, final Button cancel) {
-        NotifyEvent ntfy = new NotifyEvent(mContext);
+    static public boolean checkCancelAndWait(final ThreadCtrl tc) {
+        tc.writeLockWait();
+        return checkCancel(tc);
+    }
+
+    static public boolean checkCancel(final ThreadCtrl tc) {
+        if (!tc.isEnabled()) {
+            return true;
+        }
+        return false;
+    }
+    static public void confirmCancel(ActivityMain a, final ThreadCtrl tc, final Button cancel) {
+        NotifyEvent ntfy = new NotifyEvent(a);
         ntfy.setListener(new NotifyEventListener() {
             @Override
             public void positiveResponse(Context c, Object[] o) {
                 tc.setDisabled();
                 cancel.setEnabled(false);
+                tc.writeLockRelease();
             }
 
             @Override
             public void negativeResponse(Context c, Object[] o) {
+                tc.writeLockRelease();
             }
         });
-        mCommonDlg.showCommonDialog(true, "W",
-                mContext.getString(R.string.msgs_main_confirm_cancel), "", ntfy);
+        MessageDialogFragment cdf =MessageDialogFragment.newInstance(true, "W", a.getString(R.string.msgs_main_confirm_cancel), "");
+        cdf.showDialog(a.getSupportFragmentManager(),cdf,ntfy);
+
+        tc.writeLockAcuire();
+    }
+
+    public void confirmCancel(final ThreadCtrl tc, final Button cancel) {
+        confirmCancel(mActivity, tc, cancel);
     }
 
     private void confirmMove() {
@@ -1341,7 +1337,6 @@ public class LocalFileManager {
                 showDialogProgress();
                 final ThreadCtrl tc = new ThreadCtrl();
                 mDialogProgressSpinCancel.setEnabled(true);
-                mDialogProgressSpinMsg1.setVisibility(TextView.GONE);
                 mDialogProgressSpinCancel.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1353,18 +1348,16 @@ public class LocalFileManager {
                     public void run() {
                         mUtil.addDebugMsg(1, "I", "Move started");
                         String moved_item = "", moved_sep = "";
-                        boolean process_aborted = false;
+                        boolean rc =false;
                         for (TreeFilelistItem tfl : mGp.copyCutList) {
                             SafFile3 from_file = new SafFile3(mContext, tfl.getPath() + "/" + tfl.getName());
                             SafFile3 to_file=new SafFile3(mContext, to_dir+"/"+tfl.getName());
-                            boolean rc = moveCopyLocalToLocal(true,tc, from_file, (to_dir + "/" + tfl.getName()).replace("//", "/"));
-//							boolean rc=from_file.renameTo(to_file);
+                            rc = moveCopyLocalToLocal(true, tc, from_file, (to_dir + "/" + tfl.getName()).replace("//", "/"));
                             if (rc) {
                                 moved_item += moved_sep + from_file;
                                 moved_sep = ", ";
                             } else {
-                                process_aborted = true;
-                                if (tc.isEnabled()) {
+                                if (!checkCancelAndWait(tc)) {
                                     String msg = String.format(mContext.getString(R.string.msgs_zip_local_file_move_failed), tfl.getName());
                                     mUtil.addLogMsg("I", msg);
                                     mCommonDlg.showCommonDialog(false, "W", msg, "", null);
@@ -1372,9 +1365,7 @@ public class LocalFileManager {
                                 }
                             }
                         }
-                        if (!process_aborted) {
-//                            mCommonDlg.showCommonDialog(false, "I",
-//                                    mContext.getString(R.string.msgs_zip_local_file_move_completed), moved_item, null);
+                        if (rc) {
                             showToast(mActivity, mContext.getString(R.string.msgs_zip_local_file_move_completed));
                         }
                         mUtil.addDebugMsg(1, "I", "Move ended");
@@ -1415,7 +1406,7 @@ public class LocalFileManager {
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " from=" + from_file.getPath() + ", to=" + to_path);
         boolean result = false;
         if (from_file.isDirectory()) {
-            if (!tc.isEnabled()) {
+            if (checkCancelAndWait(tc)) {
                 String msg = String.format(mContext.getString(R.string.msgs_zip_local_file_move_cancelled), to_path);
                 mUtil.addLogMsg("I", msg);
                 mCommonDlg.showCommonDialog(false, "W", msg, "", null);
@@ -1451,11 +1442,9 @@ public class LocalFileManager {
                 result=moveCopyFileLocalToLocal(move, tc, from_file, to_path);
             } else {
                 //Reject replace request
-                if (tc.isEnabled()) {
-                    putProgressMessage(
-                            mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced) + to_path);
-                    mUtil.addLogMsg("I",
-                            mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced) + to_path);
+                if (checkCancel(tc)) {
+                    putProgressMessage(mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced) + to_path);
+                    mUtil.addLogMsg("I", mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced) + to_path);
                     result = true;
                 } else {
                     result = false;
@@ -1495,8 +1484,8 @@ public class LocalFileManager {
 
             result= writeBackZipFile(fis, fos, tc, from_file, to_path, msg_in_prog);
 
-            if (!tc.isEnabled()) {
-                out_file.delete();
+            if (checkCancelAndWait(tc)) {
+                out_file.deleteIfExists();
                 String msg = String.format(msg_cancelled, to_path);
                 mUtil.addLogMsg("I", msg);
                 mCommonDlg.showCommonDialog(false, "W", msg, "", null);
@@ -1511,6 +1500,7 @@ public class LocalFileManager {
 
                 out_file.deleteIfExists();
                 result=temp_out_file.moveTo(out_file);
+                scanMediaFile(mGp, mUtil, out_file.getPath());
 
                 if (move && result) from_file.deleteIfExists();
                 String msg = String.format(msg_comp, to_path);
@@ -1531,7 +1521,7 @@ public class LocalFileManager {
         long file_size = from_file.length();
         long progress = 0, tot_rc = 0;
         while (rc > 0) {
-            if (!tc.isEnabled()) {
+            if (checkCancelAndWait(tc)) {
                 result=false;
                 break;
             } else {
@@ -1573,18 +1563,18 @@ public class LocalFileManager {
                 msg_cancelled=mContext.getString(R.string.msgs_zip_local_file_copy_cancelled);
             }
             result= writeBackZipFile(fis, fos, tc, from_file, to_path, msg_in_prog);
-            if (!tc.isEnabled()) {
-                temp_out_file.delete();
+            if (checkCancel(tc)) {
+                temp_out_file.deleteIfExists();
                 String msg = String.format(msg_cancelled, to_path);
                 mUtil.addLogMsg("I", msg);
                 mCommonDlg.showCommonDialog(false, "W", msg, "", null);
                 result = false;
             } else {
                 result = true;
-
                 out_file.deleteIfExists();
                 try {
-                    result=temp_out_file.renameTo(out_file);
+                    result=renameSafFile(temp_out_file, out_file);
+                    scanMediaFile(mGp, mUtil, out_file.getPath());
                 } catch(Exception e) {
                     e.printStackTrace();
                     mUtil.addLogMsg("I", "rename error occured, error="+MiscUtil.getStackTraceString(e));
@@ -1651,7 +1641,6 @@ public class LocalFileManager {
         setUiDisabled();
         showDialogProgress();
         final ThreadCtrl tc = new ThreadCtrl();
-        mDialogProgressSpinMsg1.setVisibility(TextView.GONE);
         mDialogProgressSpinCancel.setEnabled(true);
         mDialogProgressSpinCancel.setOnClickListener(new OnClickListener() {
             @Override
@@ -1717,7 +1706,7 @@ public class LocalFileManager {
                     SafFile3 sf=new SafFile3(mContext, fp);
                     if (!sf.exists()) sf.mkdirs();
                 } else {
-					if (!tc.isEnabled()) return true;
+					if (checkCancelAndWait(tc)) return true;
                     final NotifyEvent ntfy_pswd = new NotifyEvent(mContext);
                     ntfy_pswd.setListener(new NotifyEventListener() {
                         @Override
@@ -1749,6 +1738,161 @@ public class LocalFileManager {
                             mUiHandler.post(new Runnable(){
                                 @Override
                                 public void run() {
+                                    setUiEnabled();
+                                    hideDialog();
+                                    notifyResponse(tc_extract, fh_item.getFileName());
+                                }
+                            });
+                        }
+                    });
+
+                    if (ZipUtil.isSupportedCompressionMethod(fh_item)) {
+                        if (fh_item.isEncrypted()) {
+                            if (!mMainPassword.isEmpty()) {
+                                zf.setPassword(mMainPassword);
+                                if (!ZipFileManager.isCorrectZipFilePassword(zf, fh_item, mMainPassword)) {
+                                    mUiHandler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            ZipFileManager.getZipPasswordDlg(mActivity, mGp, mMainPassword, zf, fh_item, ntfy_pswd, true);
+                                        }
+                                    });
+                                    waitResponse(tc_extract, fh_item.getFileName());
+                                } else {
+                                    ntfy_pswd.notifyToListener(true, null);
+                                }
+                            } else {
+                                mUiHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ZipFileManager.getZipPasswordDlg(mActivity, mGp, mMainPassword, zf, fh_item, ntfy_pswd, true);
+                                    }
+                                });
+                                waitResponse(tc_extract, fh_item.getFileName());
+                            }
+                        } else {
+                            ntfy_pswd.notifyToListener(true, null);
+//                            waitResponse(tc_extract, fh_item.getFileName());
+                        }
+                    } else {
+                        tc_extract.setDisabled();
+                        CompressionMethod cm=ZipUtil.getCompressionMethod(fh_item);
+                        mCommonDlg.showCommonDialog(false, "E", mContext.getString(R.string.msgs_zip_extract_file_error),
+                                "Unsupported compression method. code="+ ZipUtil.getCompressionMethodName(fh_item), null);
+                        notifyResponse(tc_extract, fh_item.getFileName());
+                    }
+                }
+            }
+
+            if (move_mode) {
+                try {//Delete ZIP item for Move mode
+                    SafFile3 out_temp=new SafFile3(mContext, zf.getSafFile().getPath()+".tmp");
+                    out_temp.createNewFile();
+                    BufferedZipFile3 bzf = new BufferedZipFile3(mContext, zf.getSafFile(), out_temp, mGp.copyCutEncoding);
+                    String msg = mContext.getString(R.string.msgs_zip_delete_file_was_deleted);
+                    for (FileHeader fh : extracted_fh_list) {
+                        if (checkCancelAndWait(tc)) {
+                            mCommonDlg.showCommonDialog(false, "I",
+                                    String.format(mContext.getString(R.string.msgs_zip_delete_file_was_cancelled), fh.getFileName()), "", null);
+                            break;
+                        }
+                        bzf.removeItem(fh);
+                        putProgressMessage(String.format(msg, fh.getFileName()));
+                    }
+                    clearCopyCutItem();
+                    if (!checkCancelAndWait(tc)) {
+                        try {
+                            CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, mContext.getString(R.string.msgs_zip_zip_file_being_updated));
+                            bzf.close(cbl);
+                            zf.getSafFile().deleteIfExists();
+                            renameSafFile(out_temp, zf.getSafFile());
+                            scanMediaFile(mGp, mUtil, zf.getSafFile().getPath());
+                            showToast(mActivity, mContext.getString(R.string.msgs_zip_move_file_completed));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            String e_msg = "Exception occured";
+                            mUtil.addLogMsg("E", e_msg + ", " + e.getMessage());
+                            mCommonDlg.showCommonDialog(false, "E", e_msg, e.getMessage(), null);
+                            out_temp.deleteIfExists();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    String e_msg = "Exception occured";
+                    mUtil.addLogMsg("E", e_msg + ", " + e.getMessage());
+                    mCommonDlg.showCommonDialog(false, "E", e_msg, e.getMessage(), null);
+                }
+            }
+            mUiHandler.post(new Runnable(){
+                @Override
+                public void run() {
+                    setUiEnabled();
+                    hideDialog();
+                    refreshFileList(true);
+                }
+            });
+
+        } catch (Exception e) {
+            mUtil.addLogMsg("I", e.getMessage());
+            CommonUtilities.printStackTraceElement(mUtil, e.getStackTrace());
+            return false;
+        }
+        return true;
+    }
+
+    private boolean extractSelectedZipItemX(final ThreadCtrl tc, final String dest_path, final CustomZipFile zf,
+                                           final ArrayList<FileHeader> selected_fh_list, final ArrayList<FileHeader> extracted_fh_list,
+                                           final boolean move_mode) {
+
+        mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName() + " entered, size=" + selected_fh_list.size()+
+                ", dest_path="+dest_path);
+        ThreadCtrl tc_extract=new ThreadCtrl();
+        try {
+            while (selected_fh_list.size() > 0) {
+                final FileHeader fh_item = selected_fh_list.get(0);
+                mUtil.addDebugMsg(1, "I", "extract name="+fh_item.getFileName());
+                selected_fh_list.remove(0);
+                extracted_fh_list.add(fh_item);
+                if (fh_item.isDirectory()) {
+                    String fp=dest_path + "/" + fh_item.getFileName().replace(mGp.copyCutCurrentDirectory, "");
+                    SafFile3 sf=new SafFile3(mContext, fp);
+                    if (!sf.exists()) sf.mkdirs();
+                } else {
+                    if (checkCancelAndWait(tc)) return true;
+                    final NotifyEvent ntfy_pswd = new NotifyEvent(mContext);
+                    ntfy_pswd.setListener(new NotifyEventListener() {
+                        @Override
+                        public void positiveResponse(Context c, Object[] o) {
+                            if (o!=null && o[0]!=null) mMainPassword=(String)o[0];
+                            boolean rc=extractSingleZipItem(tc, dest_path, zf, selected_fh_list, extracted_fh_list, fh_item);
+                            if (!rc) {
+                                tc_extract.setDisabled();
+                                mUiHandler.post(new Runnable(){
+                                    @Override
+                                    public void run() {
+//                                        Thread.dumpStack();
+                                        setUiEnabled();
+                                        hideDialog();
+                                        notifyResponse(tc_extract, fh_item.getFileName());
+                                    }
+                                });
+                            } else {
+                                mUiHandler.post(new Runnable(){
+                                    @Override
+                                    public void run() {
+//                                        Thread.dumpStack();
+                                        notifyResponse(tc_extract, fh_item.getFileName());
+                                    }
+                                });
+                            }
+                        }
+                        @Override
+                        public void negativeResponse(Context c, Object[] o) {
+                            tc_extract.setDisabled();
+                            mUiHandler.post(new Runnable(){
+                                @Override
+                                public void run() {
+//                                    Thread.dumpStack();
                                     setUiEnabled();
                                     hideDialog();
                                     notifyResponse(tc_extract, fh_item.getFileName());
@@ -1803,7 +1947,7 @@ public class LocalFileManager {
                     BufferedZipFile3 bzf = new BufferedZipFile3(mContext, zf.getSafFile(), out_temp, mGp.copyCutEncoding);
                     String msg = mContext.getString(R.string.msgs_zip_delete_file_was_deleted);
                     for (FileHeader fh : extracted_fh_list) {
-                        if (!tc.isEnabled()) {
+                        if (checkCancelAndWait(tc)) {
                             mCommonDlg.showCommonDialog(false, "I",
                                     String.format(mContext.getString(R.string.msgs_zip_delete_file_was_cancelled), fh.getFileName()), "", null);
                             break;
@@ -1812,12 +1956,13 @@ public class LocalFileManager {
                         putProgressMessage(String.format(msg, fh.getFileName()));
                     }
                     clearCopyCutItem();
-                    if (tc.isEnabled()) {
+                    if (!checkCancelAndWait(tc)) {
                         try {
                             CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, mContext.getString(R.string.msgs_zip_zip_file_being_updated));
                             bzf.close(cbl);
                             zf.getSafFile().deleteIfExists();
-                            out_temp.renameTo(zf.getSafFile());
+                            renameSafFile(out_temp, zf.getSafFile());
+                            scanMediaFile(mGp, mUtil, zf.getSafFile().getPath());
                             showToast(mActivity, mContext.getString(R.string.msgs_zip_move_file_completed));
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -1849,6 +1994,16 @@ public class LocalFileManager {
             return false;
         }
         return true;
+    }
+
+    public static boolean renameSafFile(SafFile3 from, SafFile3 to) {
+        boolean result=from.renameTo(to);
+        if (!from.getPath().startsWith(SafFile3.SAF_FILE_PRIMARY_STORAGE_PREFIX)) {
+            if (!result && !from.exists() && to.exists()) {
+                result=true;
+            }
+        }
+        return result;
     }
 
     private void clearCopyCutItem() {
@@ -1890,7 +2045,7 @@ public class LocalFileManager {
         }
         if (replace_granted) {
             if (copyZipItemToFile(tc, zf, fh_item, fh_item.getFileName(), dest_path + dir, fn)) {
-                if (tc.isEnabled()) {
+                if (!checkCancelAndWait(tc)) {
                     putProgressMessage(String.format(mContext.getString(R.string.msgs_zip_extract_file_was_extracted), fh_item.getFileName()));
                     mUtil.addLogMsg("I", String.format(mContext.getString(R.string.msgs_zip_extract_file_was_extracted), fh_item.getFileName()));
                 } else {
@@ -1918,7 +2073,7 @@ public class LocalFileManager {
             }
         } else {
             //Reject replace request
-            if (tc.isEnabled()) {
+            if (!checkCancelAndWait(tc)) {
                 putProgressMessage(mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced) + dest_path + "/" + dir + "/" + fn);
                 mUtil.addLogMsg("I", mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced) + dest_path + "/" + dir + "/" + fn);
                 mUiHandler.post(new Runnable() {
@@ -1930,7 +2085,7 @@ public class LocalFileManager {
                 });
             }
         }
-        if (!tc.isEnabled()) {
+        if (checkCancelAndWait(tc)) {
             result = false;
             mCommonDlg.showCommonDialog(false, "W", mContext.getString(R.string.msgs_zip_extract_file_was_cancelled), "", null);
             mUiHandler.post(new Runnable() {
@@ -1963,7 +2118,6 @@ public class LocalFileManager {
                 showDialogProgress();
                 final ThreadCtrl tc = new ThreadCtrl();
                 mDialogProgressSpinCancel.setEnabled(true);
-                mDialogProgressSpinMsg1.setVisibility(TextView.GONE);
                 mDialogProgressSpinCancel.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1975,32 +2129,25 @@ public class LocalFileManager {
                     public void run() {
                         mUtil.addDebugMsg(1, "I", "Copy started");
                         String copied_item = "", copied_sep = "";
-                        boolean process_aborted = false;
+                        boolean rc =false;
                         for (TreeFilelistItem tfl : mGp.copyCutList) {
                             SafFile3 from_file = new SafFile3(mContext, tfl.getPath() + "/" + tfl.getName());
-                            boolean rc = moveCopyLocalToLocal(false, tc, from_file, to_dir + "/" + tfl.getName());
+                            rc = moveCopyLocalToLocal(false, tc, from_file, to_dir + "/" + tfl.getName());
                             if (rc) {
                                 String msg = String.format(mContext.getString(R.string.msgs_zip_local_file_copy_copied), tfl.getName());
                                 mUtil.addLogMsg("I", msg);
                                 putProgressMessage(msg);
                                 copied_item += copied_sep + from_file.getName();
                             } else {
-                                if (!tc.isEnabled()) {
-                                    String msg = mContext.getString(R.string.msgs_zip_local_file_copy_cancelled);
-                                    mUtil.addLogMsg("I", msg);
-                                    mCommonDlg.showCommonDialog(false, "W", msg, "", null);
-                                    process_aborted = true;
-                                    break;
-                                } else {
+                                if (!checkCancelAndWait(tc)) {
                                     String msg = String.format(mContext.getString(R.string.msgs_zip_local_file_copy_failed), tfl.getName());
                                     mUtil.addLogMsg("I", msg);
                                     mCommonDlg.showCommonDialog(false, "W", msg, tc.getThreadMessage(), null);
-                                    process_aborted = true;
                                     break;
                                 }
                             }
                         }
-                        if (!process_aborted) {
+                        if (rc) {
                             showToast(mActivity, mContext.getString(R.string.msgs_zip_local_file_copy_completed));
                         }
                         mUtil.addDebugMsg(1, "I", "Copy ended");
@@ -2035,6 +2182,7 @@ public class LocalFileManager {
     }
 
     private void showToast(Activity a, String msg) {
+        Thread.dumpStack();
         mUiHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -2050,9 +2198,6 @@ public class LocalFileManager {
     static final public int CONFIRM_RESPONSE_NOALL = -2;
     private int mConfirmResponse = 0;
 
-    private boolean confirmReplaceX(final ThreadCtrl tc, final String dest_path) {
-        return true;
-    }
     private boolean confirmReplace(final ThreadCtrl tc, final String title, final String message, final String dest_path) {
 //        Thread.dumpStack();
         if (mConfirmResponse != CONFIRM_RESPONSE_YESALL && mConfirmResponse != CONFIRM_RESPONSE_NOALL) {
@@ -2153,7 +2298,7 @@ public class LocalFileManager {
     }
 
     private boolean deleteLocalItem(ThreadCtrl tc, String fp) {
-        if (!tc.isEnabled()) return false;
+        if (checkCancelAndWait(tc)) return false;
         boolean result = true;
         SafFile3 lf = new SafFile3(mContext, fp);
         if (lf.exists()) {
@@ -2161,7 +2306,7 @@ public class LocalFileManager {
                 SafFile3[] file_list = lf.listFiles();
                 if (file_list != null) {
                     for (SafFile3 item : file_list) {
-                        if (!tc.isEnabled()) return false;
+                        if (checkCancelAndWait(tc)) return false;
                         if (item.isDirectory()) deleteLocalItem(tc, item.getPath());
                         else {
                             result=item.delete();
@@ -2186,7 +2331,7 @@ public class LocalFileManager {
                     }
                 }
             } else {
-                if (!tc.isEnabled()) return false;
+                if (checkCancelAndWait(tc)) return false;
                 SafFile3 del_sf = new SafFile3(mContext,fp);
                 result = del_sf.delete();
                 if (result) {
@@ -2217,7 +2362,6 @@ public class LocalFileManager {
 				showDialogProgress();
 				final ThreadCtrl tc=new ThreadCtrl();
 				mDialogProgressSpinCancel.setEnabled(true);
-				mDialogProgressSpinMsg1.setVisibility(TextView.GONE);
 				mDialogProgressSpinCancel.setOnClickListener(new OnClickListener(){
 					@Override
 					public void onClick(View v) {
@@ -2228,12 +2372,11 @@ public class LocalFileManager {
 					@Override
 					public void run() {
 						mUtil.addDebugMsg(1, "I", "Delete started");
-//						String deleted_item="", deleted_sep="";
 						boolean process_abrted=false;
 						for (TreeFilelistItem tfli:tfa.getDataList()) {
 							if (tfli.isChecked()) {
 								if (!deleteLocalItem(tc, tfli.getPath()+"/"+tfli.getName())) {
-									if (!tc.isEnabled()) {
+									if (checkCancelAndWait(tc)) {
 										String msg= String.format(mContext.getString(R.string.msgs_zip_delete_file_was_cancelled),tfli.getName());
 										mCommonDlg.showCommonDialog(false, "W", msg, "", null);
 									} else {
@@ -2249,13 +2392,10 @@ public class LocalFileManager {
 							}
 						}
 						if (!process_abrted) {
-//							mCommonDlg.showCommonDialog(false, "I",
-//									mContext.getString(R.string.msgs_zip_delete_file_completed), "", null);
                             showToast(mActivity, mContext.getString(R.string.msgs_zip_delete_file_completed));
 						}
 						mUtil.addDebugMsg(1, "I", "Delete ended");
 
-//						final String cdir=mLocalFileCurrentDirectory.getText().toString();
 						mUiHandler.post(new Runnable(){
 							@Override
 							public void run() {
@@ -2289,62 +2429,6 @@ public class LocalFileManager {
             }
         });
     }
-
-	private void putDialogMessage(final boolean negative, final String msg_type, final String msg_title,
-                                  final String msg_body, final NotifyEvent ntfy) {
-		mUiHandler.post(new Runnable(){
-			@Override
-			public void run() {
-				setUiDisabled();
-				mDialogMessageView.setVisibility(LinearLayout.VISIBLE);
-				if (negative) {
-					mDialogMessageOk.setVisibility(Button.VISIBLE);
-					mDialogMessageCancel.setVisibility(Button.VISIBLE);
-					mDialogMessageClose.setVisibility(Button.GONE);
-				} else {
-					mDialogMessageOk.setVisibility(Button.GONE);
-					mDialogMessageCancel.setVisibility(Button.GONE);
-					mDialogMessageClose.setVisibility(Button.VISIBLE);
-				}
-				mDialogMessageTitle.setText(msg_title);
-				if (!msg_title.equals("")) {
-					mDialogMessageTitle.setVisibility(TextView.VISIBLE);
-				} else {
-					mDialogMessageTitle.setVisibility(TextView.GONE);
-				}
-				mDialogMessageBody.setText(msg_body);
-				if (!msg_title.equals("")) {
-					mDialogMessageBody.setVisibility(TextView.VISIBLE);
-				} else {
-					mDialogMessageBody.setVisibility(TextView.GONE);
-				}
-
-				mDialogMessageOk.setOnClickListener(new OnClickListener(){
-					@Override
-					public void onClick(View v) {
-						if (ntfy!=null) ntfy.notifyToListener(true, null);
-						mDialogMessageView.setVisibility(LinearLayout.GONE);
-						setUiEnabled();
-					}
-				});
-				mDialogMessageCancel.setOnClickListener(new OnClickListener(){
-					@Override
-					public void onClick(View v) {
-						if (ntfy!=null) ntfy.notifyToListener(false, null);
-						mDialogMessageView.setVisibility(LinearLayout.GONE);
-						setUiEnabled();
-					}
-				});
-				mDialogMessageClose.setOnClickListener(new OnClickListener(){
-					@Override
-					public void onClick(View v) {
-						mDialogMessageView.setVisibility(LinearLayout.GONE);
-						setUiEnabled();
-					}
-				});
-			}
-		});
-	}
 
 	final private void refreshOptionMenu() {
 		mActivity.invalidateOptionsMenu();
@@ -3051,7 +3135,7 @@ public class LocalFileManager {
                                 @Override
                                 public void negativeResponse(Context c, Object[] o) {
                                     tc.setDisabled();
-                                    if (!tc.isEnabled()) psd.dismissAllowingStateLoss();
+                                    if (checkCancel(tc)) psd.dismissAllowingStateLoss();
                                 }
                             });
                             psd.showDialog(mFragmentManager, psd, ntfy,true);
@@ -3342,7 +3426,6 @@ public class LocalFileManager {
 		setUiDisabled();
 		showDialogProgress();
 		final ThreadCtrl tc=new ThreadCtrl();
-		mDialogProgressSpinMsg1.setVisibility(TextView.GONE);
 		mDialogProgressSpinCancel.setEnabled(true);
 		mDialogProgressSpinCancel.setOnClickListener(new OnClickListener(){
 			@Override
@@ -3390,7 +3473,7 @@ public class LocalFileManager {
 
                             CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, msg);
                             bzf.addItem(sel_item, zp, cbl);
-                            if (!tc.isEnabled()) {
+                            if (checkCancelAndWait(tc)) {
                                 String msg_txt= String.format(mContext.getString(R.string.msgs_local_file_add_file_cancelled),item);
                                 mUtil.addLogMsg("W", msg);
                                 mCommonDlg.showCommonDialog(false, "W",msg_txt, "", null);
@@ -3405,20 +3488,18 @@ public class LocalFileManager {
                                 putProgressMessage(msg);
                             }
                         }
-                        if (!tc.isEnabled()) break;
+                        if (checkCancelAndWait(tc)) break;
                         added_item+=added_sep+item;
                         added_sep=", ";
                     }
-//                        String npe=null;
-//                        npe.length();
-                    if (tc.isEnabled()) {
+                    if (!checkCancelAndWait(tc)) {
                         CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, mContext.getString(R.string.msgs_zip_zip_file_being_updated));
                         if (bzf.close(cbl)) {
                             dest_sf.deleteIfExists();
                             if (cache_available) out_sf.moveTo(dest_sf);
                             else {
-                                out_sf.renameTo(dest_sf);
-//                                writeBackZipFile(tc, out_sf, dest_sf);
+                                renameSafFile(out_sf, dest_sf);
+                                scanMediaFile(mGp, mUtil, dest_sf.getPath());
                             }
                         }
                         mUtil.addDebugMsg(1, "I", "zipSelectedItem elapsed time="+(System.currentTimeMillis()-b_time));
@@ -3441,11 +3522,16 @@ public class LocalFileManager {
 		th.start();
 	};
 
+    static public void scanMediaFile(GlobalParameters gp, CommonUtilities util, String fp) {
+        MediaScannerConnection.scanFile(gp.appContext, new String[]{fp}, null, null);
+        util.addDebugMsg(2, "I","Media scanner invoked, name=",fp);
+    };
+
     private CallBackListener getZipProgressCallbackListener(final ThreadCtrl tc, final BufferedZipFile3 bzf, final String msg_txt) {
         CallBackListener cbl=new CallBackListener() {
             @Override
             public boolean onCallBack(Context context, Object o, Object[] objects) {
-                if (!tc.isEnabled()) {
+                if (checkCancelAndWait(tc)) {
                     bzf.abort();
                 } else {
                     int prog=(Integer)o;
