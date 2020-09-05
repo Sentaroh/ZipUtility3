@@ -198,7 +198,7 @@ public class LocalFileManager {
                 }
                 mTreeFilelistView.setSelectionFromTop(pos_x, pos_y);
 
-                if (isCopyCutDestValid(curr_dir)) {
+                if (isCopyCutDestinationValid(curr_dir)) {
                     mContextButtonPasteView.setVisibility(ImageButton.VISIBLE);
                 } else {
                     mContextButtonPasteView.setVisibility(ImageButton.INVISIBLE);
@@ -218,7 +218,7 @@ public class LocalFileManager {
         } else {
             final String curr_dir = mCurrentDirectory.getText().toString();
 
-            if (isCopyCutDestValid(curr_dir)) {
+            if (isCopyCutDestinationValid(curr_dir)) {
                 mContextButtonPasteView.setVisibility(ImageButton.VISIBLE);
             } else {
                 mContextButtonPasteView.setVisibility(ImageButton.INVISIBLE);
@@ -1241,13 +1241,13 @@ public class LocalFileManager {
         mContextButtonPasteView.setVisibility(ImageButton.INVISIBLE);
     }
 
-    private boolean isCopyCutDestValid(String fp) {
+    private boolean isCopyCutDestinationValid(String fp) {
         boolean enabled = true;
         if (mGp.copyCutList.size() > 0) {
             if (mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_ZIP)) enabled = true;
             else {
                 for (TreeFilelistItem s_item : mGp.copyCutList) {
-                    if (s_item.getPath().startsWith(fp)) {
+                    if (s_item.getPath().equals(fp)) {
                         enabled = false;
                         break;
                     }
@@ -2537,7 +2537,7 @@ public class LocalFileManager {
                     }
 
                 }
-                if (isCopyCutDestValid(dir_name)) {
+                if (isCopyCutDestinationValid(dir_name)) {
                     mContextButtonPasteView.setVisibility(ImageButton.VISIBLE);
                 } else {
                     mContextButtonPasteView.setVisibility(ImageButton.INVISIBLE);
@@ -2742,7 +2742,7 @@ public class LocalFileManager {
                         if (mGp.copyCutList.size()>0) {
                             mGp.copyCutItemInfo.setVisibility(TextView.VISIBLE);
                             mGp.copyCutItemClear.setVisibility(Button.VISIBLE);
-                            if (isCopyCutDestValid(f_curr_dir))
+                            if (isCopyCutDestinationValid(f_curr_dir))
                                 mContextButtonPasteView.setVisibility(ImageButton.VISIBLE);
                         }
                         mActivity.refreshOptionMenu();
@@ -2803,7 +2803,7 @@ public class LocalFileManager {
                     mContextButtonCutView.setVisibility(ImageButton.VISIBLE);
 				} else {
 					String dir=mMainFilePath;
-					if (isCopyCutDestValid(dir)) {
+					if (isCopyCutDestinationValid(dir)) {
                         mContextButtonPasteView.setVisibility(ImageButton.VISIBLE);
 					} else {
 						mContextButtonPasteView.setVisibility(ImageButton.INVISIBLE);
@@ -2859,7 +2859,7 @@ public class LocalFileManager {
                                 mFileEmpty.setVisibility(TextView.GONE);
                                 mTreeFilelistView.setVisibility(ListView.VISIBLE);
                             }
-                            if (isCopyCutDestValid(dir)) {
+                            if (isCopyCutDestinationValid(dir)) {
                                 mContextButtonPasteView.setVisibility(ImageButton.VISIBLE);
                             } else {
                                 mContextButtonPasteView.setVisibility(ImageButton.INVISIBLE);
@@ -2925,7 +2925,7 @@ public class LocalFileManager {
                             mTreeFilelistView.setVisibility(ListView.VISIBLE);
                             if (p_dli!=null) mTreeFilelistView.setSelectionFromTop(p_dli.pos_x, p_dli.pos_y);
                         }
-                        if (isCopyCutDestValid(mMainFilePath)) {
+                        if (isCopyCutDestinationValid(mMainFilePath)) {
                             mContextButtonPasteView.setVisibility(ImageButton.VISIBLE);
                         } else {
                             mContextButtonPasteView.setVisibility(ImageButton.INVISIBLE);
@@ -2987,7 +2987,7 @@ public class LocalFileManager {
                                     mFileEmpty.setVisibility(TextView.GONE);
                                     mTreeFilelistView.setVisibility(ListView.VISIBLE);
                                 }
-                                if (isCopyCutDestValid(n_dir)) {
+                                if (isCopyCutDestinationValid(n_dir)) {
                                     mContextButtonPasteView.setVisibility(ImageButton.VISIBLE);
                                 } else {
                                     mContextButtonPasteView.setVisibility(ImageButton.INVISIBLE);
@@ -3227,7 +3227,7 @@ public class LocalFileManager {
                                 mFileEmpty.setVisibility(TextView.GONE);
                                 mTreeFilelistView.setVisibility(ListView.VISIBLE);
                             }
-                            if (isCopyCutDestValid(dir)) {
+                            if (isCopyCutDestinationValid(dir)) {
                                 mContextButtonPasteView.setVisibility(ImageButton.VISIBLE);
                             } else {
                                 mContextButtonPasteView.setVisibility(ImageButton.INVISIBLE);
