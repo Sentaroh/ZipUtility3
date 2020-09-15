@@ -99,6 +99,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.sentaroh.android.Utilities3.SafFile3.SAF_FILE_PRIMARY_UUID;
 import static com.sentaroh.android.Utilities3.SafFile3.SAF_FILE_UNKNOWN_UUID;
@@ -1646,9 +1647,11 @@ public class ActivityMain extends AppCompatActivity {
 
 
         mGp.copyCutItemClear=(Button)findViewById(R.id.main_screen_copy_cut_clear_btn);
+        mGp.copyCutItemType=(Button)findViewById(R.id.main_screen_copy_cut_type_btn);
         mGp.copyCutItemInfo=(Button)findViewById(R.id.main_screen_copy_cut_item);
 
         mGp.copyCutItemInfo.setVisibility(TextView.GONE);
+        mGp.copyCutItemType.setVisibility(TextView.GONE);
         mGp.copyCutItemClear.setVisibility(Button.GONE);
 
         mGp.copyCutItemClear.setOnClickListener(new OnClickListener(){
@@ -1656,6 +1659,7 @@ public class ActivityMain extends AppCompatActivity {
             public void onClick(View v) {
                 mGp.copyCutList.clear();
                 mGp.copyCutItemInfo.setVisibility(TextView.GONE);
+                mGp.copyCutItemType.setVisibility(TextView.GONE);
                 mGp.copyCutItemClear.setVisibility(Button.GONE);
                 mLocalFileMgr.setContextButtonPasteEnabled(false);
                 mZipFileMgr.setContextButtonPasteEnabled(false);

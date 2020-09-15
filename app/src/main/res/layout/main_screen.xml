@@ -103,15 +103,23 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:text="@string/msgs_zip_local_file_clear_copy_cut_item" />
-
             <Button
+                android:id="@+id/main_screen_copy_cut_type_btn"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="Copy Local"
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+            <com.sentaroh.android.Utilities3.Widget.NonWordwrapButton
                 android:id="@+id/main_screen_copy_cut_item"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:ellipsize="end"
                 android:gravity="center_vertical|left"
-                android:maxLines="2"
+                android:lines="2"
                 android:text="Copy: ......"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 

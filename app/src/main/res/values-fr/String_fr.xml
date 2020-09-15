@@ -190,7 +190,8 @@
         <string name="msgs_local_file_share_file_no_file_selected">Aucun dossier n\'a été sélectionné.</string>
         <string name="msgs_local_file_ignore_android_directory">Vous ne pouvez pas couper/supprimer/renommer le répertoire Android.</string>
         <string name="msgs_zip_delete_file_has_been_started">L\'effacement est en cours.</string>
-        <string name="msgs_zip_delete_confirm_delete">Voulez-vous supprimer les éléments sélectionnés ?</string>
+        <string name="msgs_zip_delete_confirm_delete_local">Voulez-vous supprimer les éléments sélectionnés ? Les suppressions sont reflétées immédiatement et ne peuvent être annulées.</string>
+        <string name="msgs_zip_delete_confirm_delete_zip">Voulez-vous supprimer les éléments sélectionnés ?</string>
         <string name="msgs_zip_delete_file_was_deleted">%s a été supprimé.</string>
         <string name="msgs_zip_delete_file_is_deleting">Supprimer %s</string>
         <string name="msgs_zip_delete_file_was_cancelled">Supprimer annulé, nom=%s</string>

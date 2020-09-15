@@ -190,7 +190,8 @@
         <string name="msgs_local_file_share_file_no_file_selected">No file selected.</string>
         <string name="msgs_local_file_ignore_android_directory">You cannot cut/delete/rename the Android directory.</string>
         <string name="msgs_zip_delete_file_has_been_started">Are running the Delete.</string>
-        <string name="msgs_zip_delete_confirm_delete">Do you want to delete the selected items?</string>
+        <string name="msgs_zip_delete_confirm_delete_local">Do you want to delete the selected items? The deletion will take effect immediately and cannot be undone.</string>
+        <string name="msgs_zip_delete_confirm_delete_zip">Do you want to delete the selected items?</string>
         <string name="msgs_zip_delete_file_was_deleted">%s was deleted.</string>
         <string name="msgs_zip_delete_file_is_deleting">Deleting %s</string>
         <string name="msgs_zip_delete_file_was_cancelled">Delete cancelled, name=%s</string>

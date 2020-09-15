@@ -78,6 +78,7 @@ public class GlobalParameters {
 	public final static String COPY_CUT_FROM_ZIP="Z";
 	public boolean copyCutModeIsCut=false;
 	public Button copyCutItemClear=null;
+    public Button copyCutItemType=null;
 	public Button copyCutItemInfo=null;
 	
 //	Settings parameter	    	

@@ -68,10 +68,10 @@
         <string name="msgs_zip_cont_header_cut">切取り</string>
         <string name="msgs_zip_local_file_clear_copy_cut_item">消去</string>
         <string name="msgs_zip_local_file_rename_title">名前の変更</string>
-        <string name="msgs_zip_local_file_rename_confirm_title">下記の項目を改名しますか？</string>
+        <string name="msgs_zip_local_file_rename_confirm_title">下記の項目を改名しますか？ 改名は即時に反映され取り消しできません。</string>
         <string name="msgs_zip_local_file_rename_completed">改名しました, 名前=%s</string>
         <string name="msgs_zip_local_file_rename_failed">改名に失敗しました, 名前=%s</string>
-        <string name="msgs_zip_local_file_move_confirm_title">下記の項目を移動しますか？</string>
+        <string name="msgs_zip_local_file_move_confirm_title">下記の項目を移動しますか？ 移動は即時に反映され取り消しできません。</string>
         <string name="msgs_zip_local_file_move_moved">ファイルを移動しました, 名前=%s</string>
         <string name="msgs_zip_local_file_move_failed">ファイルの移動に失敗しました, 名前=%s</string>
         <string name="msgs_zip_local_file_move_cancelled">ファイルの移動が中止されました</string>
@@ -190,7 +190,8 @@
         <string name="msgs_local_file_share_file_no_file_selected">共有するファイルが選択されていません。</string>
         <string name="msgs_local_file_ignore_android_directory">Androidディレクトリーはカット/削除/改名はできません。</string>
         <string name="msgs_zip_delete_file_has_been_started">削除中です。</string>
-        <string name="msgs_zip_delete_confirm_delete">選択した項目を削除しますか?</string>
+        <string name="msgs_zip_delete_confirm_delete_local">選択した項目を削除しますか? 削除は即時に反映され取り消しできません。</string>
+        <string name="msgs_zip_delete_confirm_delete_zip">選択した項目を削除しますか?</string>
         <string name="msgs_zip_delete_file_was_deleted">%sを削除しました。</string>
         <string name="msgs_zip_delete_file_is_deleting">%sを削除しています。</string>
         <string name="msgs_zip_delete_file_was_cancelled">%sの削除が中止されました。</string>

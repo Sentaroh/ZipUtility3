@@ -864,7 +864,7 @@ public class LocalFileManager {
                     @Override
                     public void negativeResponse(Context c, Object[] o) {
                         tc.setDisabled();
-                        if (checkCancel(tc)) psd.dismissAllowingStateLoss();
+                        if (isCancelled(tc)) psd.dismissAllowingStateLoss();
                     }
                 });
                 psd.showDialog(mFragmentManager, psd, ntfy, true);
@@ -879,7 +879,7 @@ public class LocalFileManager {
                             if (cpc!=null) cpc.release();
                         }
                         psd.dismissAllowingStateLoss();
-                        if (checkCancel(tc)) {
+                        if (isCancelled(tc)) {
                             mCommonDlg.showCommonDialog(false, "W",
                                     mContext.getString(R.string.msgs_search_file_dlg_search_cancelled), "", null);
                         } else {
@@ -933,13 +933,13 @@ public class LocalFileManager {
                 SafFile3[] fl = s_file.listFiles(cpc);
                 if (fl != null) {
                     for (SafFile3 item : fl) {
-                        if (checkCancel(tc)) break;
+                        if (isCancelled(tc)) break;
                         buildFileListBySearchKey(cpc, tc, search_hidden_item, psd, s_tfl, s_key, item);
                     }
                 }
-                if (checkCancel(tc)) return;
+                if (isCancelled(tc)) return;
             } else {
-                if (checkCancel(tc)) return;
+                if (isCancelled(tc)) return;
                 if (s_key.matcher(s_file.getName()).matches()) {
                     TreeFilelistItem tfli = createSafApiFileListItem(cpc, s_file);
                     s_tfl.add(tfli);
@@ -1204,7 +1204,9 @@ public class LocalFileManager {
             }
             tfa.notifyDataSetChanged();
             String from = mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_LOCAL) ? "Local" : "ZIP";
-            mGp.copyCutItemInfo.setText(mContext.getString(R.string.msgs_zip_cont_header_copy) + " " + from + ":" + c_list);
+            mGp.copyCutItemType.setText(mContext.getString(R.string.msgs_zip_cont_header_cut)+"\n"+from);
+            mGp.copyCutItemInfo.setText(c_list);
+            mGp.copyCutItemType.setVisibility(Button.VISIBLE);
             mGp.copyCutItemInfo.setVisibility(TextView.VISIBLE);
             mGp.copyCutItemClear.setVisibility(Button.VISIBLE);
             mContextButtonPasteView.setVisibility(ImageButton.INVISIBLE);
@@ -1232,7 +1234,9 @@ public class LocalFileManager {
             }
             tfa.notifyDataSetChanged();
             String from = mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_LOCAL) ? "Local" : "ZIP";
-            mGp.copyCutItemInfo.setText(mContext.getString(R.string.msgs_zip_cont_header_cut) + " " + from + ":" + c_list);
+            mGp.copyCutItemType.setText(mContext.getString(R.string.msgs_zip_cont_header_cut)+"\n"+from);
+            mGp.copyCutItemType.setVisibility(Button.VISIBLE);
+            mGp.copyCutItemInfo.setText(c_list);
             mGp.copyCutItemInfo.setVisibility(TextView.VISIBLE);
             mGp.copyCutItemClear.setVisibility(Button.VISIBLE);
             mNotifyCheckBoxChanged.notifyToListener(false, null);
@@ -1260,12 +1264,12 @@ public class LocalFileManager {
         return enabled;
     }
 
-    static public boolean checkCancelAndWait(final ThreadCtrl tc) {
-        tc.writeLockWait();
-        return checkCancel(tc);
+    static public boolean isCancelled(boolean wait, final ThreadCtrl tc) {
+        if (wait) tc.writeLockWait();
+        return isCancelled(tc);
     }
 
-    static public boolean checkCancel(final ThreadCtrl tc) {
+    static public boolean isCancelled(final ThreadCtrl tc) {
         if (!tc.isEnabled()) {
             return true;
         }
@@ -1278,18 +1282,18 @@ public class LocalFileManager {
             public void positiveResponse(Context c, Object[] o) {
                 tc.setDisabled();
                 cancel.setEnabled(false);
-                tc.writeLockRelease();
+                tc.releaseWriteLock();
             }
 
             @Override
             public void negativeResponse(Context c, Object[] o) {
-                tc.writeLockRelease();
+                tc.releaseWriteLock();
             }
         });
         MessageDialogFragment cdf =MessageDialogFragment.newInstance(true, "W", a.getString(R.string.msgs_main_confirm_cancel), "");
         cdf.showDialog(a.getSupportFragmentManager(),cdf,ntfy);
 
-        tc.writeLockAcuire();
+        tc.acuireWriteLock();
     }
 
     public void confirmCancel(final ThreadCtrl tc, final Button cancel) {
@@ -1357,7 +1361,7 @@ public class LocalFileManager {
                                 moved_item += moved_sep + from_file;
                                 moved_sep = ", ";
                             } else {
-                                if (!checkCancelAndWait(tc)) {
+                                if (!isCancelled(true, tc)) {
                                     String msg = String.format(mContext.getString(R.string.msgs_zip_local_file_move_failed), tfl.getName());
                                     mUtil.addLogMsg("I", msg);
                                     mCommonDlg.showCommonDialog(false, "W", msg, "", null);
@@ -1406,7 +1410,7 @@ public class LocalFileManager {
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " from=" + from_file.getPath() + ", to=" + to_path);
         boolean result = false;
         if (from_file.isDirectory()) {
-            if (checkCancelAndWait(tc)) {
+            if (isCancelled(true, tc)) {
                 String msg = String.format(mContext.getString(R.string.msgs_zip_local_file_move_cancelled), to_path);
                 mUtil.addLogMsg("I", msg);
                 mCommonDlg.showCommonDialog(false, "W", msg, "", null);
@@ -1442,7 +1446,7 @@ public class LocalFileManager {
                 result=moveCopyFileLocalToLocal(move, tc, from_file, to_path);
             } else {
                 //Reject replace request
-                if (checkCancel(tc)) {
+                if (isCancelled(tc)) {
                     putProgressMessage(mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced) + to_path);
                     mUtil.addLogMsg("I", mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced) + to_path);
                     result = true;
@@ -1484,7 +1488,7 @@ public class LocalFileManager {
 
             result= writeBackZipFile(fis, fos, tc, from_file, to_path, msg_in_prog);
 
-            if (checkCancelAndWait(tc)) {
+            if (isCancelled(true, tc)) {
                 out_file.deleteIfExists();
                 String msg = String.format(msg_cancelled, to_path);
                 mUtil.addLogMsg("I", msg);
@@ -1521,7 +1525,7 @@ public class LocalFileManager {
         long file_size = from_file.length();
         long progress = 0, tot_rc = 0;
         while (rc > 0) {
-            if (checkCancelAndWait(tc)) {
+            if (isCancelled(true, tc)) {
                 result=false;
                 break;
             } else {
@@ -1563,7 +1567,7 @@ public class LocalFileManager {
                 msg_cancelled=mContext.getString(R.string.msgs_zip_local_file_copy_cancelled);
             }
             result= writeBackZipFile(fis, fos, tc, from_file, to_path, msg_in_prog);
-            if (checkCancel(tc)) {
+            if (isCancelled(tc)) {
                 temp_out_file.deleteIfExists();
                 String msg = String.format(msg_cancelled, to_path);
                 mUtil.addLogMsg("I", msg);
@@ -1706,7 +1710,7 @@ public class LocalFileManager {
                     SafFile3 sf=new SafFile3(mContext, fp);
                     if (!sf.exists()) sf.mkdirs();
                 } else {
-					if (checkCancelAndWait(tc)) return true;
+					if (isCancelled(true, tc)) return true;
                     final NotifyEvent ntfy_pswd = new NotifyEvent(mContext);
                     ntfy_pswd.setListener(new NotifyEventListener() {
                         @Override
@@ -1791,7 +1795,7 @@ public class LocalFileManager {
                     BufferedZipFile3 bzf = new BufferedZipFile3(mContext, zf.getSafFile(), out_temp, mGp.copyCutEncoding);
                     String msg = mContext.getString(R.string.msgs_zip_delete_file_was_deleted);
                     for (FileHeader fh : extracted_fh_list) {
-                        if (checkCancelAndWait(tc)) {
+                        if (isCancelled(true, tc)) {
                             mCommonDlg.showCommonDialog(false, "I",
                                     String.format(mContext.getString(R.string.msgs_zip_delete_file_was_cancelled), fh.getFileName()), "", null);
                             break;
@@ -1800,7 +1804,7 @@ public class LocalFileManager {
                         putProgressMessage(String.format(msg, fh.getFileName()));
                     }
                     clearCopyCutItem();
-                    if (!checkCancelAndWait(tc)) {
+                    if (!isCancelled(true, tc)) {
                         try {
                             CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, mContext.getString(R.string.msgs_zip_zip_file_being_updated));
                             bzf.close(cbl);
@@ -1858,7 +1862,7 @@ public class LocalFileManager {
                     SafFile3 sf=new SafFile3(mContext, fp);
                     if (!sf.exists()) sf.mkdirs();
                 } else {
-                    if (checkCancelAndWait(tc)) return true;
+                    if (isCancelled(true, tc)) return true;
                     final NotifyEvent ntfy_pswd = new NotifyEvent(mContext);
                     ntfy_pswd.setListener(new NotifyEventListener() {
                         @Override
@@ -1947,7 +1951,7 @@ public class LocalFileManager {
                     BufferedZipFile3 bzf = new BufferedZipFile3(mContext, zf.getSafFile(), out_temp, mGp.copyCutEncoding);
                     String msg = mContext.getString(R.string.msgs_zip_delete_file_was_deleted);
                     for (FileHeader fh : extracted_fh_list) {
-                        if (checkCancelAndWait(tc)) {
+                        if (isCancelled(true, tc)) {
                             mCommonDlg.showCommonDialog(false, "I",
                                     String.format(mContext.getString(R.string.msgs_zip_delete_file_was_cancelled), fh.getFileName()), "", null);
                             break;
@@ -1956,7 +1960,7 @@ public class LocalFileManager {
                         putProgressMessage(String.format(msg, fh.getFileName()));
                     }
                     clearCopyCutItem();
-                    if (!checkCancelAndWait(tc)) {
+                    if (!isCancelled(true, tc)) {
                         try {
                             CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, mContext.getString(R.string.msgs_zip_zip_file_being_updated));
                             bzf.close(cbl);
@@ -2045,7 +2049,7 @@ public class LocalFileManager {
         }
         if (replace_granted) {
             if (copyZipItemToFile(tc, zf, fh_item, fh_item.getFileName(), dest_path + dir, fn)) {
-                if (!checkCancelAndWait(tc)) {
+                if (!isCancelled(true, tc)) {
                     putProgressMessage(String.format(mContext.getString(R.string.msgs_zip_extract_file_was_extracted), fh_item.getFileName()));
                     mUtil.addLogMsg("I", String.format(mContext.getString(R.string.msgs_zip_extract_file_was_extracted), fh_item.getFileName()));
                 } else {
@@ -2073,7 +2077,7 @@ public class LocalFileManager {
             }
         } else {
             //Reject replace request
-            if (!checkCancelAndWait(tc)) {
+            if (!isCancelled(true, tc)) {
                 putProgressMessage(mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced) + dest_path + "/" + dir + "/" + fn);
                 mUtil.addLogMsg("I", mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced) + dest_path + "/" + dir + "/" + fn);
                 mUiHandler.post(new Runnable() {
@@ -2085,7 +2089,7 @@ public class LocalFileManager {
                 });
             }
         }
-        if (checkCancelAndWait(tc)) {
+        if (isCancelled(true, tc)) {
             result = false;
             mCommonDlg.showCommonDialog(false, "W", mContext.getString(R.string.msgs_zip_extract_file_was_cancelled), "", null);
             mUiHandler.post(new Runnable() {
@@ -2139,7 +2143,7 @@ public class LocalFileManager {
                                 putProgressMessage(msg);
                                 copied_item += copied_sep + from_file.getName();
                             } else {
-                                if (!checkCancelAndWait(tc)) {
+                                if (!isCancelled(true, tc)) {
                                     String msg = String.format(mContext.getString(R.string.msgs_zip_local_file_copy_failed), tfl.getName());
                                     mUtil.addLogMsg("I", msg);
                                     mCommonDlg.showCommonDialog(false, "W", msg, tc.getThreadMessage(), null);
@@ -2298,7 +2302,7 @@ public class LocalFileManager {
     }
 
     private boolean deleteLocalItem(ThreadCtrl tc, String fp) {
-        if (checkCancelAndWait(tc)) return false;
+        if (isCancelled(true, tc)) return false;
         boolean result = true;
         SafFile3 lf = new SafFile3(mContext, fp);
         if (lf.exists()) {
@@ -2306,7 +2310,7 @@ public class LocalFileManager {
                 SafFile3[] file_list = lf.listFiles();
                 if (file_list != null) {
                     for (SafFile3 item : file_list) {
-                        if (checkCancelAndWait(tc)) return false;
+                        if (isCancelled(true, tc)) return false;
                         if (item.isDirectory()) deleteLocalItem(tc, item.getPath());
                         else {
                             result=item.delete();
@@ -2331,7 +2335,7 @@ public class LocalFileManager {
                     }
                 }
             } else {
-                if (checkCancelAndWait(tc)) return false;
+                if (isCancelled(true, tc)) return false;
                 SafFile3 del_sf = new SafFile3(mContext,fp);
                 result = del_sf.delete();
                 if (result) {
@@ -2376,7 +2380,7 @@ public class LocalFileManager {
 						for (TreeFilelistItem tfli:tfa.getDataList()) {
 							if (tfli.isChecked()) {
 								if (!deleteLocalItem(tc, tfli.getPath()+"/"+tfli.getName())) {
-									if (checkCancelAndWait(tc)) {
+									if (isCancelled(true, tc)) {
 										String msg= String.format(mContext.getString(R.string.msgs_zip_delete_file_was_cancelled),tfli.getName());
 										mCommonDlg.showCommonDialog(false, "W", msg, "", null);
 									} else {
@@ -2412,7 +2416,7 @@ public class LocalFileManager {
 			@Override
 			public void negativeResponse(Context c, Object[] o) {}
 		});
-		mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_zip_delete_confirm_delete),
+		mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_zip_delete_confirm_delete_local),
 				conf_list, ntfy);
 	}
 
@@ -3135,7 +3139,7 @@ public class LocalFileManager {
                                 @Override
                                 public void negativeResponse(Context c, Object[] o) {
                                     tc.setDisabled();
-                                    if (checkCancel(tc)) psd.dismissAllowingStateLoss();
+                                    if (isCancelled(tc)) psd.dismissAllowingStateLoss();
                                 }
                             });
                             psd.showDialog(mFragmentManager, psd, ntfy,true);
@@ -3473,7 +3477,7 @@ public class LocalFileManager {
 
                             CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, msg);
                             bzf.addItem(sel_item, zp, cbl);
-                            if (checkCancelAndWait(tc)) {
+                            if (isCancelled(true, tc)) {
                                 String msg_txt= String.format(mContext.getString(R.string.msgs_local_file_add_file_cancelled),item);
                                 mUtil.addLogMsg("W", msg);
                                 mCommonDlg.showCommonDialog(false, "W",msg_txt, "", null);
@@ -3488,11 +3492,11 @@ public class LocalFileManager {
                                 putProgressMessage(msg);
                             }
                         }
-                        if (checkCancelAndWait(tc)) break;
+                        if (isCancelled(true, tc)) break;
                         added_item+=added_sep+item;
                         added_sep=", ";
                     }
-                    if (!checkCancelAndWait(tc)) {
+                    if (!isCancelled(true, tc)) {
                         CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, mContext.getString(R.string.msgs_zip_zip_file_being_updated));
                         if (bzf.close(cbl)) {
                             dest_sf.deleteIfExists();
@@ -3531,7 +3535,7 @@ public class LocalFileManager {
         CallBackListener cbl=new CallBackListener() {
             @Override
             public boolean onCallBack(Context context, Object o, Object[] objects) {
-                if (checkCancelAndWait(tc)) {
+                if (isCancelled(true, tc)) {
                     bzf.abort();
                 } else {
                     int prog=(Integer)o;

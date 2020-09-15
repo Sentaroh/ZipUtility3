@@ -444,7 +444,7 @@ public class ZipFileManager {
                                             return false;
                                         }
                                     });
-                                    if (!checkCancelAndWait(tc)) {
+                                    if (!isCancelled(true, tc)) {
                                         if (out_file.getPath().startsWith(SafFile3.SAF_FILE_PRIMARY_STORAGE_PREFIX)) {
 //                                                File out_of_file=new File(out_file.getPath());
                                             if (out_file.exists()) out_file.delete();
@@ -512,7 +512,7 @@ public class ZipFileManager {
         byte[] buff=new byte[1024*1024*2];
         cbl.onCallBack(mContext, 0, null);
         while((rc=is.read(buff))>0) {
-            if (checkCancelAndWait(tc)) {
+            if (isCancelled(true, tc)) {
                 break;
             }
             os.write(buff, 0, rc);
@@ -991,7 +991,7 @@ public class ZipFileManager {
 					@Override
 					public void negativeResponse(Context c, Object[] o) {
 						tc.setDisabled();
-						if (checkCancel(tc)) psd.dismissAllowingStateLoss();
+						if (isCancelled(tc)) psd.dismissAllowingStateLoss();
 					}
 				});
 				psd.showDialog(mFragmentManager, psd, ntfy,true);
@@ -1000,7 +1000,7 @@ public class ZipFileManager {
 					public void run() {
 						buildFileListBySearchKey(tc, psd, s_tfl, s_key);
 						psd.dismissAllowingStateLoss();
-						if (checkCancel(tc)) {
+						if (isCancelled(tc)) {
 							mCommonDlg.showCommonDialog(false, "W",
 									mContext.getString(R.string.msgs_search_file_dlg_search_cancelled), "", null);
 						} else {
@@ -1304,7 +1304,7 @@ public class ZipFileManager {
 //                        e.printStackTrace();
                 }
                 mUtil.addDebugMsg(2, "I", "createFileList Zip file list created");
-                if (!checkCancel(tc)) {
+                if (!isCancelled(tc)) {
                     ntfy_create_file_list.notifyToListener(true, null);
                 } else {
                     ntfy_create_file_list.notifyToListener(false, null);
@@ -1543,8 +1543,11 @@ public class ZipFileManager {
 			}
 			tfa.notifyDataSetChanged();
 			String from=mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)?"Local":"ZIP";
-			mGp.copyCutItemInfo.setText(mContext.getString(R.string.msgs_zip_cont_header_copy)+" "+from+":"+c_list);
+            mGp.copyCutItemType.setText(mContext.getString(R.string.msgs_zip_cont_header_cut)+"\n"+from);
+            mGp.copyCutItemType.setVisibility(Button.VISIBLE);
+            mGp.copyCutItemInfo.setText(c_list);
 			mGp.copyCutItemInfo.setVisibility(TextView.VISIBLE);
+            mGp.copyCutItemInfo.requestLayout();
 			mGp.copyCutItemClear.setVisibility(Button.VISIBLE);
 			mContextButtonPasteView.setVisibility(ImageButton.INVISIBLE);
 		}
@@ -1569,8 +1572,11 @@ public class ZipFileManager {
 			}
 			tfa.notifyDataSetChanged();
 			String from=mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)?"Local":"ZIP";
-			mGp.copyCutItemInfo.setText(mContext.getString(R.string.msgs_zip_cont_header_cut)+" "+from+":"+c_list);
+            mGp.copyCutItemType.setText(mContext.getString(R.string.msgs_zip_cont_header_cut)+"\n"+from);
+            mGp.copyCutItemType.setVisibility(Button.VISIBLE);
+			mGp.copyCutItemInfo.setText(c_list);
 			mGp.copyCutItemInfo.setVisibility(TextView.VISIBLE);
+            mGp.copyCutItemInfo.requestLayout();
 			mGp.copyCutItemClear.setVisibility(Button.VISIBLE);
 			mContextButtonPasteView.setVisibility(ImageButton.INVISIBLE);
 		}
@@ -1582,43 +1588,44 @@ public class ZipFileManager {
 			if (mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)) {
 			    //NOP
 			} else if (mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_ZIP)) {
-				if (!mGp.copyCutFilePath.equals(zip_file_path)) enabled=true;
-				else {
-					String curr_dir=fp.equals("")?"":fp;
-					for(TreeFilelistItem s_item:mGp.copyCutList) {
-						String sel_path="";
-						if (s_item.isDirectory()){
-							sel_path=s_item.getPath().equals("")?s_item.getName():s_item.getPath()+"/"+s_item.getName();
-						} else {
-							sel_path=s_item.getPath();
-						}
-						String[] item_array=sel_path.equals("")?new String[]{"/"}:sel_path.substring(1).split("/");
-						String[] cdir_array=curr_dir.equals("/")?new String[]{""}:curr_dir.split("/");
-						if (item_array.length>1) {
-							if (cdir_array.length!=0){
-								if (sel_path.equals(curr_dir)) enabled=false;
-								if (s_item.isDirectory()) {
-									if (sel_path.equals(curr_dir)) enabled=false;
-									else {
-										if (!curr_dir.equals("")) if (sel_path.startsWith(curr_dir)) enabled=false;
-									}
-								} else {
-								}
-							}
-						} else {
-							if (s_item.isDirectory()) {
-								if (curr_dir.equals("")) {
-									enabled=false;
-								} else {
-									if (curr_dir.startsWith(sel_path)) enabled=false;
-								}
-							} else {
-								if (curr_dir.equals(sel_path)) enabled=false;
-							}
-						}
-						if (!enabled) break;
-					}
-				}
+			    enabled=false;
+//				if (!mGp.copyCutFilePath.equals(zip_file_path)) enabled=true;
+//				else {
+//					String curr_dir=fp.equals("")?"":fp;
+//					for(TreeFilelistItem s_item:mGp.copyCutList) {
+//						String sel_path="";
+//						if (s_item.isDirectory()){
+//							sel_path=s_item.getPath().equals("")?s_item.getName():s_item.getPath()+"/"+s_item.getName();
+//						} else {
+//							sel_path=s_item.getPath();
+//						}
+//						String[] item_array=sel_path.equals("")?new String[]{"/"}:sel_path.substring(1).split("/");
+//						String[] cdir_array=curr_dir.equals("/")?new String[]{""}:curr_dir.split("/");
+//						if (item_array.length>1) {
+//							if (cdir_array.length!=0){
+//								if (sel_path.equals(curr_dir)) enabled=false;
+//								if (s_item.isDirectory()) {
+//									if (sel_path.equals(curr_dir)) enabled=false;
+//									else {
+//										if (!curr_dir.equals("")) if (sel_path.startsWith(curr_dir)) enabled=false;
+//									}
+//								} else {
+//								}
+//							}
+//						} else {
+//							if (s_item.isDirectory()) {
+//								if (curr_dir.equals("")) {
+//									enabled=false;
+//								} else {
+//									if (curr_dir.startsWith(sel_path)) enabled=false;
+//								}
+//							} else {
+//								if (curr_dir.equals(sel_path)) enabled=false;
+//							}
+//						}
+//						if (!enabled) break;
+//					}
+//				}
 			}
 		} else {
 			enabled=false;
@@ -1894,12 +1901,12 @@ public class ZipFileManager {
         fsdf.showDialog(false, mActivity.getSupportFragmentManager(), fsdf, ntfy);
 	};
 
-    private boolean checkCancelAndWait(final ThreadCtrl tc) {
-        return LocalFileManager.checkCancelAndWait(tc);
+    private boolean isCancelled(boolean wait, final ThreadCtrl tc) {
+        return LocalFileManager.isCancelled(wait, tc);
     }
 
-    private boolean checkCancel(final ThreadCtrl tc) {
-        return LocalFileManager.checkCancel(tc);
+    private boolean isCancelled(final ThreadCtrl tc) {
+        return LocalFileManager.isCancelled(tc);
     }
 
     public void confirmCancel(final ThreadCtrl tc, final Button cancel) {
@@ -2163,7 +2170,7 @@ public class ZipFileManager {
                                     CallBackListener cbl=new CallBackListener() {
                                         @Override
                                         public boolean onCallBack(Context context, Object o, Object[] objects) {
-                                            if (checkCancelAndWait(tc)) {
+                                            if (isCancelled(true, tc)) {
                                                 bzf.abort();
                                             } else {
                                                 int prog=(Integer)o;
@@ -2185,7 +2192,7 @@ public class ZipFileManager {
                                         if (sel_file.isDirectory()) n_zp.setFileNameInZip(file_name_in_zip+"/");
                                         else n_zp.setFileNameInZip(file_name_in_zip);
                                         bzf.addItem(sel_file.getPath(), n_zp, cbl);
-                                        if (checkCancelAndWait(tc)) {
+                                        if (isCancelled(true, tc)) {
                                             mCommonDlg.showCommonDialog(false, "W", String.format(mContext.getString(R.string.msgs_zip_add_file_cancelled), sel_file.getPath()), "", null);
                                             try {bzf.destroy();} catch (Exception e) {}
                                             out_temp.deleteIfExists();
@@ -2194,7 +2201,7 @@ public class ZipFileManager {
                                         }
                                         putProgressMessage(mContext.getString(R.string.msgs_zip_add_file_added, sel_file.getPath()));
                                     } else {
-                                        if (!checkCancelAndWait(tc)) {
+                                        if (!isCancelled(true, tc)) {
                                             putProgressMessage(mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced, sel_file.getPath()));
                                             mUtil.addLogMsg("I", mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced, sel_file.getPath()));
                                         }
@@ -2272,7 +2279,7 @@ public class ZipFileManager {
         CallBackListener cbl=new CallBackListener() {
             @Override
             public boolean onCallBack(Context context, Object o, Object[] objects) {
-                if (checkCancel(tc)) {
+                if (isCancelled(tc)) {
                     bzf.abort();
                 } else {
                     int prog=(Integer)o;
@@ -2619,8 +2626,8 @@ public class ZipFileManager {
                     SafFile3 sf=new SafFile3(mContext, fp);
                     if (!sf.exists()) sf.mkdirs();
 				} else {
-					final NotifyEvent ntfy_pswd=new NotifyEvent(mContext);
-					ntfy_pswd.setListener(new NotifyEventListener(){
+					final NotifyEvent ntfy_extract=new NotifyEvent(mContext);
+					ntfy_extract.setListener(new NotifyEventListener(){
 						@Override
 						public void positiveResponse(Context c, Object[] o) {
 						    if (o!=null && o[0]!=null) mMainPassword=(String)o[0];
@@ -2668,24 +2675,24 @@ public class ZipFileManager {
                                     mUiHandler.post(new Runnable(){
                                         @Override
                                         public void run() {
-                                            getZipPasswordDlg(mActivity, mGp, mMainPassword, zf, fh_item, ntfy_pswd, true);
+                                            getZipPasswordDlg(mActivity, mGp, mMainPassword, zf, fh_item, ntfy_extract, true);
                                         }
                                     });
                                     waitResponse(tc_extract, fh_item.getFileName());
                                 } else {
-                                    ntfy_pswd.notifyToListener(true, null);
+                                    ntfy_extract.notifyToListener(true, null);
                                 }
                             } else {
                                 mUiHandler.post(new Runnable(){
                                     @Override
                                     public void run() {
-                                        getZipPasswordDlg(mActivity, mGp, mMainPassword, zf, fh_item, ntfy_pswd, true);
+                                        getZipPasswordDlg(mActivity, mGp, mMainPassword, zf, fh_item, ntfy_extract, true);
                                     }
                                 });
                                 waitResponse(tc_extract, fh_item.getFileName());
                             }
                         } else {
-                            ntfy_pswd.notifyToListener(true, null);
+                            ntfy_extract.notifyToListener(true, null);
                         }
                     } else {
                         tc_extract.setDisabled();
@@ -2697,7 +2704,7 @@ public class ZipFileManager {
 				}
 			}
 			if (p_ntfy!=null) {
-			    if (!checkCancel(tc)) p_ntfy.notifyToListener(true, null);
+			    if (!isCancelled(tc)) p_ntfy.notifyToListener(true, null);
             } else {
                 mUiHandler.post(new Runnable(){
                     @Override
@@ -2745,7 +2752,7 @@ public class ZipFileManager {
         if (!lf.isDirectory() && lf.exists()) replace_granted=confirmReplace(tc, "", msg, (dest_path+"/"+fn).replaceAll("//","/"));
         if (replace_granted) {
             if (copyZipItemToFile(tc, zf, fh_item, fh_item.getFileName(), dest_path+"/"+dir, fn)) {
-                if (!checkCancelAndWait(tc)) {
+                if (!isCancelled(true, tc)) {
                     putProgressMessage(String.format(mContext.getString(R.string.msgs_zip_extract_file_was_extracted), fh_item.getFileName()));
                     mUtil.addLogMsg("I", String.format(mContext.getString(R.string.msgs_zip_extract_file_was_extracted), fh_item.getFileName()));
                 } else {
@@ -2761,7 +2768,7 @@ public class ZipFileManager {
                 }
             } else {
                 result=false;
-                if (!checkCancelAndWait(tc))
+                if (!isCancelled(true, tc))
                     mCommonDlg.showCommonDialog(false, "E", mContext.getString(R.string.msgs_zip_extract_file_was_failed), tc.getThreadMessage(), null);
                 mUiHandler.post(new Runnable(){
                     @Override
@@ -2774,12 +2781,12 @@ public class ZipFileManager {
             }
         } else {
             //Reject replace request
-            if (!checkCancelAndWait(tc)) {
+            if (!isCancelled(true, tc)) {
                 putProgressMessage(mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced)+dest_path+"/"+dir+"/"+fn);
                 mUtil.addLogMsg("I", mContext.getString(R.string.msgs_zip_extract_file_was_not_replaced)+dest_path+"/"+dir+"/"+fn);
             }
         }
-        if (checkCancelAndWait(tc)) {
+        if (isCancelled(true, tc)) {
             result=false;
             mCommonDlg.showCommonDialog(false, "W", mContext.getString(R.string.msgs_zip_extract_file_was_cancelled), "", null);
             mUiHandler.post(new Runnable(){
@@ -3077,7 +3084,6 @@ public class ZipFileManager {
 		String w_conf_list="";
 		String sep="";
 		for (TreeFilelistItem tfli:tfa.getDataList()) {
-//			Log.v("","sel name="+tfli.getName());
 			if (tfli.isChecked()) {
 				w_conf_list+=sep+tfli.getZipFileName();
 				sep="\n";
@@ -3094,7 +3100,7 @@ public class ZipFileManager {
 			public void negativeResponse(Context c, Object[] o) {}
 		});
 		mCommonDlg.showCommonDialog(true, "W",
-				mContext.getString(R.string.msgs_zip_delete_confirm_delete), conf_list, ntfy);
+				mContext.getString(R.string.msgs_zip_delete_confirm_delete_zip), conf_list, ntfy);
 	};
 
 	private void deleteZipFileItem(final String zip_file_path, final String zip_encoding,
@@ -3123,7 +3129,7 @@ public class ZipFileManager {
                     ArrayList<FileHeader> sel_fh=buildSelectedFileHeaderList(zf, tfa);
                     String msg=mContext.getString(R.string.msgs_zip_delete_file_was_deleted);
                     for(FileHeader fh:sel_fh) {
-                        if (checkCancelAndWait(tc)) {
+                        if (isCancelled(true, tc)) {
                             mCommonDlg.showCommonDialog(false, "I",
                                     String.format(mContext.getString(R.string.msgs_zip_delete_file_was_cancelled),fh.getFileName()), "", null);
                             try {
@@ -3137,7 +3143,7 @@ public class ZipFileManager {
                             mUtil.addLogMsg("I", String.format(msg,fh.getFileName()));
                         }
                     }
-                    if (!checkCancelAndWait(tc)) {
+                    if (!isCancelled(true, tc)) {
                         CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, mContext.getString(R.string.msgs_zip_zip_file_being_updated));
                         if (bzf.isAborted() || bzf.close(cbl)) {
                             if (!bzf.isAborted()) {
@@ -3751,7 +3757,7 @@ public class ZipFileManager {
 		boolean result=false;
 		long b_time=System.currentTimeMillis();
 		try {
-			if (!checkCancelAndWait(tc)) {
+			if (!isCancelled(true, tc)) {
                 InputStream is=getZipInputStream(tc, zf, fh, mUtil);
 
 				String dest_fpath=dest_path.endsWith("/")?dest_path+dest_file_name:dest_path+"/"+dest_file_name;
@@ -3771,7 +3777,7 @@ public class ZipFileManager {
                     out_file_work.createNewFile();
                     OutputStream os=out_file_work.getOutputStream();
                     copyFile(tc, fh.getUncompressedSize(), is, os, cbl);
-                    if (checkCancelAndWait(tc)) out_file_work.deleteIfExists();
+                    if (isCancelled(true, tc)) out_file_work.deleteIfExists();
                     else {
                         SafFile3 out_file_sf=new SafFile3(mContext, dest_fpath);
                         boolean rc_rename=out_file_work.renameTo(out_file_sf);
@@ -3783,7 +3789,7 @@ public class ZipFileManager {
                     File out_os_file=new File(work_fpath);
                     OutputStream os=new FileOutputStream(out_os_file);
                     copyFile(tc, fh.getUncompressedSize(), is, os, cbl);
-                    if (checkCancelAndWait(tc)) out_file_work.deleteIfExists();
+                    if (isCancelled(true, tc)) out_file_work.deleteIfExists();
                     else {
                         SafFile3 out_file_sf=new SafFile3(mContext, dest_fpath);
                         out_os_file.setLastModified(ZipUtil.dosToJavaTme((int) fh.getLastModifiedTime()));
@@ -3863,7 +3869,7 @@ public class ZipFileManager {
                                 @Override
                                 public void run() {
                                     setUiEnabled();
-                                    if (rc && !checkCancel(tc)) {
+                                    if (rc && !isCancelled(tc)) {
                                         SafFile3 sf=null;
                                         try {
                                             String fp=(work_dir+"/"+f_name).replaceAll("//","/");
@@ -3885,7 +3891,7 @@ public class ZipFileManager {
                                             if (sf!=null) sf.deleteIfExists();
                                         }
                                     } else {
-                                        if (!checkCancel(tc))
+                                        if (!isCancelled(tc))
                                             mCommonDlg.showCommonDialog(false, "E", mContext.getString(R.string.msgs_zip_extract_file_was_failed),
                                                     f_name+"\n"+tc.getThreadMessage(), null);
                                     }
