@@ -67,6 +67,9 @@
         <string name="msgs_zip_cont_header_copy">Copie</string>
         <string name="msgs_zip_cont_header_cut">Coupez</string>
         <string name="msgs_zip_local_file_clear_copy_cut_item">Clair</string>
+        <string name="msgs_zip_local_file_clear_copy_cut_from_local">Local</string>
+        <string name="msgs_zip_local_file_clear_copy_cut_from_zip">ZIP</string>
+        <string name="msgs_zip_local_file_clear_copy_cut_list_cleared">Copie/Coupe de la liste effacée.</string>
         <string name="msgs_zip_local_file_rename_title">Renommer</string>
         <string name="msgs_zip_local_file_rename_confirm_title">Voulez-vous renommer l\'article suivant ?</string>
         <string name="msgs_zip_local_file_rename_completed">Renommer complété, Nom=%s</string>
@@ -102,6 +105,7 @@
         <string name="msgs_zip_local_folder_empty">Le dossier est vide.</string>
         <string name="msgs_zip_zip_file_info" formatted="false">Taille=%s, Articles=%s, Encodage=%s</string>
         <string name="msgs_zip_zip_file_info_temporary">Fichier ZIP en lecture seule</string>
+        <string name="msgs_zip_zip_file_info_close_button">Fermez ce ZIP</string>
         <string name="msgs_zip_zip_item_property_file" formatted="false">Dernière modification = %s\nMéthode de compression = %s\nMéthode de cryptage = %s\nTaille de compression = %,d\nTaille de décompression = %,d\nRapport de compression = %d%%%</string>
         <string name="msgs_zip_zip_item_property_directory" formatted="false">Nombre d\'articles = %s\nTaille comprimée = %,d\nTaille non comprimée = %,d\nRapport de compression = %d%%%</string>
         <string name="msgs_zip_zip_item_property_encrypted_yes">Oui</string>

@@ -143,11 +143,11 @@ public class ZipFileManager {
     private ArrayList<ZipFileViewerItem> zipFileViewerList=new ArrayList<ZipFileViewerItem>();
     private Spinner mZipFileSpinner=null;
 
-    private Button mFileListUp, mFileListTop;
+    private Button mFileListUp, mFileListTop, mFileInfoClose;
 	private NonWordwrapTextView mCurrentDirectory;
-	private TextView mFileEmpty, mFileInfo;
+	private TextView mFileEmpty, mFileInfoText;
 	private Spinner mEncodingSpinner;
-	private LinearLayout mMainDialogView=null;
+	private LinearLayout mMainDialogView=null, mFileInfoView=null;
 	
 	private CommonUtilities mUtil=null;
 	
@@ -260,8 +260,10 @@ public class ZipFileManager {
         mFileEmpty.setVisibility(TextView.GONE);
         mTreeFilelistView.setVisibility(ListView.VISIBLE);
         
-        mFileInfo=(TextView)mMainView.findViewById(R.id.zip_file_info);
-        
+        mFileInfoView=(LinearLayout) mMainView.findViewById(R.id.zip_file_info_view);
+        mFileInfoText =(TextView)mMainView.findViewById(R.id.zip_file_info_text);
+        mFileInfoClose=(Button)mMainView.findViewById(R.id.zip_file_info_close_btn);
+
         mFileListUp=(Button)mMainView.findViewById(R.id.zip_file_up_btn);
         if (mGp.themeIsLight) mFileListUp.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_16_go_up_dark, 0, 0, 0);
         else mFileListUp.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_16_go_up_light, 0, 0, 0);
@@ -309,7 +311,69 @@ public class ZipFileManager {
     	mContextButtonDeleteView=(LinearLayout)mMainView.findViewById(R.id.context_button_delete_view);
         mContextButtonSelectAllView=(LinearLayout)mMainView.findViewById(R.id.context_button_select_all_view);
         mContextButtonUnselectAllView=(LinearLayout)mMainView.findViewById(R.id.context_button_unselect_all_view);
-        
+
+        mGp.zipCopyCutView=(LinearLayout) mMainView.findViewById(R.id.zip_file_copy_cut_view);
+        mGp.zipCopyCutItemClear=(Button)mMainView.findViewById(R.id.zip_file_copy_cut_clear_btn);
+        mGp.zipCopyCutItemType=(TextView)mMainView.findViewById(R.id.zip_file_copy_cut_type_btn);
+        mGp.zipCopyCutItemInfo=(Button)mMainView.findViewById(R.id.zip_file_copy_cut_item);
+
+        mGp.zipCopyCutView.setVisibility(LinearLayout.GONE);
+
+        mGp.zipCopyCutItemClear.setOnClickListener(new OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                mActivity.clearCopyCutItem();
+            }
+        });
+        mGp.zipCopyCutItemInfo.setOnClickListener(new OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                String c_list="", sep="";
+                for(TreeFilelistItem tfli:mGp.copyCutList) {
+                    c_list+=sep+tfli.getPath()+"/"+tfli.getName();
+                    sep="\n";
+                }
+                String msg="";
+                if (!mGp.copyCutModeIsCut) msg=mContext.getString(R.string.msgs_zip_cont_header_copy);
+                else msg=mContext.getString(R.string.msgs_zip_cont_header_cut);
+                String from=mGp.copyCutFrom.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)?"Local":"ZIP";
+                String file_name="";
+                if (mGp.copyCutFrom.equals(GlobalParameters.COPY_CUT_FROM_ZIP)) {
+                    file_name="("+mGp.copyCutFilePath.substring(mGp.copyCutFilePath.lastIndexOf("/")+1)+")";
+                }
+                mCommonDlg.showCommonDialog(false, "I", msg+from+file_name, c_list, null);
+            }
+        });
+
+        mFileInfoClose.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String fp=(String)mZipFileSpinner.getSelectedItem();
+                ((ZipFileSelectorAdapter)mZipFileSpinner.getAdapter()).remove(fp);
+
+                ZipFileViewerItem remove_item=null;
+                for(ZipFileViewerItem item:zipFileViewerList) {
+                    if (item.file_path.equals(fp)) {
+                        remove_item=item;
+                        break;
+                    }
+                }
+                if (remove_item!=null) zipFileViewerList.remove(remove_item);
+
+                ((ZipFileSelectorAdapter)mZipFileSpinner.getAdapter()).notifyDataSetChanged();
+
+                mUtil.addDebugMsg(1, "I", "ZIP file closed. fp="+fp);
+
+                mCurrentFilePath="";
+
+                if (zipFileViewerList.size()!=0) {
+                    showZipFile(zipFileViewerList.get(0).read_only_file, new SafFile3(mContext, zipFileViewerList.get(0).file_path));
+                } else {
+                    hideTreeFileListView();
+                }
+            }
+        });
+
         setContextButtonListener();
 	};
 
@@ -594,7 +658,12 @@ public class ZipFileManager {
 				mZipFileSpinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 					@Override
 					public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-						String n_fp=mZipFileSpinner.getSelectedItem().toString();
+                        for(int i=0;i<((ZipFileSelectorAdapter)mZipFileSpinner.getAdapter()).getCount();i++) {
+                            mUtil.addDebugMsg(1, "I", "selected fp="+((ZipFileSelectorAdapter)mZipFileSpinner.getAdapter()).getItem(i));
+                        }
+
+                        String n_fp=mZipFileSpinner.getSelectedItem().toString();
+                        mUtil.addDebugMsg(1, "I", "selected new_fp="+n_fp);
                         ZipFileViewerItem fvi= getZipFileViewerItem(n_fp);
                         if (fvi!=null) {
                             showZipFile(fvi.read_only_file, new SafFile3(mContext, n_fp));
@@ -1206,7 +1275,7 @@ public class ZipFileManager {
 		}
 		mZipFileSpinner.setVisibility(TextView.VISIBLE);
 		mEncodingSpinner.setVisibility(Spinner.VISIBLE);
-		mFileInfo.setVisibility(TextView.VISIBLE);
+        mFileInfoView.setVisibility(TextView.VISIBLE);
 
 		SafFile3 lf=new SafFile3(mContext, fp);
 		String tfs=MiscUtil.convertFileSize(lf.length());
@@ -1219,9 +1288,9 @@ public class ZipFileManager {
             ForegroundColorSpan fg_span = new ForegroundColorSpan(mGp.themeColorList.text_color_error);
 //        sb.setSpan(bg_span, mt.start(), mt.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             sb.setSpan(fg_span, 0, read_only.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            mFileInfo.setText(sb);
+            mFileInfoText.setText(sb);
         } else {
-            mFileInfo.setText(info);
+            mFileInfoText.setText(info);
         }
 	};
 
@@ -1269,7 +1338,7 @@ public class ZipFileManager {
                         mUiHandler.post(new Runnable(){
                             @Override
                             public void run() {
-                                if (mFileInfo.getVisibility()!= TextView.VISIBLE)
+                                if (mFileInfoView.getVisibility()!= TextView.VISIBLE)
                                     mFileEmpty.setText(R.string.msgs_zip_folder_not_specified);
                                 setUiEnabled();
                                 mUtil.addDebugMsg(1, "I", "createFileList end");
@@ -1334,7 +1403,7 @@ public class ZipFileManager {
         mContextButtonSelectAllView.setVisibility(LinearLayout.INVISIBLE);
         mContextButtonUnselectAllView.setVisibility(LinearLayout.INVISIBLE);
 
-        mFileInfo.setVisibility(TextView.INVISIBLE);
+        mFileInfoView.setVisibility(TextView.GONE);
     }
 
 	private ArrayList<TreeFilelistItem> createTreeFileList(ArrayList<ZipFileListItem> zip_file_list, String target_dir) {
@@ -1530,26 +1599,16 @@ public class ZipFileManager {
 			mGp.copyCutFilePath=mCurrentFilePath;
 			mGp.copyCutCurrentDirectory=mCurrentDirectory.getText().equals("/")?"":mCurrentDirectory.getText().toString().substring(1);
 			mGp.copyCutEncoding=mEncodingSelected;
-			mGp.copyCutType=GlobalParameters.COPY_CUT_FROM_ZIP;
+			mGp.copyCutFrom =GlobalParameters.COPY_CUT_FROM_ZIP;
 			mGp.copyCutList.clear();
-			String c_list="", sep="";
 			for(TreeFilelistItem tfl:tfa.getDataList()) {
 				if(tfl.isChecked()) {
 					mGp.copyCutList.add(tfl);
-					c_list+=sep+tfl.getPath().replace(mZipFileSpinner.getSelectedItem().toString(), "")+"/"+tfl.getName();
-					sep=", ";
                     tfl.setChecked(false);
 				}
 			}
 			tfa.notifyDataSetChanged();
-			String from=mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)?"Local":"ZIP";
-            mGp.copyCutItemType.setText(mContext.getString(R.string.msgs_zip_cont_header_cut)+"\n"+from);
-            mGp.copyCutItemType.setVisibility(Button.VISIBLE);
-            mGp.copyCutItemInfo.setText(c_list);
-			mGp.copyCutItemInfo.setVisibility(TextView.VISIBLE);
-            mGp.copyCutItemInfo.requestLayout();
-			mGp.copyCutItemClear.setVisibility(Button.VISIBLE);
-			mContextButtonPasteView.setVisibility(ImageButton.INVISIBLE);
+			mActivity.setCopyCutItemView();
 		}
 	};
 
@@ -1559,35 +1618,25 @@ public class ZipFileManager {
 			mGp.copyCutFilePath=mCurrentFilePath;
 			mGp.copyCutCurrentDirectory=mCurrentDirectory.getText().equals("/")?"":mCurrentDirectory.getText().toString().substring(1);
 			mGp.copyCutEncoding=mEncodingSelected;
-			mGp.copyCutType=GlobalParameters.COPY_CUT_FROM_ZIP;
+			mGp.copyCutFrom =GlobalParameters.COPY_CUT_FROM_ZIP;
 			mGp.copyCutList.clear();
-			String c_list="", sep="";
 			for(TreeFilelistItem tfl:tfa.getDataList()) {
 				if(tfl.isChecked()) {
 					mGp.copyCutList.add(tfl);
-					c_list+=sep+tfl.getPath().replace(mZipFileSpinner.getSelectedItem().toString(), "")+"/"+tfl.getName();
-					sep=", ";
                     tfl.setChecked(false);
 				}
 			}
 			tfa.notifyDataSetChanged();
-			String from=mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)?"Local":"ZIP";
-            mGp.copyCutItemType.setText(mContext.getString(R.string.msgs_zip_cont_header_cut)+"\n"+from);
-            mGp.copyCutItemType.setVisibility(Button.VISIBLE);
-			mGp.copyCutItemInfo.setText(c_list);
-			mGp.copyCutItemInfo.setVisibility(TextView.VISIBLE);
-            mGp.copyCutItemInfo.requestLayout();
-			mGp.copyCutItemClear.setVisibility(Button.VISIBLE);
-			mContextButtonPasteView.setVisibility(ImageButton.INVISIBLE);
+            mActivity.setCopyCutItemView();
 		}
 	};
 
 	private boolean isCopyCutDestValid(String zip_file_path, String fp) {
 		boolean enabled=true;
 		if (mGp.copyCutList.size()>0) {
-			if (mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)) {
+			if (mGp.copyCutFrom.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)) {
 			    //NOP
-			} else if (mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_ZIP)) {
+			} else if (mGp.copyCutFrom.equals(GlobalParameters.COPY_CUT_FROM_ZIP)) {
 			    enabled=false;
 //				if (!mGp.copyCutFilePath.equals(zip_file_path)) enabled=true;
 //				else {
@@ -1641,7 +1690,7 @@ public class ZipFileManager {
 			add_item[cnt]=tfli.getPath()+"/"+tfli.getName();
 			cnt++;
 		}
-		if (mGp.copyCutType.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)) {
+		if (mGp.copyCutFrom.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)) {
 
             NotifyEvent ntfy_override=new NotifyEvent(mContext);
             ntfy_override.setListener(new NotifyEventListener() {
@@ -1663,7 +1712,7 @@ public class ZipFileManager {
                                     public void run() {
                                         setUiEnabled();
                                         refreshFileList(true);
-                                        mGp.copyCutItemClear.performClick();
+                                        mActivity.clearCopyCutItem();
                                     }
                                 });
                             }
@@ -1704,7 +1753,7 @@ public class ZipFileManager {
                                                     @Override
                                                     public void run() {
                                                         deleteCopyPasteWorkFile();
-                                                        mGp.copyCutItemClear.performClick();
+                                                        mActivity.clearCopyCutItem();
                                                     }
                                                 });
                                             }

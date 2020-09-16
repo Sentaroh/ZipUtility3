@@ -7,11 +7,21 @@ import android.widget.TextView;
 
 import com.sentaroh.android.Utilities3.Widget.CustomSpinnerAdapter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ZipFileSelectorAdapter extends CustomSpinnerAdapter {
+    final private static Logger log= LoggerFactory.getLogger(ZipFileSelectorAdapter.class);
     private Context mContext=null;
+
     public ZipFileSelectorAdapter(Context c, int textViewResourceId) {
         super(c, textViewResourceId);
         mContext=c;
+    }
+
+    @Override
+    public void add(String item) {
+        super.add(item);
     }
 
     @Override

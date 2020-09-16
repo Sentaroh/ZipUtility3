@@ -67,6 +67,9 @@
         <string name="msgs_zip_cont_header_copy">コピー</string>
         <string name="msgs_zip_cont_header_cut">切取り</string>
         <string name="msgs_zip_local_file_clear_copy_cut_item">消去</string>
+        <string name="msgs_zip_local_file_clear_copy_cut_from_local">ローカル</string>
+        <string name="msgs_zip_local_file_clear_copy_cut_from_zip">ZIP</string>
+        <string name="msgs_zip_local_file_clear_copy_cut_list_cleared">コピー/カットリストを消去しました</string>
         <string name="msgs_zip_local_file_rename_title">名前の変更</string>
         <string name="msgs_zip_local_file_rename_confirm_title">下記の項目を改名しますか？ 改名は即時に反映され取り消しできません。</string>
         <string name="msgs_zip_local_file_rename_completed">改名しました, 名前=%s</string>
@@ -102,6 +105,7 @@
         <string name="msgs_zip_local_folder_empty">フォルダーは空です。</string>
         <string name="msgs_zip_zip_file_info" formatted="false">サイズ=%s, 項目=%s, 文字コード=%s</string>
         <string name="msgs_zip_zip_file_info_temporary">書込不可ZIPファイル</string>
+        <string name="msgs_zip_zip_file_info_close_button">このZIPを閉じる</string>
         <string name="msgs_zip_zip_item_property_file" formatted="false">最終更新日時=%s\n圧縮方法=%s\n暗号方式=%s\n圧縮後サイズ=%,d\n圧縮前サイズ=%,d\n圧縮率=%d%%</string>
         <string name="msgs_zip_zip_item_property_directory" formatted="false">項目数=%s\n圧縮後サイズ=%,d\n圧縮前サイズ=%,d\n圧縮率=%d%%</string>
         <string name="msgs_zip_zip_item_property_encrypted_yes">有り</string>

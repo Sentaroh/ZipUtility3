@@ -83,17 +83,41 @@
             <!--android:clipToPadding="false"-->
             <!--android:scrollbarStyle="outsideOverlay"-->
 
-            <include layout="@layout/context_view_local"/>
-
-            <TextView
-                android:id="@+id/local_file_msg"
-                android:layout_width="fill_parent"
+            <LinearLayout
+                android:id="@+id/local_file_copy_cut_view"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:visibility="gone"
-                android:text="SDCARD access was not granted"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:background="@drawable/dialog_box_outline">
+
+                <TextView
+                    android:id="@+id/local_file_copy_cut_type_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_gravity="center_vertical"
+                    android:text="Copy\nLocal"
+                    android:textAppearance="?android:attr/textAppearanceSmall"/>
+                <com.sentaroh.android.Utilities3.Widget.NonWordwrapButton
+                    android:id="@+id/local_file_copy_cut_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center_vertical"
+                    android:ellipsize="end"
+                    android:gravity="center_vertical|left"
+                    android:lines="2"
+                    android:text="/storage/emulated/0/DCIM"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+                <Button
+                    android:id="@+id/local_file_copy_cut_clear_btn"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/msgs_zip_local_file_clear_copy_cut_item" />
+            </LinearLayout>
+
+            <include layout="@layout/context_view_local"/>
 
         </LinearLayout>
 

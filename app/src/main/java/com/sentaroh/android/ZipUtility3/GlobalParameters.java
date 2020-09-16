@@ -36,6 +36,8 @@ import android.os.LocaleList;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
@@ -73,15 +75,26 @@ public class GlobalParameters {
 	public String copyCutFilePath="";
 	public String copyCutCurrentDirectory="";
 	public String copyCutEncoding="";
-	public String copyCutType=COPY_CUT_FROM_LOCAL;
+	public String copyCutFrom =COPY_CUT_FROM_LOCAL;
 	public final static String COPY_CUT_FROM_LOCAL="L";
 	public final static String COPY_CUT_FROM_ZIP="Z";
 	public boolean copyCutModeIsCut=false;
-	public Button copyCutItemClear=null;
-    public Button copyCutItemType=null;
-	public Button copyCutItemInfo=null;
-	
-//	Settings parameter	    	
+//    public LinearLayout copyCutView=null;
+//	public Button copyCutItemClear=null;
+//    public TextView copyCutItemType=null;
+//	public Button copyCutItemInfo=null;
+
+    public LinearLayout localCopyCutView=null;
+    public Button localCopyCutItemClear=null;
+    public TextView localCopyCutItemType=null;
+    public Button localCopyCutItemInfo=null;
+
+    public LinearLayout zipCopyCutView=null;
+    public Button zipCopyCutItemClear=null;
+    public TextView zipCopyCutItemType=null;
+    public Button zipCopyCutItemInfo=null;
+
+    //	Settings parameter
 	public boolean settingExitClean=true;
 	public boolean settingUseLightTheme=false;
 
