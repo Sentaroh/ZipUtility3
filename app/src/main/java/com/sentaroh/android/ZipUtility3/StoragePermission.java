@@ -56,7 +56,7 @@ public class StoragePermission {
 
     private SafManager3 mSafMgr =null;
 
-    private static Logger log= LoggerFactory.getLogger(StoragePermission.class);
+    final private static Logger log= LoggerFactory.getLogger(StoragePermission.class);
 
     private NotifyEvent mNtfyGrantRequest=null;
 

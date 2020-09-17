@@ -64,6 +64,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -113,7 +117,11 @@ public class ActivityMain extends AppCompatActivity {
 	private GlobalParameters mGp=null;
 	
 	private boolean mTerminateApplication=false;
-	private int mRestartStatus=0;
+    private final static int START_STATUS_START_NORMAL = 0;
+    private final static int START_STATUS_START_COMPLETED = 1;
+    private final static int START_STATUS_START_INPROGRESS = 2;
+    private int mRestartStatus=START_STATUS_START_NORMAL;
+    private boolean mRestartRestoreReqired=false;
 
 	private CommonDialog mCommonDlg=null;
 
@@ -165,7 +173,7 @@ public class ActivityMain extends AppCompatActivity {
 		super.onRestoreInstanceState(savedState);
 		mUtil.addDebugMsg(1, "I", "onRestoreInstanceState entered");
 		restoreViewContents(savedState);
-		mRestartStatus=2;
+        mRestartRestoreReqired=true;
 	};
 
 	private void restoreViewContents(Bundle savedState) {
@@ -175,7 +183,7 @@ public class ActivityMain extends AppCompatActivity {
 	protected void onNewIntent(Intent in) {
 		super.onNewIntent(in);
 		mUtil.addDebugMsg(1, "I", "onNewIntent entered, restartStatus="+mRestartStatus);
-		if (mRestartStatus==2) return;
+		if (mRestartStatus!=START_STATUS_START_COMPLETED) return;
 		if (in!=null && in.getData()!=null) showZipFileByIntent(in);
 	};
 
@@ -190,7 +198,7 @@ public class ActivityMain extends AppCompatActivity {
         mActivity=ActivityMain.this;
         mUiHandler=new Handler();
         mFragmentManager=getSupportFragmentManager();
-        mRestartStatus=0;
+        mRestartStatus=START_STATUS_START_NORMAL;
        	mGp=GlobalWorkArea.getGlobalParameters(mContext);
         setTheme(mGp.applicationTheme);
         mGp.themeColorList= ThemeUtil.getThemeColorList(mActivity);
@@ -262,24 +270,24 @@ public class ActivityMain extends AppCompatActivity {
             @Override
             public void positiveResponse(Context context, Object[] objects) {
                 processOnResumed();
-                mStoragePermissionPrimaryListener=null;
             }
             @Override
             public void negativeResponse(Context context, Object[] objects) { }
         });
         if (isLegacyStorageAccessGranted()) ntfy_resume.notifyToListener(true, null);
         else {
-            if (mStoragePermissionPrimaryListener ==null) checkLegacyStoragePermissions(ntfy_resume);
+            if (mRestartStatus==START_STATUS_START_NORMAL) {
+                checkLegacyStoragePermissions(ntfy_resume);
+                mRestartStatus=START_STATUS_START_INPROGRESS;
+            }
         }
     }
 
 	private void processOnResumed() {
-        if (mRestartStatus==1) {
+        if (mRestartStatus==START_STATUS_START_COMPLETED) {
             if (isUiEnabled()) {
-                if (mStoragePermissionPrimaryListener==null) {
-                    if (mTabLayout.getSelectedTabName().equals(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.refreshFileList();
-                    else mZipFileMgr.refreshFileList();
-                }
+                if (mTabLayout.getSelectedTabName().equals(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.refreshFileList();
+                else mZipFileMgr.refreshFileList();
             }
             try {
                 mSvcClient.aidlSetActivityInForeground();
@@ -302,24 +310,22 @@ public class ActivityMain extends AppCompatActivity {
                         mLocalFileMgr.showLocalFileView(false);
                         mZipFileMgr=new ZipFileManager(mGp, mActivity, mFragmentManager, mZipView);
                     }
-                    if (mRestartStatus==0) {
+                    if (!mRestartRestoreReqired) {
                         Intent in=getIntent();
                         if (in!=null && in.getData()!=null) showZipFileByIntent(in);
                         else {
                             mLocalFileMgr.showLocalFileView(true);
                             showAddExternalStorageNotification();
                         }
-                    } else if (mRestartStatus==2) {
+                    } else {
                         mLocalFileMgr.showLocalFileView(true);
                         if (mGp.activityIsDestroyed) {
-                            mCommonDlg.showCommonDialog(false, "W",
-                                    getString(R.string.msgs_main_restart_by_destroyed),"",null);
+                            mCommonDlg.showCommonDialog(false, "W", getString(R.string.msgs_main_restart_by_destroyed),"",null);
                         } else {
-                            mCommonDlg.showCommonDialog(false, "W",
-                                    getString(R.string.msgs_main_restart_by_killed),"",null);
+                            mCommonDlg.showCommonDialog(false, "W", getString(R.string.msgs_main_restart_by_killed),"",null);
                         }
                     }
-                    mRestartStatus=1;
+                    mRestartStatus=START_STATUS_START_COMPLETED;
                     mGp.activityIsDestroyed=false;
                 }
                 @Override
@@ -327,7 +333,7 @@ public class ActivityMain extends AppCompatActivity {
                 }
 
             });
-            if (mStoragePermissionPrimaryListener==null) openService(ntfy);
+            openService(ntfy);
         }
 
     }
@@ -987,8 +993,16 @@ public class ActivityMain extends AppCompatActivity {
 
 	private void invokeSettingsActivity() {
 		mUtil.addDebugMsg(1,"I","Invoke Settings.");
-		Intent intent=new Intent(mContext, ActivitySettings.class);
-		startActivityForResult(intent,0);
+
+        ActivityResultLauncher<Intent> laucher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                mUtil.addDebugMsg(1,"I","Return from Setting activity.");
+                applySettingParms(result.getData());
+            }
+        });
+        Intent intent=new Intent(mContext, ActivitySettings.class);
+        laucher.launch(intent);
 	};
 
 	private void invokeLogManagement() {
@@ -1170,8 +1184,6 @@ public class ActivityMain extends AppCompatActivity {
         return false;
     }
 
-    private final int REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE=1;
-
     private boolean isLegacyStorageAccessGranted() {
         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) return false;
         return true;
@@ -1185,8 +1197,27 @@ public class ActivityMain extends AppCompatActivity {
             ntfy.setListener(new NotifyEventListener(){
                 @Override
                 public void positiveResponse(Context c, Object[] o) {
-                    mStoragePermissionPrimaryListener=p_ntfy;
-                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE);
+                    ActivityResultLauncher<String> request_permission = mActivity.registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                        if (isGranted) {
+                            p_ntfy.notifyToListener(true, null);
+                        } else {
+                            NotifyEvent ntfy_term = new NotifyEvent(mContext);
+                            ntfy_term.setListener(new NotifyEvent.NotifyEventListener() {
+                                @Override
+                                public void positiveResponse(Context c, Object[] o) {
+                                    finish();
+                                }
+
+                                @Override
+                                public void negativeResponse(Context c, Object[] o) {}
+                            });
+                            mCommonDlg.showCommonDialog(false, "W",
+                                    mContext.getString(R.string.msgs_main_permission_primary_storage_title),
+                                    mContext.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
+                        }
+
+                    });
+                    request_permission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 }
                 @Override
                 public void negativeResponse(Context c, Object[] o) {
@@ -1214,153 +1245,129 @@ public class ActivityMain extends AppCompatActivity {
         }
     };
 
-    private void checkInternalStoragePermission(final NotifyEvent p_ntfy) {
-        ArrayList<SafStorage3>ssl=mGp.safMgr.getSafStorageList();
-        boolean internal_permitted=isPrimaryStorageAccessGranted();
-        if (!internal_permitted) {
-            NotifyEvent ntfy_request=new NotifyEvent(mContext);
-            mStoragePermissionPrimaryListener = ntfy_request;
-            ntfy_request.setListener(new NotifyEvent.NotifyEventListener() {
-                @Override
-                public void positiveResponse(Context context, Object[] objects) {
-                    final NotifyEvent ntfy_response=new NotifyEvent(mContext);
-                    mStoragePermissionPrimaryListener = ntfy_response;
-                    ntfy_response.setListener(new NotifyEvent.NotifyEventListener() {
-                        @Override
-                        public void positiveResponse(Context context, Object[] objects) {
-                            int requestCode=(Integer)objects[0];
-                            int resultCode=(Integer)objects[1];
-                            Intent data=(Intent)objects[2];
+//    private void checkInternalStoragePermission(final NotifyEvent p_ntfy) {
+//        ArrayList<SafStorage3>ssl=mGp.safMgr.getSafStorageList();
+//        boolean internal_permitted=isPrimaryStorageAccessGranted();
+//        if (!internal_permitted) {
+//            NotifyEvent ntfy_request=new NotifyEvent(mContext);
+//            mStoragePermissionPrimaryListener = ntfy_request;
+//            ntfy_request.setListener(new NotifyEvent.NotifyEventListener() {
+//                @Override
+//                public void positiveResponse(Context context, Object[] objects) {
+//                    final NotifyEvent ntfy_response=new NotifyEvent(mContext);
+//                    mStoragePermissionPrimaryListener = ntfy_response;
+//                    ntfy_response.setListener(new NotifyEvent.NotifyEventListener() {
+//                        @Override
+//                        public void positiveResponse(Context context, Object[] objects) {
+//                            int requestCode=(Integer)objects[0];
+//                            int resultCode=(Integer)objects[1];
+//                            Intent data=(Intent)objects[2];
+//
+//                            if (resultCode == Activity.RESULT_OK) {
+//                                if (data==null || data.getDataString()==null) {
+//                                    mCommonDlg.showCommonDialog(false, "W", "Storage access grant request was failed because null intent data was returned.", "", null);
+//                                    mUtil.addLogMsg("E", "Storage Grant write permission failed because null intent data was returned.", "");
+//                                    return;
+//                                }
+//                                mUtil.addDebugMsg(1, "I", "Intent=" + data.getData().toString());
+//                                if (!mGp.safMgr.isRootTreeUri(data.getData())) {
+//                                    mUtil.addDebugMsg(1, "I", "Selected UUID="+ SafManager3.getUuidFromUri(data.getData().toString()));
+//
+//                                    NotifyEvent ntfy_retry = new NotifyEvent(mContext);
+//                                    ntfy_retry.setListener(new NotifyEvent.NotifyEventListener() {
+//                                        @Override
+//                                        public void positiveResponse(Context c, Object[] o) {
+//                                            mStoragePermissionPrimaryListener = ntfy_response;
+//                                            requestStoragePermissionsByUuid(SAF_FILE_PRIMARY_UUID, mStoragePermissionPrimaryRequestCode);
+//                                        }
+//                                        @Override
+//                                        public void negativeResponse(Context c, Object[] o) {
+//                                            NotifyEvent ntfy_term = new NotifyEvent(mContext);
+//                                            ntfy_term.setListener(new NotifyEvent.NotifyEventListener() {
+//                                                @Override
+//                                                public void positiveResponse(Context c, Object[] o) {
+//                                                    finish();
+//                                                }
+//                                                @Override
+//                                                public void negativeResponse(Context c, Object[] o) {}
+//                                            });
+//                                            mCommonDlg.showCommonDialog(false, "W",
+//                                                    mContext.getString(R.string.msgs_main_permission_primary_storage_title),
+//                                                    mContext.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
+//                                        }
+//                                    });
+//                                    mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_main_permission_primary_storage_request_msg),
+//                                            data.getData().getPath(), ntfy_retry);
+//                                } else {
+//                                    mUtil.addDebugMsg(1, "I", "Selected UUID="+SafManager3.getUuidFromUri(data.getData().toString()));
+//                                    boolean rc=mGp.safMgr.addUuid(data.getData());
+//                                    if (!rc) {
+//                                        String saf_msg=mGp.safMgr.getLastErrorMessage();
+//                                        mCommonDlg.showCommonDialog(false, "W", "Primary UUID registration failed.", saf_msg, null);
+//                                        mUtil.addLogMsg("E", "Primary UUID registration failed.\n", saf_msg);
+//                                    }
+//                                    p_ntfy.notifyToListener(true, null);
+//                                }
+//                            } else {
+//                                NotifyEvent ntfy_term = new NotifyEvent(mContext);
+//                                ntfy_term.setListener(new NotifyEvent.NotifyEventListener() {
+//                                    @Override
+//                                    public void positiveResponse(Context c, Object[] o) {
+//                                        finish();
+//                                    }
+//                                    @Override
+//                                    public void negativeResponse(Context c, Object[] o) {}
+//                                });
+//                                mCommonDlg.showCommonDialog(false, "W",
+//                                        mContext.getString(R.string.msgs_main_permission_primary_storage_title),
+//                                        mContext.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
+//                            }
+//                        }
+//                        @Override
+//                        public void negativeResponse(Context context, Object[] objects) {}
+//                    });
+//                    mStoragePermissionPrimaryListener = ntfy_response;
+//                    requestStoragePermissionsByUuid(SAF_FILE_PRIMARY_UUID, mStoragePermissionPrimaryRequestCode);
+//                }
+//
+//                @Override
+//                public void negativeResponse(Context context, Object[] objects) {
+//                    NotifyEvent ntfy_term = new NotifyEvent(mContext);
+//                    ntfy_term.setListener(new NotifyEvent.NotifyEventListener() {
+//                        @Override
+//                        public void positiveResponse(Context c, Object[] o) {
+//                            finish();
+//                        }
+//
+//                        @Override
+//                        public void negativeResponse(Context c, Object[] o) {}
+//                    });
+//                    mCommonDlg.showCommonDialog(false, "W",
+//                            mContext.getString(R.string.msgs_main_permission_primary_storage_title),
+//                            mContext.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
+//                }
+//            });
+//            mCommonDlg.showCommonDialog(true, "W",
+//                    mContext.getString(R.string.msgs_main_permission_primary_storage_title),
+//                    mContext.getString(R.string.msgs_main_permission_primary_storage_request_msg),
+//                    ntfy_request);
+//        } else {
+//            p_ntfy.notifyToListener(true, null);
+//        }
+//    }
 
-                            if (resultCode == Activity.RESULT_OK) {
-                                if (data==null || data.getDataString()==null) {
-                                    mCommonDlg.showCommonDialog(false, "W", "Storage access grant request was failed because null intent data was returned.", "", null);
-                                    mUtil.addLogMsg("E", "Storage Grant write permission failed because null intent data was returned.", "");
-                                    return;
-                                }
-                                mUtil.addDebugMsg(1, "I", "Intent=" + data.getData().toString());
-                                if (!mGp.safMgr.isRootTreeUri(data.getData())) {
-                                    mUtil.addDebugMsg(1, "I", "Selected UUID="+ SafManager3.getUuidFromUri(data.getData().toString()));
-
-                                    NotifyEvent ntfy_retry = new NotifyEvent(mContext);
-                                    ntfy_retry.setListener(new NotifyEvent.NotifyEventListener() {
-                                        @Override
-                                        public void positiveResponse(Context c, Object[] o) {
-                                            mStoragePermissionPrimaryListener = ntfy_response;
-                                            requestStoragePermissionsByUuid(SAF_FILE_PRIMARY_UUID, mStoragePermissionPrimaryRequestCode);
-                                        }
-                                        @Override
-                                        public void negativeResponse(Context c, Object[] o) {
-                                            NotifyEvent ntfy_term = new NotifyEvent(mContext);
-                                            ntfy_term.setListener(new NotifyEvent.NotifyEventListener() {
-                                                @Override
-                                                public void positiveResponse(Context c, Object[] o) {
-                                                    finish();
-                                                }
-                                                @Override
-                                                public void negativeResponse(Context c, Object[] o) {}
-                                            });
-                                            mCommonDlg.showCommonDialog(false, "W",
-                                                    mContext.getString(R.string.msgs_main_permission_primary_storage_title),
-                                                    mContext.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
-                                        }
-                                    });
-                                    mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_main_permission_primary_storage_request_msg),
-                                            data.getData().getPath(), ntfy_retry);
-                                } else {
-                                    mUtil.addDebugMsg(1, "I", "Selected UUID="+SafManager3.getUuidFromUri(data.getData().toString()));
-                                    boolean rc=mGp.safMgr.addUuid(data.getData());
-                                    if (!rc) {
-                                        String saf_msg=mGp.safMgr.getLastErrorMessage();
-                                        mCommonDlg.showCommonDialog(false, "W", "Primary UUID registration failed.", saf_msg, null);
-                                        mUtil.addLogMsg("E", "Primary UUID registration failed.\n", saf_msg);
-                                    }
-                                    p_ntfy.notifyToListener(true, null);
-                                }
-                            } else {
-                                NotifyEvent ntfy_term = new NotifyEvent(mContext);
-                                ntfy_term.setListener(new NotifyEvent.NotifyEventListener() {
-                                    @Override
-                                    public void positiveResponse(Context c, Object[] o) {
-                                        finish();
-                                    }
-                                    @Override
-                                    public void negativeResponse(Context c, Object[] o) {}
-                                });
-                                mCommonDlg.showCommonDialog(false, "W",
-                                        mContext.getString(R.string.msgs_main_permission_primary_storage_title),
-                                        mContext.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
-                            }
-                        }
-                        @Override
-                        public void negativeResponse(Context context, Object[] objects) {}
-                    });
-                    mStoragePermissionPrimaryListener = ntfy_response;
-                    requestStoragePermissionsByUuid(SAF_FILE_PRIMARY_UUID, mStoragePermissionPrimaryRequestCode);
-                }
-
-                @Override
-                public void negativeResponse(Context context, Object[] objects) {
-                    NotifyEvent ntfy_term = new NotifyEvent(mContext);
-                    ntfy_term.setListener(new NotifyEvent.NotifyEventListener() {
-                        @Override
-                        public void positiveResponse(Context c, Object[] o) {
-                            finish();
-                        }
-
-                        @Override
-                        public void negativeResponse(Context c, Object[] o) {}
-                    });
-                    mCommonDlg.showCommonDialog(false, "W",
-                            mContext.getString(R.string.msgs_main_permission_primary_storage_title),
-                            mContext.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
-                }
-            });
-            mCommonDlg.showCommonDialog(true, "W",
-                    mContext.getString(R.string.msgs_main_permission_primary_storage_title),
-                    mContext.getString(R.string.msgs_main_permission_primary_storage_request_msg),
-                    ntfy_request);
-        } else {
-            p_ntfy.notifyToListener(true, null);
-        }
-    }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        //Do not add code
+    };
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE == requestCode) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (mStoragePermissionPrimaryListener!=null) {
-                    final NotifyEvent ntfy=mStoragePermissionPrimaryListener;
-                    Handler hndl=new Handler();
-                    hndl.postDelayed(new Runnable(){
-                        @Override
-                        public void run() {
-                            ntfy.notifyToListener(true, null);
-                        }
-                    },100);
-                }
-                mStoragePermissionPrimaryListener=null;
-            } else {
-                NotifyEvent ntfy_term = new NotifyEvent(mContext);
-                ntfy_term.setListener(new NotifyEventListener() {
-                    @Override
-                    public void positiveResponse(Context c, Object[] o) {
-//                        isTaskTermination = true;
-                        finish();
-                    }
-
-                    @Override
-                    public void negativeResponse(Context c, Object[] o) {
-                    }
-                });
-                mCommonDlg.showCommonDialog(false, "W",
-                        mContext.getString(R.string.msgs_main_permission_primary_storage_title),
-                        mContext.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
-            }
-        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        //Do not add code
     }
 
-    public void requestStoragePermissionsByUuid(String uuid, int request_code) {
+    public void requestStoragePermissionsByUuid(String uuid, NotifyEvent ntfy) {
         Intent intent = null;
         StorageManager sm = (StorageManager) mContext.getSystemService(Context.STORAGE_SERVICE);
         ArrayList<SafManager3.StorageVolumeInfo>vol_list=SafManager3.getStorageVolumeInfo(mContext);
@@ -1369,7 +1376,13 @@ public class ActivityMain extends AppCompatActivity {
                 if (Build.VERSION.SDK_INT>=29) intent=svi.volume.createOpenDocumentTreeIntent();
                 else intent=svi.volume.createAccessIntent(null);
                 try {
-                    startActivityForResult(intent, request_code);
+                    ActivityResultLauncher<Intent> laucher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+                        @Override
+                        public void onActivityResult(ActivityResult result) {
+                            ntfy.notifyToListener(true, new Object[]{result.getResultCode(), result.getData(), uuid});
+                        }
+                    });
+                    laucher.launch(intent);
                 } catch(Exception e) {
                     String st= MiscUtil.getStackTraceString(e);
                     mCommonDlg.showCommonDialog(false, "E", "SAF Request permission error", e.getMessage()+"\n"+st, null);
@@ -1377,25 +1390,6 @@ public class ActivityMain extends AppCompatActivity {
                 break;
             }
         }
-    }
-
-    public void requestStoragePermissionsByUuid(String uuid, int request_code, NotifyEvent ntfy) {
-        OnActivityResultCallback cb_item=new OnActivityResultCallback();
-        cb_item.request_code=request_code;
-        cb_item.app_data=uuid;
-        cb_item.callback_notify=ntfy;
-        mOnActivityResultCallbackList.add(cb_item);
-        requestStoragePermissionsByUuid(uuid, request_code);
-    }
-
-    private NotifyEvent mStoragePermissionPrimaryListener = null;
-    private int mStoragePermissionPrimaryRequestCode =40;
-    static public int EXTERNAL_SAF_STORAGE_REQUEST_CODE =50;
-
-    private class OnActivityResultCallback {
-        public int request_code=-1;
-        public NotifyEvent callback_notify=null;
-        public Object app_data=null;
     }
 
     private void requestLocalStoragePermission(final NotifyEvent p_ntfy) {
@@ -1408,10 +1402,9 @@ public class ActivityMain extends AppCompatActivity {
                 ntfy_response.setListener(new NotifyEvent.NotifyEventListener() {
                     @Override
                     public void positiveResponse(Context context, Object[] objects) {
-                        final int requestCode=(Integer)objects[0];
-                        final int resultCode=(Integer)objects[1];
-                        final Intent data=(Intent)objects[2];
-                        final String uuid=(String)objects[3];
+                        final int resultCode=(Integer)objects[0];
+                        final Intent data=(Intent)objects[1];
+                        final String uuid=(String)objects[2];
 
                         if (resultCode == Activity.RESULT_OK) {
                             if (data==null || data.getDataString()==null) {
@@ -1429,7 +1422,7 @@ public class ActivityMain extends AppCompatActivity {
                                 ntfy_retry.setListener(new NotifyEvent.NotifyEventListener() {
                                     @Override
                                     public void positiveResponse(Context c, Object[] o) {
-                                        mActivity.requestStoragePermissionsByUuid(uuid, EXTERNAL_SAF_STORAGE_REQUEST_CODE, ntfy_response);
+                                        requestStoragePermissionsByUuid(uuid, ntfy_response);
                                     }
 
                                     @Override
@@ -1466,7 +1459,7 @@ public class ActivityMain extends AppCompatActivity {
                     }
                 });
                 for(String uuid:uuid_list) {
-                    mActivity.requestStoragePermissionsByUuid(uuid, EXTERNAL_SAF_STORAGE_REQUEST_CODE, ntfy_response);
+                    requestStoragePermissionsByUuid(uuid, ntfy_response);
                 }
             }
 
@@ -1477,29 +1470,6 @@ public class ActivityMain extends AppCompatActivity {
         sp.showDialog();
 
     }
-
-
-    private ArrayList<OnActivityResultCallback> mOnActivityResultCallbackList=new ArrayList<OnActivityResultCallback>();
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		mUtil.addDebugMsg(1, "I", "Return from external activity");
-		if (requestCode==0) applySettingParms(data);
-		else {
-            mUtil.addDebugMsg(1, "I", "Return from Storage Picker. id=" + requestCode + ", result=" + resultCode);
-            if (requestCode== mStoragePermissionPrimaryRequestCode && mStoragePermissionPrimaryListener !=null) {
-                mStoragePermissionPrimaryListener.notifyToListener(true, new Object[]{requestCode, resultCode, data, });
-            } else {
-                ArrayList<OnActivityResultCallback> del_list=new ArrayList<OnActivityResultCallback>();
-                for(OnActivityResultCallback cb_item:mOnActivityResultCallbackList) {
-                    if (requestCode==cb_item.request_code) {
-                        cb_item.callback_notify.notifyToListener(true, new Object[]{requestCode, resultCode, data, cb_item.app_data});
-                        del_list.add(cb_item);
-                    }
-                }
-                if (del_list.size()>0) mOnActivityResultCallbackList.removeAll(del_list);
-            }
-        }
-	};
 
     private void applySettingParms(Intent in) {
 		int prev_theme=mGp.applicationTheme;
