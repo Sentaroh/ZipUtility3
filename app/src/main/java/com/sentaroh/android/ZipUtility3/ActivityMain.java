@@ -75,8 +75,6 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 
-import com.sentaroh.android.ZipUtility3.BuildConfig;
-
 import com.sentaroh.android.Utilities3.AppUncaughtExceptionHandler;
 import com.sentaroh.android.Utilities3.Dialog.CommonDialog;
 import com.sentaroh.android.Utilities3.MiscUtil;
@@ -84,7 +82,6 @@ import com.sentaroh.android.Utilities3.NotifyEvent;
 import com.sentaroh.android.Utilities3.NotifyEvent.NotifyEventListener;
 import com.sentaroh.android.Utilities3.SafFile3;
 import com.sentaroh.android.Utilities3.SafManager3;
-import com.sentaroh.android.Utilities3.SafStorage3;
 import com.sentaroh.android.Utilities3.SystemInfo;
 import com.sentaroh.android.Utilities3.ThemeUtil;
 import com.sentaroh.android.Utilities3.ThreadCtrl;
@@ -92,7 +89,6 @@ import com.sentaroh.android.Utilities3.Widget.CustomTabLayout;
 import com.sentaroh.android.Utilities3.Widget.CustomViewPager;
 import com.sentaroh.android.Utilities3.Widget.CustomViewPagerAdapter;
 import com.sentaroh.android.Utilities3.Widget.NonWordwrapTextView;
-import com.sentaroh.android.Utilities3.Zip.ZipUtil;
 import com.sentaroh.android.ZipUtility3.Log.LogManagementFragment;
 
 import org.slf4j.Logger;
@@ -103,7 +99,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.sentaroh.android.Utilities3.SafFile3.SAF_FILE_PRIMARY_UUID;
 import static com.sentaroh.android.Utilities3.SafFile3.SAF_FILE_UNKNOWN_UUID;
@@ -1538,22 +1533,34 @@ public class ActivityMain extends AppCompatActivity {
     public void setCopyCutItemView() {
         String c_list = "", sep = "";
         for (TreeFilelistItem tfl : mGp.copyCutList) {
-            c_list += sep + tfl.getPath()+"/"+tfl.getName();
-            sep = ", ";
+            if (tfl.isZipFileItem()) {
+                c_list += sep + "/"+tfl.getPath()+"/"+tfl.getName();
+                sep = ", ";
+            } else {
+                c_list += sep + tfl.getPath()+"/"+tfl.getName();
+                sep = ", ";
+            }
         }
         String from=mGp.copyCutFrom.equals(COPY_CUT_FROM_LOCAL)? mContext.getString(R.string.msgs_zip_local_file_clear_copy_cut_from_local) : mContext.getString(R.string.msgs_zip_local_file_clear_copy_cut_from_zip);
-        String mode=mGp.copyCutModeIsCut?mContext.getString(R.string.msgs_zip_cont_header_cut)+"\n"+from:mContext.getString(R.string.msgs_zip_cont_header_copy)+"\n"+from;
+        String mode=mGp.copyCutModeIsCut?mContext.getString(R.string.msgs_zip_cont_header_cut):mContext.getString(R.string.msgs_zip_cont_header_copy);
 
         mGp.localCopyCutView.setVisibility(LinearLayout.VISIBLE);
-        mGp.localCopyCutItemType.setText(mode);
+        mGp.localCopyCutItemMode.setText(mode);
+        mGp.localCopyCutItemFrom.setText(from);
         mGp.localCopyCutItemInfo.setText(c_list);
-        mGp.localCopyCutItemInfo.requestLayout();
-        mGp.localCopyCutItemInfo.requestLayout();
+        Handler hndl=new Handler();
+        hndl.post(new Runnable() {
+            @Override
+            public void run() {
+                mGp.localCopyCutItemInfo.requestLayout();
+            }
+        });
+
 
         mGp.zipCopyCutView.setVisibility(LinearLayout.VISIBLE);
-        mGp.zipCopyCutItemType.setText(mode);
+        mGp.zipCopyCutItemMode.setText(mode);
+        mGp.zipCopyCutItemFrom.setText(from);
         mGp.zipCopyCutItemInfo.setText(c_list);
-        mGp.zipCopyCutItemInfo.requestLayout();
         mGp.zipCopyCutItemInfo.requestLayout();
 
         if (mLocalFileMgr!=null) {

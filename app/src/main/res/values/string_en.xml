@@ -36,8 +36,8 @@
         <string name="msgs_main_local_file_ccmenu_delete">Delete</string>
         <string name="deleted_msgs_main_local_file_ccmenu_scan_media_store">Scan media file</string>
         <string name="msgs_main_local_file_ccmenu_compress">Compress</string>
-        <string name="msgs_main_local_file_ccmenu_copy">Copy</string>
-        <string name="msgs_main_local_file_ccmenu_cut">Cut</string>
+        <string name="msgs_main_local_file_ccmenu_copy">Copy to clipboard</string>
+        <string name="msgs_main_local_file_ccmenu_cut">Cut to clipboard</string>
         <string name="msgs_main_local_file_ccmenu_paste">Paste</string>
         <string name="msgs_main_local_file_ccmenu_property">Property</string>
         <string name="msgs_main_local_file_ccmenu_rename">Rename</string>
@@ -60,12 +60,13 @@
         <string name="msgs_zip_cont_label_rename">Rename</string>
         <string name="msgs_zip_cont_label_open">Open ZIP File</string>
         <string name="msgs_zip_cont_label_new">New ZIP</string>
-        <string name="msgs_zip_cont_label_copy">Copy</string>
-        <string name="msgs_zip_cont_label_cut">Cut</string>
+        <string name="msgs_zip_cont_label_copy">Copy to clipboard</string>
+        <string name="msgs_zip_cont_label_cut">Cut to clipboard</string>
         <string name="msgs_zip_cont_label_paste">Paste</string>
         <string name="msgs_zip_cont_label_share">Share</string>
         <string name="msgs_zip_cont_header_copy">Copy</string>
         <string name="msgs_zip_cont_header_cut">Cut</string>
+        <string name="msgs_zip_cont_header_clipboard">Clipboard :</string>
         <string name="msgs_zip_local_file_clear_copy_cut_item">Clear</string>
         <string name="msgs_zip_local_file_clear_copy_cut_from_local">Local</string>
         <string name="msgs_zip_local_file_clear_copy_cut_from_zip">ZIP</string>
@@ -119,6 +120,7 @@
         <string name="msgs_folder_view_up_btn">Up</string>
         <string name="msgs_folder_view_top_btn">Top</string>
         <string name="msgs_search_file_dlg_title">Search file</string>
+        <string name="msgs_search_file_dlg_description">You can use wildcards for filters.\n-\"*\" Search all files\n-\"test*\" Search for files starting with test\n-\"*.pdf\" Search for files with file extension pdf </string>
         <string name="msgs_search_file_dlg_search_show_option">Show search option</string>
         <string name="msgs_search_file_dlg_searching">While searching</string>
         <string name="msgs_search_file_dlg_search_progress">%s%% Search completed.</string>

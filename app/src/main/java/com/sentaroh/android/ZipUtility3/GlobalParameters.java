@@ -86,12 +86,14 @@ public class GlobalParameters {
 
     public LinearLayout localCopyCutView=null;
     public Button localCopyCutItemClear=null;
-    public TextView localCopyCutItemType=null;
+    public TextView localCopyCutItemMode =null;
+    public TextView localCopyCutItemFrom=null;
     public Button localCopyCutItemInfo=null;
 
     public LinearLayout zipCopyCutView=null;
     public Button zipCopyCutItemClear=null;
-    public TextView zipCopyCutItemType=null;
+    public TextView zipCopyCutItemMode =null;
+    public TextView zipCopyCutItemFrom=null;
     public Button zipCopyCutItemInfo=null;
 
     //	Settings parameter

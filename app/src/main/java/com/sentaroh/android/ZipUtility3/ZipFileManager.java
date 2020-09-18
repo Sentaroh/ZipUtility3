@@ -314,7 +314,8 @@ public class ZipFileManager {
 
         mGp.zipCopyCutView=(LinearLayout) mMainView.findViewById(R.id.zip_file_copy_cut_view);
         mGp.zipCopyCutItemClear=(Button)mMainView.findViewById(R.id.zip_file_copy_cut_clear_btn);
-        mGp.zipCopyCutItemType=(TextView)mMainView.findViewById(R.id.zip_file_copy_cut_type_btn);
+        mGp.zipCopyCutItemMode =(TextView)mMainView.findViewById(R.id.zip_file_copy_cut_mode);
+        mGp.zipCopyCutItemFrom=(TextView)mMainView.findViewById(R.id.zip_file_copy_cut_from);
         mGp.zipCopyCutItemInfo=(Button)mMainView.findViewById(R.id.zip_file_copy_cut_item);
 
         mGp.zipCopyCutView.setVisibility(LinearLayout.GONE);
@@ -330,7 +331,7 @@ public class ZipFileManager {
             public void onClick(View v) {
                 String c_list="", sep="";
                 for(TreeFilelistItem tfli:mGp.copyCutList) {
-                    c_list+=sep+tfli.getPath()+"/"+tfli.getName();
+                    c_list+=sep+"/"+tfli.getPath()+"/"+tfli.getName();
                     sep="\n";
                 }
                 String msg="";
@@ -887,12 +888,13 @@ public class ZipFileManager {
 		CommonUtilities.setCheckedTextView(dlg_case_sensitive);
 
 //		final TextView dlg_msg = (TextView) dialog.findViewById(R.id.search_file_dlg_msg);
-		final Button btnOk = (Button) dialog.findViewById(R.id.search_file_dlg_ok_btn);
+		final Button btn_search = (Button) dialog.findViewById(R.id.search_file_dlg_ok_btn);
 		final Button btnCancel = (Button) dialog.findViewById(R.id.search_file_dlg_cancel_btn);
 		final EditText et_search_key=(EditText) dialog.findViewById(R.id.search_file_dlg_search_key);
 		final ListView lv_search_result=(ListView) dialog.findViewById(R.id.search_file_dlg_search_result);
-
-		final TextView searcgh_info=(TextView) dialog.findViewById(R.id.search_file_dlg_search_info);
+        lv_search_result.setVisibility(ListView.GONE);
+        final TextView searcgh_info = (TextView) dialog.findViewById(R.id.search_file_dlg_search_info);
+        final TextView searcgh_description = (TextView) dialog.findViewById(R.id.search_file_dlg_search_description);
 
 		if (mAdapterSearchFileList==null) {
 			mAdapterSearchFileList=new AdapterSearchFileList(mActivity);
@@ -1014,8 +1016,8 @@ public class ZipFileManager {
 			public void onTextChanged(CharSequence s, int start, int before, int count) {}
 			@Override
 			public void afterTextChanged(Editable s) {
-				if (s.length()>0) CommonDialog.setButtonEnabled(mActivity, btnOk, true);
-				else CommonDialog.setButtonEnabled(mActivity, btnOk, false);
+				if (s.length()>0) CommonDialog.setButtonEnabled(mActivity, btn_search, true);
+				else CommonDialog.setButtonEnabled(mActivity, btn_search, false);
 			}
 		});
 
@@ -1023,10 +1025,11 @@ public class ZipFileManager {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				TreeFilelistItem tfi=mAdapterSearchFileList.getItem(position);
-				openSppecificDirectory(tfi.getPath(), tfi.getName());
-				mSearchListPositionX=lv_search_result.getFirstVisiblePosition();
-				mSearchListPositionY=lv_search_result.getChildAt(0)==null?0:lv_search_result.getChildAt(0).getTop();
-				btnCancel.performClick();
+//				openSppecificDirectory(tfi.getPath(), tfi.getName());
+//				mSearchListPositionX=lv_search_result.getFirstVisiblePosition();
+//				mSearchListPositionY=lv_search_result.getChildAt(0)==null?0:lv_search_result.getChildAt(0).getTop();
+//				btnCancel.performClick();
+                invokeBrowser(tfi.isZipEncrypted(), tfi, tfi.getPath(), tfi.getName(), "");
 //				String fid=CommonUtilities.getFileExtention(tfi.getName());
 //				String mt=MimeTypeMap.getSingleton().getMimeTypeFromExtension(fid);
 //				invokeBrowser(tfi.getPath(), tfi.getName(), "");
@@ -1040,9 +1043,11 @@ public class ZipFileManager {
 		et_search_key.setText(mFindKey);
 		//OK button
 //		btnOk.setEnabled(false);
-		btnOk.setOnClickListener(new OnClickListener() {
+		btn_search.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				mFindKey=et_search_key.getText().toString();
+                searcgh_description.setVisibility(TextView.GONE);
+                lv_search_result.setVisibility(ListView.VISIBLE);
+                mFindKey=et_search_key.getText().toString();
 				final ArrayList<TreeFilelistItem> s_tfl=new ArrayList<TreeFilelistItem>();
 				int flags = 0;//Pattern.CASE_INSENSITIVE;// | Pattern..MULTILINE;
 				if (!dlg_case_sensitive.isChecked()) flags= Pattern.CASE_INSENSITIVE;
@@ -1111,21 +1116,24 @@ public class ZipFileManager {
 			int progress=0, proc_count=0;
 			int prev_prog=0;
 			for(ZipFileListItem zfli:mZipFileList) {
-				if (!zfli.isDirectory()) {
-
-					String fn=zfli.getFileName().lastIndexOf("/")>=0?zfli.getFileName().substring(zfli.getFileName().lastIndexOf("/")+1):zfli.getFileName();
-					if (s_key.matcher(fn).matches()) {
-						TreeFilelistItem tfli=createNewFileListItem(zfli);
-						s_tfl.add(tfli);
-					}
-				}
-				proc_count++;
-				progress=(proc_count*100)/list_size;
-				if (prev_prog!=progress) {
-					prev_prog=progress;
-					psd.updateMsgText(String.format(
-							mContext.getString(R.string.msgs_search_file_dlg_search_progress), progress));
-				}
+			    String zip_dir=zfli.getPath().equals("")?"/":"/"+zfli.getPath()+"/";
+                String curr_dir=mCurrentDirectory.getText().toString().equals("/")?"/":mCurrentDirectory.getText().toString()+"/";
+			    if (zip_dir.startsWith(curr_dir)) {
+                    if (!zfli.isDirectory()) {
+                        String fn=zfli.getFileName().lastIndexOf("/")>=0?zfli.getFileName().substring(zfli.getFileName().lastIndexOf("/")+1):zfli.getFileName();
+                        if (s_key.matcher(fn).matches()) {
+                            TreeFilelistItem tfli=createNewFileListItem(zfli);
+                            s_tfl.add(tfli);
+                        }
+                    }
+                    proc_count++;
+                    progress=(proc_count*100)/list_size;
+                    if (prev_prog!=progress) {
+                        prev_prog=progress;
+                        psd.updateMsgText(String.format(
+                                mContext.getString(R.string.msgs_search_file_dlg_search_progress), progress));
+                    }
+                }
 			}
 		}
 	};

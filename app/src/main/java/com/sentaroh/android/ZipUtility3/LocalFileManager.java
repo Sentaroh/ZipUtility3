@@ -374,7 +374,8 @@ public class LocalFileManager {
 
         mGp.localCopyCutView=(LinearLayout) mMainView.findViewById(R.id.local_file_copy_cut_view);
         mGp.localCopyCutItemClear=(Button)mMainView.findViewById(R.id.local_file_copy_cut_clear_btn);
-        mGp.localCopyCutItemType=(TextView)mMainView.findViewById(R.id.local_file_copy_cut_type_btn);
+        mGp.localCopyCutItemMode =(TextView)mMainView.findViewById(R.id.local_file_copy_cut_mode);
+        mGp.localCopyCutItemFrom=(TextView)mMainView.findViewById(R.id.local_file_copy_cut_from);
         mGp.localCopyCutItemInfo=(Button)mMainView.findViewById(R.id.local_file_copy_cut_item);
 
         mGp.localCopyCutView.setVisibility(LinearLayout.GONE);
@@ -726,8 +727,9 @@ public class LocalFileManager {
         final Button btnCancel = (Button) dialog.findViewById(R.id.search_file_dlg_cancel_btn);
         final EditText et_search_key = (EditText) dialog.findViewById(R.id.search_file_dlg_search_key);
         final ListView lv_search_result = (ListView) dialog.findViewById(R.id.search_file_dlg_search_result);
-
+        lv_search_result.setVisibility(ListView.GONE);
         final TextView searcgh_info = (TextView) dialog.findViewById(R.id.search_file_dlg_search_info);
+        final TextView searcgh_description = (TextView) dialog.findViewById(R.id.search_file_dlg_search_description);
 
         ib_sort.setBackgroundColor(Color.argb(255,32,32,32));
         if (mAdapterSearchFileList == null) {
@@ -804,10 +806,11 @@ public class LocalFileManager {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 TreeFilelistItem tfi = mAdapterSearchFileList.getItem(position);
-                openSppecificDirectory(tfi.getPath(), tfi.getName());
-                mSearchListPositionX = lv_search_result.getFirstVisiblePosition();
-                mSearchListPositionY = lv_search_result.getChildAt(0) == null ? 0 : lv_search_result.getChildAt(0).getTop();
-                btnCancel.performClick();
+//                openSppecificDirectory(tfi.getPath(), tfi.getName());
+//                mSearchListPositionX = lv_search_result.getFirstVisiblePosition();
+//                mSearchListPositionY = lv_search_result.getChildAt(0) == null ? 0 : lv_search_result.getChildAt(0).getTop();
+//                btnCancel.performClick();
+                invokeBrowser(tfi.getPath(), tfi.getName(), "");
             }
         });
 
@@ -875,6 +878,8 @@ public class LocalFileManager {
         et_search_key.setText(mFindKey);
         btnOk.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                searcgh_description.setVisibility(TextView.GONE);
+                lv_search_result.setVisibility(ListView.VISIBLE);
                 mFindKey = et_search_key.getText().toString();
                 final ArrayList<TreeFilelistItem> s_tfl = new ArrayList<TreeFilelistItem>();
                 int flags = 0;//Pattern.CASE_INSENSITIVE;// | Pattern..MULTILINE;

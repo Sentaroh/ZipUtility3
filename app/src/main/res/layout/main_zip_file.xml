@@ -121,34 +121,60 @@
                 android:id="@+id/zip_file_copy_cut_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/dialog_box_outline">
+                android:background="@drawable/dialog_box_outline"
+                android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/zip_file_copy_cut_type_btn"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_gravity="center_vertical"
-                    android:text="Copy\nLocal"
-                    android:textAppearance="?android:attr/textAppearanceSmall"/>
-                <com.sentaroh.android.Utilities3.Widget.NonWordwrapButton
-                    android:id="@+id/zip_file_copy_cut_item"
-                    android:layout_width="0dp"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_gravity="center_vertical"
+                        android:text="@string/msgs_zip_cont_header_clipboard"
+                        android:textAppearance="?android:attr/textAppearanceMedium"/>
+                    <TextView
+                        android:id="@+id/zip_file_copy_cut_mode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_gravity="center_vertical"
+                        android:text="Copy"
+                        android:textAppearance="?android:attr/textAppearanceMedium"/>
+                    <TextView
+                        android:id="@+id/zip_file_copy_cut_from"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_gravity="center_vertical"
+                        android:text="Local"
+                        android:textAppearance="?android:attr/textAppearanceMedium"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_gravity="center_vertical"
-                    android:ellipsize="end"
-                    android:gravity="center_vertical|left"
-                    android:lines="2"
-                    android:text="/storage/emulated/0/DCIM"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
-                <Button
-                    android:id="@+id/zip_file_copy_cut_clear_btn"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="@string/msgs_zip_local_file_clear_copy_cut_item" />
+                    android:orientation="horizontal">
+                    <com.sentaroh.android.Utilities3.Widget.NonWordwrapButton
+                        android:id="@+id/zip_file_copy_cut_item"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_gravity="center_vertical"
+                        android:ellipsize="end"
+                        android:gravity="center_vertical|left"
+                        android:lines="1"
+                        android:text="/storage/emulated/0/DCIM"
+                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                    <Button
+                        android:id="@+id/zip_file_copy_cut_clear_btn"
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="@string/msgs_zip_local_file_clear_copy_cut_item" />
+                </LinearLayout>
             </LinearLayout>
 
             <include layout="@layout/context_view_zip" />

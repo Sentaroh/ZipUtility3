@@ -36,8 +36,8 @@
         <string name="msgs_main_local_file_ccmenu_delete">Supprimer</string>
         <string name="deleted_msgs_main_local_file_ccmenu_scan_media_store">Scanner le fichier média</string>
         <string name="msgs_main_local_file_ccmenu_compress">Compresser</string>
-        <string name="msgs_main_local_file_ccmenu_copy">Copie</string>
-        <string name="msgs_main_local_file_ccmenu_cut">Coupez</string>
+        <string name="msgs_main_local_file_ccmenu_copy">Copy to clipboard</string>
+        <string name="msgs_main_local_file_ccmenu_cut">Cut to clipboard</string>
         <string name="msgs_main_local_file_ccmenu_paste">Coller</string>
         <string name="msgs_main_local_file_ccmenu_property">Propriété</string>
         <string name="msgs_main_local_file_ccmenu_rename">Renommer</string>
@@ -60,12 +60,13 @@
         <string name="msgs_zip_cont_label_rename">Renommer</string>
         <string name="msgs_zip_cont_label_open">Ouvrez</string>
         <string name="msgs_zip_cont_label_new">Nouveau ZIP</string>
-        <string name="msgs_zip_cont_label_copy">Copie</string>
-        <string name="msgs_zip_cont_label_cut">Coupez</string>
+        <string name="msgs_zip_cont_label_copy">Copy to clipboard</string>
+        <string name="msgs_zip_cont_label_cut">Cut to clipboard</string>
         <string name="msgs_zip_cont_label_paste">Coller</string>
         <string name="msgs_zip_cont_label_share">Partager</string>
-        <string name="msgs_zip_cont_header_copy">Copie</string>
-        <string name="msgs_zip_cont_header_cut">Coupez</string>
+        <string name="msgs_zip_cont_header_copy">Copy</string>
+        <string name="msgs_zip_cont_header_cut">Cut</string>
+        <string name="msgs_zip_cont_header_clipboard">Clipboard :</string>
         <string name="msgs_zip_local_file_clear_copy_cut_item">Clair</string>
         <string name="msgs_zip_local_file_clear_copy_cut_from_local">Local</string>
         <string name="msgs_zip_local_file_clear_copy_cut_from_zip">ZIP</string>
@@ -119,6 +120,7 @@
         <string name="msgs_folder_view_up_btn">Vers le haut</string>
         <string name="msgs_folder_view_top_btn">Top</string>
         <string name="msgs_search_file_dlg_title">Fichier de recherche</string>
+        <string name="msgs_search_file_dlg_description">Le filtre peut être un joker.\n-\"*\" Rechercher tous les fichiers\n-\"test*\" Recherche de fichiers commençant par un test \n-\"*.pdf\" Recherche de fichiers avec l\'extension pdf </string>
         <string name="msgs_search_file_dlg_search_show_option">Afficher l\'option de recherche</string>
         <string name="msgs_search_file_dlg_searching">Lors de la recherche</string>
         <string name="msgs_search_file_dlg_search_progress">%s%% Recherche terminée.</string>

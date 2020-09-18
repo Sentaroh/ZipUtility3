@@ -36,8 +36,8 @@
         <string name="msgs_main_local_file_ccmenu_delete">削除</string>
         <string name="deleted_msgs_main_local_file_ccmenu_scan_media_store">スキャン メディア ファイル</string>
         <string name="msgs_main_local_file_ccmenu_compress">圧縮</string>
-        <string name="msgs_main_local_file_ccmenu_copy">コピー</string>
-        <string name="msgs_main_local_file_ccmenu_cut">切取り</string>
+        <string name="msgs_main_local_file_ccmenu_copy">クリップボードにコピー</string>
+        <string name="msgs_main_local_file_ccmenu_cut">クリップボードに切取り</string>
         <string name="msgs_main_local_file_ccmenu_paste">貼付け</string>
         <string name="msgs_main_local_file_ccmenu_property">プロパティー</string>
         <string name="msgs_main_local_file_ccmenu_rename">改名</string>
@@ -60,12 +60,13 @@
         <string name="msgs_zip_cont_label_rename">改名</string>
         <string name="msgs_zip_cont_label_open">ZIPを開く</string>
         <string name="msgs_zip_cont_label_new">ZIPを作成</string>
-        <string name="msgs_zip_cont_label_copy">コピー</string>
-        <string name="msgs_zip_cont_label_cut">切取り</string>
+        <string name="msgs_zip_cont_label_copy">クリップボードにコピー</string>
+        <string name="msgs_zip_cont_label_cut">クリップボードに切取り</string>
         <string name="msgs_zip_cont_label_paste">貼付け</string>
         <string name="msgs_zip_cont_label_share">ファイル共有</string>
         <string name="msgs_zip_cont_header_copy">コピー</string>
         <string name="msgs_zip_cont_header_cut">切取り</string>
+        <string name="msgs_zip_cont_header_clipboard">クリップボード :</string>
         <string name="msgs_zip_local_file_clear_copy_cut_item">消去</string>
         <string name="msgs_zip_local_file_clear_copy_cut_from_local">ローカル</string>
         <string name="msgs_zip_local_file_clear_copy_cut_from_zip">ZIP</string>
@@ -119,6 +120,7 @@
         <string name="msgs_folder_view_up_btn">戻る</string>
         <string name="msgs_folder_view_top_btn">トップ</string>
         <string name="msgs_search_file_dlg_title">ファイル検索</string>
+        <string name="msgs_search_file_dlg_description">フィルターはワイルドカードが使用できます。\n-\"*\" 全てのファイルを検索 \n-\"test*\" testから始まるファイルを検索 \n-\"*.pdf\" ファイル拡張子がpdfのファイルを検索 </string>
         <string name="msgs_search_file_dlg_search_show_option">オプションを表示する</string>
         <string name="msgs_search_file_dlg_searching">ファイル検索中</string>
         <string name="msgs_search_file_dlg_search_progress">%s%%検索終了。</string>
