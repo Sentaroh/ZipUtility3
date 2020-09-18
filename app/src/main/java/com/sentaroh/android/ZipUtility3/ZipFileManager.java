@@ -880,7 +880,7 @@ public class ZipFileManager {
 		dlg_title.setTextColor(mGp.themeColorList.title_text_color);
 
 		final ImageButton ib_sort=(ImageButton) dialog.findViewById(R.id.search_file_dlg_sort_btn);
-//		ib_sort.setBackgroundColor(mGp.themeColorList.dialog_title_background_color);
+		ib_sort.setBackgroundColor(mGp.themeColorList.title_background_color);
 		final CheckedTextView dlg_hidden = (CheckedTextView) dialog.findViewById(R.id.search_file_dlg_search_hidden_item);
 		dlg_hidden.setVisibility(CheckedTextView.GONE);
 
