@@ -20,7 +20,7 @@
         <string name="msgs_main_kill_confirm_msg">Voulez-vous tuer l\'application.</string>
         <string name="msgs_main_about_title">À propos de ZipUtility3</string>
         <string name="msgs_main_confirm_cancel">Voulez-vous annuler</string>
-        <string name="msgs_main_theme_changed_msg">Il est recommandé de redémarrer l\'application après avoir changé de thème ou de langue.</string>
+        <string name="msgs_main_theme_changed_msg">Si vous modifiez le thème, la langue ou la taille de la police, le changement ne prendra effet que lorsque vous redémarrerez l\'application.\nSouhaitez-vous redémarrer l\'application maintenant ?</string>
         <string name="msgs_main_select_file">Sélectionnez le fichier ZIP</string>
         <string name="msgs_main_invalid_zip_file_specified">Le fichier spécifié n\'est pas un fichier ZIP.</string>
         <string name="msgs_main_tab_name_local">Dossier local</string>
@@ -284,6 +284,22 @@
         <string name="settings_use_light_theme_title">Thème de l\'écran</string>
         <string name="settings_use_light_theme_summary_ena">Utiliser le thème de la lumière</string>
         <string name="settings_use_light_theme">settings_use_light_theme</string>
+        <string name="settings_display_font_scale_factor">settings_display_font_scale_factor</string>
+        <string name="settings_display_font_scale_factor_title">Taille du texte</string>
+        <string name="settings_display_font_scale_factor_dialog_title">Sélectionnez la taille du texte</string>
+        <string-array name="settings_display_font_scale_factor_list_entries">
+            <item>Petit(80&#65130;)</item>
+            <item>Normal(100&#65130;)</item>
+            <item>Grand(120&#65130;)</item>
+            <item>Le plus grand(160&#65130;)</item>
+        </string-array >
+        <string-array name="settings_display_font_scale_factor_list_values">
+            <item>0</item>
+            <item>1</item>
+            <item>2</item>
+            <item>3</item>
+        </string-array >
+        <string name="settings_vibrate_when_sync_ended">settings_vibrate_when_sync_ended</string>
         <string name="settings_language_title">Langue</string>
         <string name="settings_language_dialog_title">Changer la Langue</string>
         <string-array name="settings_language_list_entries">

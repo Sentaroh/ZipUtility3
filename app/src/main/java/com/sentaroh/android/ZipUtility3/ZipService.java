@@ -191,6 +191,7 @@ public class ZipService extends Service {
 		stopForeground(true);
 		LogUtil.closeLog(mContext);
 		if (mGp.settingExitClean) {
+            android.os.Process.killProcess(android.os.Process.myPid());
 //			Handler hndl=new Handler();
 //			hndl.postDelayed(new Runnable(){
 //				@Override

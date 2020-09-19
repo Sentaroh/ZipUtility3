@@ -147,6 +147,7 @@ public class LocalFileManager {
     }
 
     public void reInitView() {
+        setLocalStorageSelector(false);
         ArrayList<TreeFilelistItem> fl = mTreeFilelistAdapter.getDataList();
         int v_pos_fv = 0, v_pos_top = 0;
         v_pos_fv = mTreeFilelistView.getFirstVisiblePosition();

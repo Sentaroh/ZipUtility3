@@ -42,16 +42,16 @@ import java.util.Locale;
 import static com.sentaroh.android.ZipUtility3.GlobalParameters.DEFAULT_OPEN_AS_TEXT_FILE_TYPE;
 
 public class ActivitySettings extends PreferenceActivity {
-	private static Context mContext=null;
-	private static PreferenceFragment mPrefFrag=null;
+	private Context mContext=null;
+	private PreferenceFragment mPrefFrag=null;
 
-	private static ActivitySettings mPrefActivity=null;
+	private ActivitySettings mPrefActivity=null;
 
-	private static GlobalParameters mGp=null;
+	private GlobalParameters mGp=null;
 
 	private CommonUtilities mUtil=null;
 
-    private static String mCurrentThemeLangaue= GlobalParameters.LANGUAGE_USE_SYSTEM_SETTING;
+    static private String mCurrentThemeLangaue= GlobalParameters.LANGUAGE_USE_SYSTEM_SETTING;
 //	private GlobalParameters mGp=null;
 
 	@Override
@@ -65,6 +65,7 @@ public class ActivitySettings extends PreferenceActivity {
     }
 
     static final public String LANGUAGE_KEY="language";
+    static final public String FONT_SCALE_KEY="font_scale";
 
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -72,6 +73,7 @@ public class ActivitySettings extends PreferenceActivity {
         SharedPreferences shared_pref = PreferenceManager.getDefaultSharedPreferences(mContext);
 		mGp=GlobalWorkArea.getGlobalParameters(mContext);
 		setTheme(mGp.applicationTheme);
+        GlobalParameters.setDisplayFontScale(ActivitySettings.this);
 		super.onCreate(savedInstanceState);
 		mPrefActivity=ActivitySettings.this;
         mCurrentThemeLangaue=shared_pref.getString(getString(R.string.settings_language), GlobalParameters.LANGUAGE_USE_SYSTEM_SETTING);
@@ -82,6 +84,8 @@ public class ActivitySettings extends PreferenceActivity {
 
 		Intent in=new Intent();
 		in.putExtra(LANGUAGE_KEY, mCurrentThemeLangaue);
+        String mCurrentFontScaleFactor=shared_pref.getString(getString(R.string.settings_display_font_scale_factor), GlobalParameters.FONT_SCALE_FACTOR_NORMAL);
+        in.putExtra(FONT_SCALE_KEY, mCurrentFontScaleFactor);
 		setResult(Activity.RESULT_OK, in);
 	}
 
@@ -156,9 +160,11 @@ public class ActivitySettings extends PreferenceActivity {
         private SharedPreferences.OnSharedPreferenceChangeListener listenerAfterHc = null;
         private PreferenceFragment mPrefFrag=null;
 		private CommonUtilities mUtil=null;
+        private GlobalParameters mGp=null;
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
+            mGp=GlobalWorkArea.getGlobalParameters(getActivity());
             mPrefFrag=this;
             listenerAfterHc = new SharedPreferences.OnSharedPreferenceChangeListener() {
                 public void onSharedPreferenceChanged(SharedPreferences shared_pref, String key_string) {
@@ -209,9 +215,11 @@ public class ActivitySettings extends PreferenceActivity {
         private SharedPreferences.OnSharedPreferenceChangeListener listenerAfterHc = null;
         private PreferenceFragment mPrefFrag=null;
         private CommonUtilities mUtil=null;
+        private GlobalParameters mGp=null;
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+            mGp=GlobalWorkArea.getGlobalParameters(getActivity());
             mPrefFrag=this;
             listenerAfterHc = new SharedPreferences.OnSharedPreferenceChangeListener() {
                 public void onSharedPreferenceChanged(SharedPreferences shared_pref, String key_string) {
@@ -266,9 +274,12 @@ public class ActivitySettings extends PreferenceActivity {
 		private SharedPreferences.OnSharedPreferenceChangeListener listenerAfterHc = null;
 		private PreferenceFragment mPrefFrag=null;
 		private CommonUtilities mUtil=null;
+        private String mCurrentFontScaleFactor=null;
+        private GlobalParameters mGp=null;
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
+            mGp=GlobalWorkArea.getGlobalParameters(getActivity());
 			mPrefFrag=this;
             listenerAfterHc = new SharedPreferences.OnSharedPreferenceChangeListener() {
                 public void onSharedPreferenceChanged(SharedPreferences shared_pref, String key_string) {
@@ -280,11 +291,14 @@ public class ActivitySettings extends PreferenceActivity {
 
 			addPreferencesFromResource(R.xml.settings_frag_ui);
 
-			SharedPreferences shared_pref = PreferenceManager.getDefaultSharedPreferences(mContext);
+			SharedPreferences shared_pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+            mCurrentFontScaleFactor=shared_pref.getString(getString(R.string.settings_display_font_scale_factor), GlobalParameters.FONT_SCALE_FACTOR_NORMAL);
 
 //            mCurrentThemeLangaue=shared_pref.getString(getString(R.string.settings_language), GlobalParameters.LANGUAGE_USE_SYSTEM_SETTING);
 
 			checkSettingValue(getContext(), mUtil, shared_pref,getString(R.string.settings_use_light_theme));
+            checkSettingValue(getContext(), mUtil, shared_pref,getString(R.string.settings_display_font_scale_factor));
             checkSettingValue(getContext(), mUtil, shared_pref,getString(R.string.settings_language));
 			checkSettingValue(getContext(), mUtil, shared_pref,getString(R.string.settings_device_orientation_portrait));
             checkSettingValue(getContext(), mUtil, shared_pref,getString(R.string.settings_open_as_text_file_type));
@@ -297,6 +311,20 @@ public class ActivitySettings extends PreferenceActivity {
             Preference pref_key=mPrefFrag.findPreference(key_string);
             if (key_string.equals(c.getString(R.string.settings_use_light_theme))) {
                 isChecked=true;
+            } else if (key_string.equals(c.getString(R.string.settings_display_font_scale_factor))) {
+                isChecked = true;
+                String font_scale_id=shared_pref.getString(key_string, GlobalParameters.FONT_SCALE_FACTOR_NORMAL);
+                String[] font_scale_label = c.getResources().getStringArray(R.array.settings_display_font_scale_factor_list_entries);
+                String sum_msg = font_scale_label[Integer.parseInt(font_scale_id)];
+                pref_key.setSummary(sum_msg);
+                if (!mCurrentFontScaleFactor.equals(font_scale_id)) {
+                    mCurrentFontScaleFactor = font_scale_id;
+                    GlobalParameters.setDisplayFontScale(c, mCurrentFontScaleFactor);
+                    getActivity().finish();
+                    Intent intent = new Intent(getActivity(), ActivitySettings.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    getActivity().startActivity(intent);
+                }
             } else if (key_string.equals(c.getString(R.string.settings_language))) {
                 isChecked=true;
                 String lang_value=shared_pref.getString(key_string, GlobalParameters.LANGUAGE_USE_SYSTEM_SETTING);

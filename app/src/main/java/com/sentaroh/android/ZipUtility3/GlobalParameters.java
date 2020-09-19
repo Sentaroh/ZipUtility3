@@ -35,6 +35,8 @@ import android.os.Handler;
 import android.os.LocaleList;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -53,6 +55,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
+
+import static android.content.Context.WINDOW_SERVICE;
 
 public class GlobalParameters {
     private static Logger log = LoggerFactory.getLogger(GlobalParameters.class);
@@ -198,6 +202,9 @@ public class GlobalParameters {
         if (!prefs.contains(c.getString(R.string.settings_language)))
             prefs.edit().putString(c.getString(R.string.settings_language), LANGUAGE_USE_SYSTEM_SETTING).commit();
 
+        if (!prefs.contains(c.getString(R.string.settings_display_font_scale_factor)))
+            prefs.edit().putString(c.getString(R.string.settings_display_font_scale_factor), FONT_SCALE_FACTOR_NORMAL).commit();
+
     };
 
 	public void loadSettingsParms(Context c) {
@@ -226,8 +233,65 @@ public class GlobalParameters {
                 prefs.getBoolean(c.getString(R.string.settings_suppress_add_external_storage_notification), false);
 
         loadLanguagePreference(c);
-
+        setDisplayFontScale(c);
     };
+
+    public static final String FONT_SCALE_FACTOR_SMALL="0";
+    public static final float FONT_SCALE_FACTOR_SMALL_VALUE=0.8f;
+    public static final String FONT_SCALE_FACTOR_NORMAL="1";
+    public static final float FONT_SCALE_FACTOR_NORMAL_VALUE=1.0f;
+    public static final String FONT_SCALE_FACTOR_LARGE="2";
+    public static final float FONT_SCALE_FACTOR_LARGE_VALUE=1.2f;
+    public static final String FONT_SCALE_FACTOR_LARGEST="3";
+    public static final float FONT_SCALE_FACTOR_LARGEST_VALUE=1.6f;
+    static public String getFontScaleFactor(Context c) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+        String fs=prefs.getString(c.getString(R.string.settings_display_font_scale_factor), FONT_SCALE_FACTOR_NORMAL);
+        return fs;
+    }
+
+    static public float getFontScaleFactorValue(Context c) {
+        String fs=getFontScaleFactor(c);
+        float fs_value=getFontScaleFactorValue(c, fs);
+        return fs_value;
+    }
+
+    static public float getFontScaleFactorValue(Context c, String fs) {
+        float fs_value=1.0f;
+        if (fs.equals(GlobalParameters.FONT_SCALE_FACTOR_SMALL)) {
+            fs_value=FONT_SCALE_FACTOR_SMALL_VALUE;
+        } else if (fs.equals(GlobalParameters.FONT_SCALE_FACTOR_NORMAL)) {
+            fs_value=FONT_SCALE_FACTOR_NORMAL_VALUE;
+        } else if (fs.equals(GlobalParameters.FONT_SCALE_FACTOR_LARGE)) {
+            fs_value=FONT_SCALE_FACTOR_LARGE_VALUE;
+        } else if (fs.equals(GlobalParameters.FONT_SCALE_FACTOR_LARGEST)) {
+            fs_value=FONT_SCALE_FACTOR_LARGEST_VALUE;
+        }
+        return fs_value;
+    }
+
+    static public void setDisplayFontScale(Context c) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+        String fs=prefs.getString(c.getString(R.string.settings_display_font_scale_factor), FONT_SCALE_FACTOR_NORMAL);
+        setDisplayFontScale(c, fs);
+    }
+
+    static public void setDisplayFontScale(Context c, String fs) {
+        float fs_value=getFontScaleFactorValue(c, fs);
+        setDisplayFontScale(c, fs_value);
+    }
+
+    static public void setDisplayFontScale(Context c, float scale) {
+        Configuration configuration=c.getResources().getConfiguration();
+        configuration.fontScale = scale;
+        DisplayMetrics metrics = c.getResources().getDisplayMetrics();
+        WindowManager wm = (WindowManager) c.getSystemService(WINDOW_SERVICE);
+
+        wm.getDefaultDisplay().getMetrics(metrics);
+        metrics.scaledDensity = configuration.fontScale * metrics.density;
+        c.getResources().updateConfiguration(configuration, metrics);
+
+    }
 
     //+ To use createConfigurationContext() non deprecated method:
     //  - set LANGUAGE_LOCALE_USE_NEW_API to true

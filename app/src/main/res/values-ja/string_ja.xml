@@ -20,7 +20,7 @@
         <string name="msgs_main_kill_confirm_msg">アプリケーションを強制終了しますか？</string>
         <string name="msgs_main_about_title">ZipUtility3について</string>
         <string name="msgs_main_confirm_cancel">キャンセルしてよろしいでしょうか？</string>
-        <string name="msgs_main_theme_changed_msg">テーマまたは言語を変更した場合はアプリケーションを再起動するまで反映されません。</string>
+        <string name="msgs_main_theme_changed_msg">テーマ、言語またはフォントサイズを変更した場合はアプリケーションを再起動するまで反映されません。\n今すぐにアプリを再起動しますか？</string>
         <string name="msgs_main_select_file">ZIPファイルの選択</string>
         <string name="msgs_main_invalid_zip_file_specified">指定されたファイルは、ZIPファイルではありません。</string>
         <string name="msgs_main_tab_name_local">ローカルフォルダー</string>
@@ -284,6 +284,22 @@
         <string name="settings_use_light_theme_title">画面テーマ</string>
         <string name="settings_use_light_theme_summary_ena">ライトテーマを使用する</string>
         <string name="settings_use_light_theme">settings_use_light_theme</string>
+        <string name="settings_display_font_scale_factor">settings_display_font_scale_factor</string>
+        <string name="settings_display_font_scale_factor_title">文字サイズ</string>
+        <string name="settings_display_font_scale_factor_dialog_title">文字サイズの選択</string>
+        <string-array name="settings_display_font_scale_factor_list_entries">
+            <item>小さい(80&#65130;)</item>
+            <item>普通(100&#65130;)</item>
+            <item>大きい(120&#65130;)</item>
+            <item>凄く大きい(160&#65130;)</item>
+        </string-array >
+        <string-array name="settings_display_font_scale_factor_list_values">
+            <item>0</item>
+            <item>1</item>
+            <item>2</item>
+            <item>3</item>
+        </string-array >
+        <string name="settings_vibrate_when_sync_ended">settings_vibrate_when_sync_ended</string>
         <string name="settings_language_title">言語</string>
         <string name="settings_language_dialog_title">言語を変更</string>
         <string-array name="settings_language_list_entries">

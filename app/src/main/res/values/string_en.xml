@@ -20,7 +20,7 @@
         <string name="msgs_main_kill_confirm_msg">Do you want to kill the application.</string>
         <string name="msgs_main_about_title">About ZipUtility3</string>
         <string name="msgs_main_confirm_cancel">Do you want to cancel</string>
-        <string name="msgs_main_theme_changed_msg">It is recommended to restart the application after changing the theme or language.</string>
+        <string name="msgs_main_theme_changed_msg">If you change the theme, language or font size, the change will not take effect until the application is restarted.\nWould you like to restart the app now?</string>
         <string name="msgs_main_select_file">Select ZIP file</string>
         <string name="msgs_main_invalid_zip_file_specified">The specified file is not a ZIP file.</string>
         <string name="msgs_main_tab_name_local">Local Folder</string>
@@ -284,6 +284,22 @@
         <string name="settings_use_light_theme_title">Screen theme</string>
         <string name="settings_use_light_theme_summary_ena">Use light theme</string>
         <string name="settings_use_light_theme">settings_use_light_theme</string>
+        <string name="settings_display_font_scale_factor">settings_display_font_scale_factor</string>
+        <string name="settings_display_font_scale_factor_title">Text size</string>
+        <string name="settings_display_font_scale_factor_dialog_title">Select text size</string>
+        <string-array name="settings_display_font_scale_factor_list_entries">
+            <item>Small(80&#65130;)</item>
+            <item>Normal(100&#65130;)</item>
+            <item>Large(120&#65130;)</item>
+            <item>Largest(160&#65130;)</item>
+        </string-array >
+        <string-array name="settings_display_font_scale_factor_list_values">
+            <item>0</item>
+            <item>1</item>
+            <item>2</item>
+            <item>3</item>
+        </string-array >
+        <string name="settings_vibrate_when_sync_ended">settings_vibrate_when_sync_ended</string>
         <string name="settings_language_title">Language</string>
         <string name="settings_language_dialog_title">Change Language</string>
         <string-array name="settings_language_list_entries">

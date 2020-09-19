@@ -1469,18 +1469,37 @@ public class ActivityMain extends AppCompatActivity {
     private void applySettingParms(Intent in) {
 		int prev_theme=mGp.applicationTheme;
 		String prev_language=in.getExtras().getString(ActivitySettings.LANGUAGE_KEY, "");
+        String prev_font_scale=in.getExtras().getString(ActivitySettings.FONT_SCALE_KEY, "");
 		mGp.loadSettingsParms(mContext);
 		mGp.refreshMediaDir(mContext);
 		
         if (mGp.settingFixDeviceOrientationToPortrait) setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-        
-        if (prev_theme!=mGp.applicationTheme || (!prev_language.equals("") && !prev_language.equals(mGp.settingLanguageValue))) {
-        	mCommonDlg.showCommonDialog(false, "W", mContext.getString(R.string.msgs_main_theme_changed_msg), "", null);
-        	mGp.settingExitClean=true;
+
+        String new_font_scale=mGp.getFontScaleFactor(mContext);
+        if (prev_theme!=mGp.applicationTheme || (!prev_language.equals("") && !prev_language.equals(mGp.settingLanguageValue)) ||
+            !prev_font_scale.equals(new_font_scale)) {
+            NotifyEvent ntfy=new NotifyEvent(mContext);
+            ntfy.setListener(new NotifyEventListener() {
+                @Override
+                public void positiveResponse(Context context, Object[] objects) {
+                    finish();
+                    mGp.settingExitClean=true;
+                    Intent in=new Intent(mContext, ActivityMain.class);
+                    startActivity(in);
+
+                }
+
+                @Override
+                public void negativeResponse(Context context, Object[] objects) {
+
+                }
+            });
+        	mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_main_theme_changed_msg), "", ntfy);
+//        	mGp.settingExitClean=true;
         }
 
-	};
+    };
 
     private boolean enableMainUi=true;
 
