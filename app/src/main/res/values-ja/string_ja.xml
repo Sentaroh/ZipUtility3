@@ -44,7 +44,7 @@
         <string name="msgs_main_local_file_ccmenu_top">最上部に移動</string>
         <string name="msgs_main_local_file_ccmenu_bottom">最下部に移動</string>
         <string name="msgs_main_local_file_ccmenu_select">選択する</string>
-        <string name="msgs_local_file_item_property_directory" formatted="false">ディレクトリー数=%s\nファイル数=%,d\nファイルサイズ=%,d</string>
+        <string name="msgs_local_file_item_property_directory">ディレクトリー数=%1$s\nファイル数=%2$,d\nファイルサイズ=%3$,d</string>
         <string name="msgs_main_confirm_no_btn">取消</string>
         <string name="msgs_main_confirm_noall_btn">以後全て取消</string>
         <string name="msgs_main_confirm_yes_btn">了解</string>
@@ -79,13 +79,13 @@
         <string name="msgs_zip_local_file_move_moved">ファイルを移動しました, 名前=%s</string>
         <string name="msgs_zip_local_file_move_failed">ファイルの移動に失敗しました, 名前=%s</string>
         <string name="msgs_zip_local_file_move_cancelled">ファイルの移動が中止されました</string>
-        <string name="msgs_zip_local_file_move_moving" formatted="false">%s ファイルの移動中  %s%%完了</string>
+        <string name="msgs_zip_local_file_move_moving">%1$s ファイルの移動中  %2$s%%完了</string>
         <string name="msgs_zip_local_file_move_completed">移動が完了しました。</string>
         <string name="msgs_zip_local_file_copy_confirm_title">下記の項目をコピーしますか？</string>
         <string name="msgs_zip_local_file_copy_copied">ファイルをコピーしました, 名前=%s</string>
         <string name="msgs_zip_local_file_copy_failed">ファイルのコピーに失敗しました, 名前=%s</string>
         <string name="msgs_zip_local_file_copy_cancelled">ファイルのコピーが中止されました</string>
-        <string name="msgs_zip_local_file_copy_copying" formatted="false">%s ファイルのコピー中  %s%%完了</string>
+        <string name="msgs_zip_local_file_copy_copying">%1$s ファイルのコピー中  %2$s%%完了</string>
         <string name="msgs_zip_local_file_copy_completed">コピーが完了しました。</string>
         <string name="msgs_zip_file_create_file_list_title">ファイルリストを作成中</string>
         <string name="msgs_zip_file_create_file_list_msg">お待ちください。</string>
@@ -104,11 +104,11 @@
         <string name="msgs_zip_folder_not_specified">ZIPファイルが読み込まれていません。</string>
         <string name="msgs_zip_zip_folder_empty">フォルダーは空です。</string>
         <string name="msgs_zip_local_folder_empty">フォルダーは空です。</string>
-        <string name="msgs_zip_zip_file_info" formatted="false">サイズ=%s, 項目=%s, 文字コード=%s</string>
+        <string name="msgs_zip_zip_file_info">サイズ=%1$s, 項目=%2$s, 文字コード=%3$s</string>
         <string name="msgs_zip_zip_file_info_temporary">書込不可ZIPファイル</string>
         <string name="msgs_zip_zip_file_info_close_button">このZIPを閉じる</string>
-        <string name="msgs_zip_zip_item_property_file" formatted="false">最終更新日時=%s\n圧縮方法=%s\n暗号方式=%s\n圧縮後サイズ=%,d\n圧縮前サイズ=%,d\n圧縮率=%d%%</string>
-        <string name="msgs_zip_zip_item_property_directory" formatted="false">項目数=%s\n圧縮後サイズ=%,d\n圧縮前サイズ=%,d\n圧縮率=%d%%</string>
+        <string name="msgs_zip_zip_item_property_file">最終更新日時=%1$s\n圧縮方法=%2$s\n暗号方式=%3$s\n圧縮後サイズ=%4$,d\n圧縮前サイズ=%5$,d\n圧縮率=%6$d%%</string>
+        <string name="msgs_zip_zip_item_property_directory">項目数=%1$s\n圧縮後サイズ=%2$,d\n圧縮前サイズ=%3$,d\n圧縮率=%4$d%%</string>
         <string name="msgs_zip_zip_item_property_encrypted_yes">有り</string>
         <string name="msgs_zip_zip_item_property_encrypted_no">無し</string>
         <string name="msgs_zip_zip_file_being_updated">ZIPファイルを更新しています。しばらくお待ちください。</string>
@@ -125,7 +125,7 @@
         <string name="msgs_search_file_dlg_searching">ファイル検索中</string>
         <string name="msgs_search_file_dlg_search_progress">%s%%検索終了。</string>
         <string name="msgs_search_file_dlg_search_cancelled">ファイル検索を中止しました</string>
-        <string name="msgs_search_file_dlg_search_result" formatted="false">項目数=%,d, サイズ=%,d バイト</string>
+        <string name="msgs_search_file_dlg_search_result">項目数=%1$,d, サイズ=%2$,d バイト</string>
         <string name="msgs_search_file_dlg_search_hidden_item">隠しディレクトリーと隠しファイルを検索する。</string>
         <string name="msgs_search_file_dlg_file_name_filter">フィルター</string>
         <string name="msgs_search_file_dlg_search_case_sensitive">大文字・小文字を区別する</string>
@@ -167,7 +167,7 @@
         <string name="msgs_zip_extract_file_was_cancelled">キャンセルされました。</string>
         <string name="msgs_zip_extract_file_was_not_replaced">ファイルの上書きがユーザーにより拒否されました。 ファイル=%s</string>
         <string name="msgs_zip_extract_file_confirm_replace_copy">ファイルを上書きしてよろしいでしょうか。</string>
-        <string name="msgs_zip_extract_file_extracting" formatted="false">%sを展開しています、%s%%完了。</string>
+        <string name="msgs_zip_extract_file_extracting">%1$sを展開しています、%2$s%%完了。</string>
         <string name="msgs_zip_extract_file_confirm_extract">下記項目を%sに展開しますか？</string>
         <string name="msgs_zip_extract_file_started">展開を開始しました。</string>
         <string name="msgs_zip_extract_file_completed">展開が終了しました。</string>
@@ -181,7 +181,7 @@
         <string name="msgs_zip_add_file_added">%sを追加しました。</string>
         <string name="msgs_zip_add_file_failed">%sの追加が失敗しました。</string>
         <string name="msgs_zip_add_file_cancelled">%sの追加が中止されました。</string>
-        <string name="msgs_zip_add_file_adding" formatted="false">%sを追加しています、%s%%完了。</string>
+        <string name="msgs_zip_add_file_adding">%1$sを追加しています、%2$s%%完了。</string>
         <string name="msgs_zip_add_file_starting">追加を開始しています。</string>
         <string name="msgs_zip_add_file_completed">追加が完了しました。</string>
         <string name="msgs_zip_add_file_close_failed">追加が失敗しました。</string>
@@ -205,7 +205,7 @@
         <string name="msgs_zip_delete_file_completed">削除が完了しました。</string>
         <string name="msgs_zip_delete_file_aborted">削除が失敗しました。</string>
         <string name="msgs_zip_specific_extract_file_extracting">ファイルを展開しています, ファイル名=%s</string>
-        <string name="msgs_zip_specific_extract_file_viewer_not_found" formatted="false">表示するアプリケーションが見つかりません。 ファイル=%s, MIMEタイプ=%s</string>
+        <string name="msgs_zip_specific_extract_file_viewer_not_found">表示するアプリケーションが見つかりません。 ファイル=%1$s, MIMEタイプ=%2$s</string>
         <string name="msgs_zip_specific_extract_mime_type_not_found">MIMEタイプが見つかりません、 ファイル=%s</string>
         <string name="msgs_file_list_size_calculating">計算中</string>
         <string name="msgs_main_local_mount_point_unmounted">外部ストレージが取り外されたためローカルフォルダーは内部ストレージを表示しています。</string>

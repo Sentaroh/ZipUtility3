@@ -44,7 +44,7 @@
         <string name="msgs_main_local_file_ccmenu_top">Haut de page</string>
         <string name="msgs_main_local_file_ccmenu_bottom">Aller au bas de la page</string>
         <string name="msgs_main_local_file_ccmenu_select">Sélectionnez un élément</string>
-        <string name="msgs_local_file_item_property_directory" formatted="false">Nombre de répertoires=%s\nCompte de fichiers=%,d\nTaille de fichiers=%,d</string>
+        <string name="msgs_local_file_item_property_directory">Nombre de répertoires=%1$s\nCompte de fichiers=%2$,d\nTaille de fichiers=%3$,d</string>
         <string name="msgs_main_confirm_no_btn">Non</string>
         <string name="msgs_main_confirm_noall_btn">Non à tous</string>
         <string name="msgs_main_confirm_yes_btn">Oui</string>
@@ -79,13 +79,13 @@
         <string name="msgs_zip_local_file_move_moved">Le fichier a été déplacé, nom=%s</string>
         <string name="msgs_zip_local_file_move_failed">Le dossier de déménagement a échoué</string>
         <string name="msgs_zip_local_file_move_cancelled">Le dossier de déménagement a été annulé</string>
-        <string name="msgs_zip_local_file_move_moving" formatted="false">En déplaçant le dossier %s, %s%% complet</string>
+        <string name="msgs_zip_local_file_move_moving">En déplaçant le dossier %1$s, %2$s%% complet</string>
         <string name="msgs_zip_local_file_move_completed">Moe a été achevé.</string>
         <string name="msgs_zip_local_file_copy_confirm_title">Voulez-vous copier les éléments suivants</string>
         <string name="msgs_zip_local_file_copy_copied">Le fichier a été copié, nom=%s</string>
         <string name="msgs_zip_local_file_copy_failed">La copie de fichier a échoué</string>
         <string name="msgs_zip_local_file_copy_cancelled">La copie du dossier a été annulée</string>
-        <string name="msgs_zip_local_file_copy_copying" formatted="false">%s Copie de fichier %s%% terminée.</string>
+        <string name="msgs_zip_local_file_copy_copying">%1$s Copie de fichier %2$s%% terminée.</string>
         <string name="msgs_zip_local_file_copy_completed">Copie terminée.</string>
         <string name="msgs_zip_file_create_file_list_title">Création de la liste des fichiers Zip</string>
         <string name="msgs_zip_file_create_file_list_msg">Veuillez patienter.</string>
@@ -104,11 +104,11 @@
         <string name="msgs_zip_folder_not_specified">Le fichier ZIP n\'a pas été chargé.</string>
         <string name="msgs_zip_zip_folder_empty">Le dossier est vide.</string>
         <string name="msgs_zip_local_folder_empty">Le dossier est vide.</string>
-        <string name="msgs_zip_zip_file_info" formatted="false">Taille=%s, Articles=%s, Encodage=%s</string>
+        <string name="msgs_zip_zip_file_info">Taille=%1$s, Articles=%2$s, Encodage=%3$s</string>
         <string name="msgs_zip_zip_file_info_temporary">Fichier ZIP en lecture seule</string>
         <string name="msgs_zip_zip_file_info_close_button">Fermez ce ZIP</string>
-        <string name="msgs_zip_zip_item_property_file" formatted="false">Dernière modification = %s\nMéthode de compression = %s\nMéthode de cryptage = %s\nTaille de compression = %,d\nTaille de décompression = %,d\nRapport de compression = %d%%%</string>
-        <string name="msgs_zip_zip_item_property_directory" formatted="false">Nombre d\'articles = %s\nTaille comprimée = %,d\nTaille non comprimée = %,d\nRapport de compression = %d%%%</string>
+        <string name="msgs_zip_zip_item_property_file">Dernière modification = %1$s\nMéthode de compression = %2$s\nMéthode de cryptage = %3$s\nTaille de compression = %4$,d\nTaille de décompression = %5$,d\nRapport de compression = %6$d%%%</string>
+        <string name="msgs_zip_zip_item_property_directory">Nombre d\'articles = %1$s\nTaille comprimée = %2$,d\nTaille non comprimée = %3$,d\nRapport de compression = %4$d%%%</string>
         <string name="msgs_zip_zip_item_property_encrypted_yes">Oui</string>
         <string name="msgs_zip_zip_item_property_encrypted_no">Non</string>
         <string name="msgs_zip_zip_file_being_updated">Le fichier zip est en cours de mise à jour. Veuillez patienter.</string>
@@ -125,7 +125,7 @@
         <string name="msgs_search_file_dlg_searching">Lors de la recherche</string>
         <string name="msgs_search_file_dlg_search_progress">%s%% Recherche terminée.</string>
         <string name="msgs_search_file_dlg_search_cancelled">Abordé la recherche de dossier.</string>
-        <string name="msgs_search_file_dlg_search_result" formatted="false">Élément=%,d, Taille=%,d Octet</string>
+        <string name="msgs_search_file_dlg_search_result">Élément=%1$,d, Taille=%2$,d Octet</string>
         <string name="msgs_search_file_dlg_search_hidden_item">Recherchez le répertoire et le fichier cachés.</string>
         <string name="msgs_search_file_dlg_file_name_filter">Filtrez</string>
         <string name="msgs_search_file_dlg_search_case_sensitive">Cas sensible</string>
@@ -167,7 +167,7 @@
         <string name="msgs_zip_extract_file_was_cancelled">L\'extraction a été annulée.</string>
         <string name="msgs_zip_extract_file_was_not_replaced">L\'utilisateur a refusé d\'écraser le fichier. Nom=%s</string>
         <string name="msgs_zip_extract_file_confirm_replace_copy">Voulez-vous écraser le fichier</string>
-        <string name="msgs_zip_extract_file_extracting" formatted="false">Extraction des %, %s%% achevés.</string>
+        <string name="msgs_zip_extract_file_extracting">Extraction des %1$s, %2$s%% achevés.</string>
         <string name="msgs_zip_extract_file_confirm_extract">Souhaitez-vous étendre les éléments suivants aux % ?</string>
         <string name="msgs_zip_extract_file_started">L\'extraction a été lancée.</string>
         <string name="msgs_zip_extract_file_completed">L\'extraction est terminée.</string>
@@ -181,7 +181,7 @@
         <string name="msgs_zip_add_file_added">%s a été ajouté.</string>
         <string name="msgs_zip_add_file_failed">L\'ajout de %s a échoué.</string>
         <string name="msgs_zip_add_file_cancelled">L\'ajout de %s a été annulé.</string>
-        <string name="msgs_zip_add_file_adding" formatted="false">Ajout de %s, %s%% terminé.</string>
+        <string name="msgs_zip_add_file_adding">Ajout de %1$s, %2$s%% terminé.</string>
         <string name="msgs_zip_add_file_starting">L\'ajout a commencé.</string>
         <string name="msgs_zip_add_file_completed">L\'ajout a été effectué.</string>
         <string name="msgs_zip_add_file_close_failed">L\'ajout a échoué.</string>
@@ -205,7 +205,7 @@
         <string name="msgs_zip_delete_file_completed">La suppression a été effectuée.</string>
         <string name="msgs_zip_delete_file_aborted">La suppression a échoué.</string>
         <string name="msgs_zip_specific_extract_file_extracting">Extraction du fichier, Nom du fichier=%s</string>
-        <string name="msgs_zip_specific_extract_file_viewer_not_found" formatted="false">Demande correspondante non trouvée. Nom du fichier = %s, Type MIME = %s</string>
+        <string name="msgs_zip_specific_extract_file_viewer_not_found">Demande correspondante non trouvée. Nom du fichier=%1$s, Type MIME=%2$s</string>
         <string name="msgs_zip_specific_extract_mime_type_not_found">Le type MIME n\'est pas trouvé. Nom du fichier=%s</string>
         <string name="msgs_file_list_size_calculating">Calculer</string>
         <string name="msgs_main_local_mount_point_unmounted">Le dossier local affiche le stockage interne parce que le stockage externe a été supprimé.</string>

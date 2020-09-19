@@ -44,7 +44,7 @@
         <string name="msgs_main_local_file_ccmenu_top">Move to top</string>
         <string name="msgs_main_local_file_ccmenu_bottom">Move to bottom</string>
         <string name="msgs_main_local_file_ccmenu_select">Select item</string>
-        <string name="msgs_local_file_item_property_directory" formatted="false">Directory Count=%s\nFile Count=%,d\nFile Size=%,d</string>
+        <string name="msgs_local_file_item_property_directory">Directory Count=%1$s\nFile Count=%2$,d\nFile Size=%3$,d</string>
         <string name="msgs_main_confirm_no_btn">No</string>
         <string name="msgs_main_confirm_noall_btn">No at All</string>
         <string name="msgs_main_confirm_yes_btn">Yes</string>
@@ -79,13 +79,13 @@
         <string name="msgs_zip_local_file_move_moved">File was moved, name=%s</string>
         <string name="msgs_zip_local_file_move_failed">Move file was failed</string>
         <string name="msgs_zip_local_file_move_cancelled">Move file was cancelled</string>
-        <string name="msgs_zip_local_file_move_moving" formatted="false">While moving file %s, %s%% complete</string>
+        <string name="msgs_zip_local_file_move_moving">While moving file %1$s, %2$s%% complete</string>
         <string name="msgs_zip_local_file_move_completed">Moe was completed.</string>
         <string name="msgs_zip_local_file_copy_confirm_title">Do you want to copy the following items</string>
         <string name="msgs_zip_local_file_copy_copied">File was copied, name=%s</string>
         <string name="msgs_zip_local_file_copy_failed">File copy was failed</string>
         <string name="msgs_zip_local_file_copy_cancelled">File copy was cancelled</string>
-        <string name="msgs_zip_local_file_copy_copying" formatted="false">%s File copying %s%% completed.</string>
+        <string name="msgs_zip_local_file_copy_copying">%1$s File copying %2$s%% completed.</string>
         <string name="msgs_zip_local_file_copy_completed">Copy was completed.</string>
         <string name="msgs_zip_file_create_file_list_title">Creating the Zip file list</string>
         <string name="msgs_zip_file_create_file_list_msg">Please wait.</string>
@@ -104,11 +104,11 @@
         <string name="msgs_zip_folder_not_specified">ZIP file has not been Loaded.</string>
         <string name="msgs_zip_zip_folder_empty">Folder is empty.</string>
         <string name="msgs_zip_local_folder_empty">Folder is empty.</string>
-        <string name="msgs_zip_zip_file_info" formatted="false">Size=%s, Items=%s, Encoding=%s</string>
+        <string name="msgs_zip_zip_file_info">Size=%1$s, Items=%2$s, Encoding=%3$s</string>
         <string name="msgs_zip_zip_file_info_temporary">Readonly ZIP file</string>
         <string name="msgs_zip_zip_file_info_close_button">Close this ZIP</string>
-        <string name="msgs_zip_zip_item_property_file" formatted="false">Last modified time=%s\nCompress Method=%s\nEncryption Method=%s\nCompressed size=%,d\nUncmpress size=%,d\nCompression ratio=%d%%</string>
-        <string name="msgs_zip_zip_item_property_directory" formatted="false">Item count=%s\nCompressed size=%,d\nUncmpress size=%,d\nCompression ratio=%d%%</string>
+        <string name="msgs_zip_zip_item_property_file">Last modified time=%1$s\nCompress Method=%2$s\nEncryption Method=%3$s\nCompressed size=%4$,d\nUncmpress size=%5$,d\nCompression ratio=%6$d%%</string>
+        <string name="msgs_zip_zip_item_property_directory">Item count=%1$s\nCompressed size=%2$,d\nUncmpress size=%3$,d\nCompression ratio=%4$d%%</string>
         <string name="msgs_zip_zip_item_property_encrypted_yes">Yes</string>
         <string name="msgs_zip_zip_item_property_encrypted_no">No</string>
         <string name="msgs_zip_zip_file_being_updated">The zip file is being updated. Please wait.</string>
@@ -125,7 +125,7 @@
         <string name="msgs_search_file_dlg_searching">While searching</string>
         <string name="msgs_search_file_dlg_search_progress">%s%% Search completed.</string>
         <string name="msgs_search_file_dlg_search_cancelled">Aborted the file searching.</string>
-        <string name="msgs_search_file_dlg_search_result" formatted="false">Item=%,d, Size=%,d Byte</string>
+        <string name="msgs_search_file_dlg_search_result">Item=%1$,d, Size=%2$,d Byte</string>
         <string name="msgs_search_file_dlg_search_hidden_item">Search hidden directory and file.</string>
         <string name="msgs_search_file_dlg_file_name_filter">Filter</string>
         <string name="msgs_search_file_dlg_search_case_sensitive">Case sensitive</string>
@@ -167,7 +167,7 @@
         <string name="msgs_zip_extract_file_was_cancelled">Extraction has been canceled.</string>
         <string name="msgs_zip_extract_file_was_not_replaced">Overwrite the file has been rejected by the user. Name=%s</string>
         <string name="msgs_zip_extract_file_confirm_replace_copy">Do you want to overwrite the file</string>
-        <string name="msgs_zip_extract_file_extracting" formatted="false">Extracting %s, %s%% completed.</string>
+        <string name="msgs_zip_extract_file_extracting">Extracting %1$s, %2$s%% completed.</string>
         <string name="msgs_zip_extract_file_confirm_extract">Do you want to expand the following items to the %s?</string>
         <string name="msgs_zip_extract_file_started">Extraction has been started.</string>
         <string name="msgs_zip_extract_file_completed">Extraction has been completed.</string>
@@ -181,7 +181,7 @@
         <string name="msgs_zip_add_file_added">%s was added.</string>
         <string name="msgs_zip_add_file_failed">%s add failed.</string>
         <string name="msgs_zip_add_file_cancelled">%s add cancelled.</string>
-        <string name="msgs_zip_add_file_adding" formatted="false">Adding %s, %s%% completed.</string>
+        <string name="msgs_zip_add_file_adding">Adding %1$s, %2$s%% completed.</string>
         <string name="msgs_zip_add_file_starting">It start adding.</string>
         <string name="msgs_zip_add_file_completed">Add was completed.</string>
         <string name="msgs_zip_add_file_close_failed">Add was failed.</string>
@@ -205,7 +205,7 @@
         <string name="msgs_zip_delete_file_completed">Delete was completed.</string>
         <string name="msgs_zip_delete_file_aborted">Delete was failed.</string>
         <string name="msgs_zip_specific_extract_file_extracting">Extracting the file, File name=%s</string>
-        <string name="msgs_zip_specific_extract_file_viewer_not_found" formatted="false">Corresponding application not found. File name=%s, MIME Type=%s</string>
+        <string name="msgs_zip_specific_extract_file_viewer_not_found">Corresponding application not found. File name=%1$s, MIME Type=%2$s</string>
         <string name="msgs_zip_specific_extract_mime_type_not_found">MIME type is not found. File name=%s</string>
         <string name="msgs_file_list_size_calculating">Calculating</string>
         <string name="msgs_main_local_mount_point_unmounted">The local folder is displaying internal storage because the external storage has been removed.</string>
