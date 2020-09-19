@@ -374,6 +374,7 @@ public class LocalFileManager {
         mContextButtonArchiveView.setVisibility(ImageButton.INVISIBLE);
 
         mGp.localCopyCutView=(LinearLayout) mMainView.findViewById(R.id.local_file_copy_cut_view);
+//        mGp.localCopyCutView.setBackgroundColor(mGp.themeColorList.title_background_color);
         mGp.localCopyCutItemClear=(Button)mMainView.findViewById(R.id.local_file_copy_cut_clear_btn);
         mGp.localCopyCutItemMode =(TextView)mMainView.findViewById(R.id.local_file_copy_cut_mode);
         mGp.localCopyCutItemFrom=(TextView)mMainView.findViewById(R.id.local_file_copy_cut_from);

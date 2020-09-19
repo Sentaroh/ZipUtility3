@@ -313,6 +313,7 @@ public class ZipFileManager {
         mContextButtonUnselectAllView=(LinearLayout)mMainView.findViewById(R.id.context_button_unselect_all_view);
 
         mGp.zipCopyCutView=(LinearLayout) mMainView.findViewById(R.id.zip_file_copy_cut_view);
+        mGp.zipCopyCutView.setBackgroundColor(mGp.themeColorList.title_background_color);
         mGp.zipCopyCutItemClear=(Button)mMainView.findViewById(R.id.zip_file_copy_cut_clear_btn);
         mGp.zipCopyCutItemMode =(TextView)mMainView.findViewById(R.id.zip_file_copy_cut_mode);
         mGp.zipCopyCutItemFrom=(TextView)mMainView.findViewById(R.id.zip_file_copy_cut_from);

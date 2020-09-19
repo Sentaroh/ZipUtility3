@@ -121,7 +121,7 @@
                 android:id="@+id/zip_file_copy_cut_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/dialog_box_outline"
+                android:background="@drawable/dialog_box_outline_turquoise"
                 android:orientation="vertical">
 
                 <LinearLayout

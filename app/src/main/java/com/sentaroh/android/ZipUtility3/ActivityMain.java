@@ -1174,10 +1174,10 @@ public class ActivityMain extends AppCompatActivity {
 		}
 	}
 
-    private boolean isPrimaryStorageAccessGranted() {
-        if (mGp.safMgr.isUuidRegistered(SAF_FILE_PRIMARY_UUID)) return true;
-        return false;
-    }
+//    private boolean isPrimaryStorageAccessGranted() {
+//        if (mGp.safMgr.isUuidRegistered(SAF_FILE_PRIMARY_UUID)) return true;
+//        return false;
+//    }
 
     private boolean isLegacyStorageAccessGranted() {
         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) return false;
@@ -1185,8 +1185,7 @@ public class ActivityMain extends AppCompatActivity {
     }
 
     private boolean checkLegacyStoragePermissions(final NotifyEvent p_ntfy) {
-        log.debug("Prermission WriteExternalStorage="+checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)+
-                ", WakeLock="+checkSelfPermission(Manifest.permission.WAKE_LOCK));
+        log.debug("Prermission WriteExternalStorage="+checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE));
         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             NotifyEvent ntfy=new NotifyEvent(mContext);
             ntfy.setListener(new NotifyEventListener(){
