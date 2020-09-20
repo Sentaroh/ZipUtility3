@@ -469,7 +469,7 @@ public class ActivityMain extends AppCompatActivity {
         // Application process is follow
 		closeService();
 		if (mTerminateApplication) {
-			mGp.settingExitClean=true;
+//			mGp.settingExitClean=true;
 
             cleanupCacheFile();
 

@@ -232,6 +232,8 @@ public class GlobalParameters {
         settingSupressAddExternalStorageNotification=
                 prefs.getBoolean(c.getString(R.string.settings_suppress_add_external_storage_notification), false);
 
+        settingExitClean=prefs.getBoolean(c.getString(R.string.settings_exit_clean), true);
+
         loadLanguagePreference(c);
         setDisplayFontScale(c);
     };

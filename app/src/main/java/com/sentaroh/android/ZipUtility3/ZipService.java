@@ -58,7 +58,7 @@ public class ZipService extends Service {
 	
 	private Context mContext=null;
 	
-	private SleepReceiver mSleepReceiver=new SleepReceiver();
+//	private SleepReceiver mSleepReceiver=new SleepReceiver();
 	
 	private WakeLock mPartialWakelock=null;
 	
@@ -71,11 +71,11 @@ public class ZipService extends Service {
 		
 		mUtil.addDebugMsg(1,"I","onCreate entered");
 		
-		IntentFilter int_filter = new IntentFilter();
-        int_filter.addAction(Intent.ACTION_SCREEN_OFF);
-        int_filter.addAction(Intent.ACTION_SCREEN_ON);
-        int_filter.addAction(Intent.ACTION_USER_PRESENT);
-        registerReceiver(mSleepReceiver, int_filter);
+//		IntentFilter int_filter = new IntentFilter();
+//        int_filter.addAction(Intent.ACTION_SCREEN_OFF);
+//        int_filter.addAction(Intent.ACTION_SCREEN_ON);
+//        int_filter.addAction(Intent.ACTION_USER_PRESENT);
+//        registerReceiver(mSleepReceiver, int_filter);
 
     	mPartialWakelock=((PowerManager)getSystemService(Context.POWER_SERVICE))
     			.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "ZipUtility-Partial");
@@ -186,7 +186,7 @@ public class ZipService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		mUtil.addDebugMsg(1,"I",CommonUtilities.getExecutedMethodName()+" entered");
-		unregisterReceiver(mSleepReceiver);
+//		unregisterReceiver(mSleepReceiver);
 		cancelHeartBeat();
 		stopForeground(true);
 		LogUtil.closeLog(mContext);
@@ -317,15 +317,15 @@ public class ZipService extends Service {
 		startForeground(R.string.app_name, mNotification);
     };
 
-    final private class SleepReceiver  extends BroadcastReceiver {
-		@Override
-		final public void onReceive(Context c, Intent in) {
-			String action = in.getAction();
-			if(action.equals(Intent.ACTION_SCREEN_ON)) {
-			} else if(action.equals(Intent.ACTION_SCREEN_OFF)) {
-			} else if(action.equals(Intent.ACTION_USER_PRESENT)) {
-			}
-		}	
-    };
+//    final private class SleepReceiver  extends BroadcastReceiver {
+//		@Override
+//		final public void onReceive(Context c, Intent in) {
+//			String action = in.getAction();
+//			if(action.equals(Intent.ACTION_SCREEN_ON)) {
+//			} else if(action.equals(Intent.ACTION_SCREEN_OFF)) {
+//			} else if(action.equals(Intent.ACTION_USER_PRESENT)) {
+//			}
+//		}
+//    };
 
 }
