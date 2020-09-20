@@ -44,7 +44,7 @@
         <string name="msgs_main_local_file_ccmenu_top">最上部に移動</string>
         <string name="msgs_main_local_file_ccmenu_bottom">最下部に移動</string>
         <string name="msgs_main_local_file_ccmenu_select">選択する</string>
-        <string name="msgs_local_file_item_property_directory">ディレクトリー数=%1$s\nファイル数=%2$,d\nファイルサイズ=%3$,d</string>
+        <string name="msgs_local_file_item_property_directory">ディレクトリ=%1$s\nディレクトリー数=%2$s\nファイル数=%3$,d\nファイルサイズ=%4$,d</string>
         <string name="msgs_main_confirm_no_btn">取消</string>
         <string name="msgs_main_confirm_noall_btn">以後全て取消</string>
         <string name="msgs_main_confirm_yes_btn">了解</string>
@@ -107,8 +107,8 @@
         <string name="msgs_zip_zip_file_info">サイズ=%1$s, 項目=%2$s, 文字コード=%3$s</string>
         <string name="msgs_zip_zip_file_info_temporary">書込不可ZIPファイル</string>
         <string name="msgs_zip_zip_file_info_close_button">このZIPを閉じる</string>
-        <string name="msgs_zip_zip_item_property_file">最終更新日時=%1$s\n圧縮方法=%2$s\n暗号方式=%3$s\n圧縮後サイズ=%4$,d\n圧縮前サイズ=%5$,d\n圧縮率=%6$d%%</string>
-        <string name="msgs_zip_zip_item_property_directory">項目数=%1$s\n圧縮後サイズ=%2$,d\n圧縮前サイズ=%3$,d\n圧縮率=%4$d%%</string>
+        <string name="msgs_zip_zip_item_property_file">ファイル=%1$s\n最終更新日時=%2$s\n圧縮方法=%3$s\n暗号方式=%4$s\n圧縮後サイズ=%5$,d\n圧縮前サイズ=%6$,d\n圧縮率=%7$d%%</string>
+        <string name="msgs_zip_zip_item_property_directory">ディレクトリ=%1$s\n項目数=%2$s\n圧縮後サイズ=%3$,d\n圧縮前サイズ=%4$,d\n圧縮率=%5$d%%</string>
         <string name="msgs_zip_zip_item_property_encrypted_yes">有り</string>
         <string name="msgs_zip_zip_item_property_encrypted_no">無し</string>
         <string name="msgs_zip_zip_file_being_updated">ZIPファイルを更新しています。しばらくお待ちください。</string>

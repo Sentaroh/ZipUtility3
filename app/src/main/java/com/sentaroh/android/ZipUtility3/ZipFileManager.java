@@ -313,7 +313,7 @@ public class ZipFileManager {
         mContextButtonUnselectAllView=(LinearLayout)mMainView.findViewById(R.id.context_button_unselect_all_view);
 
         mGp.zipCopyCutView=(LinearLayout) mMainView.findViewById(R.id.zip_file_copy_cut_view);
-        mGp.zipCopyCutView.setBackgroundColor(mGp.themeColorList.title_background_color);
+//        mGp.zipCopyCutView.setBackgroundColor(mGp.themeColorList.title_background_color);
         mGp.zipCopyCutItemClear=(Button)mMainView.findViewById(R.id.zip_file_copy_cut_clear_btn);
         mGp.zipCopyCutItemMode =(TextView)mMainView.findViewById(R.id.zip_file_copy_cut_mode);
         mGp.zipCopyCutItemFrom=(TextView)mMainView.findViewById(R.id.zip_file_copy_cut_from);
@@ -3582,8 +3582,9 @@ public class ZipFileManager {
                                 long comp_ratio=0;
                                 if (item_uncomp_size!=0) comp_ratio=(item_comp_size*100)/item_uncomp_size;
                                 String prop= String.format(mContext.getString(R.string.msgs_zip_zip_item_property_directory),
+                                        "/"+tfi.getZipFileName(),
                                         item_cnt, item_comp_size, item_uncomp_size, comp_ratio);
-                                mCommonDlg.showCommonDialog(false, "I", "/"+tfi.getZipFileName()+"/", prop, null);
+                                mCommonDlg.showCommonDialog(false, "I", mContext.getString(R.string.msgs_main_local_file_ccmenu_property), prop, null);
                             } else {
                                 ZipFileListItem zfli=getZipFileListItem(tfi.getZipFileName());
                                 if (zfli!=null) {
@@ -3600,9 +3601,10 @@ public class ZipFileManager {
                                             mContext.getString(R.string.msgs_zip_zip_item_property_encrypted_yes):
                                             mContext.getString(R.string.msgs_zip_zip_item_property_encrypted_no);
                                     String prop= String.format(mContext.getString(R.string.msgs_zip_zip_item_property_file),
+                                            "/"+zfli.getPath(),
                                             StringUtil.convDateTimeTo_YearMonthDayHourMinSec(last_mod),
                                             comp_method, enc_method, comp_size, uncomp_size, comp_ratio);
-                                    mCommonDlg.showCommonDialog(false, "I", "/"+zfli.getFileName(), prop, null);
+                                    mCommonDlg.showCommonDialog(false, "I", mContext.getString(R.string.msgs_main_local_file_ccmenu_property), prop, null);
                                 }
                             }
 

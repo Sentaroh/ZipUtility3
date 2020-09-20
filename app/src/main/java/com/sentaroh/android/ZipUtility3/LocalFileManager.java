@@ -3163,8 +3163,8 @@ public class LocalFileManager {
                                     getDirectorySize(lf);
                                     psd.dismissAllowingStateLoss();
                                     String msg=mContext.getString(R.string.msgs_local_file_item_property_directory);
-                                    mCommonDlg.showCommonDialog(false, "I", tfi.getName(),
-                                            String.format(msg, mInfoDirectoryCount, mInfoFileCount, mInfoFileSize), null);
+                                    mCommonDlg.showCommonDialog(false, "I", mContext.getString(R.string.msgs_main_local_file_ccmenu_property),
+                                            String.format(msg, tfi.getPath()+"/"+tfi.getName(), mInfoDirectoryCount, mInfoFileCount, mInfoFileSize), null);
                                 }
                             };
                             th.start();

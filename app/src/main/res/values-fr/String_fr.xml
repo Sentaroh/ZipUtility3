@@ -44,7 +44,7 @@
         <string name="msgs_main_local_file_ccmenu_top">Haut de page</string>
         <string name="msgs_main_local_file_ccmenu_bottom">Aller au bas de la page</string>
         <string name="msgs_main_local_file_ccmenu_select">Sélectionnez un élément</string>
-        <string name="msgs_local_file_item_property_directory">Nombre de répertoires=%1$s\nCompte de fichiers=%2$,d\nTaille de fichiers=%3$,d</string>
+        <string name="msgs_local_file_item_property_directory">Répertoires=%1$s\nNombre de répertoires=%2$s\nCompte de fichiers=%3$,d\nTaille de fichiers=%4$,d</string>
         <string name="msgs_main_confirm_no_btn">Non</string>
         <string name="msgs_main_confirm_noall_btn">Non à tous</string>
         <string name="msgs_main_confirm_yes_btn">Oui</string>
@@ -107,8 +107,8 @@
         <string name="msgs_zip_zip_file_info">Taille=%1$s, Articles=%2$s, Encodage=%3$s</string>
         <string name="msgs_zip_zip_file_info_temporary">Fichier ZIP en lecture seule</string>
         <string name="msgs_zip_zip_file_info_close_button">Fermez ce ZIP</string>
-        <string name="msgs_zip_zip_item_property_file">Dernière modification = %1$s\nMéthode de compression = %2$s\nMéthode de cryptage = %3$s\nTaille de compression = %4$,d\nTaille de décompression = %5$,d\nRapport de compression = %6$d%%%</string>
-        <string name="msgs_zip_zip_item_property_directory">Nombre d\'articles = %1$s\nTaille comprimée = %2$,d\nTaille non comprimée = %3$,d\nRapport de compression = %4$d%%%</string>
+        <string name="msgs_zip_zip_item_property_file">Fichier=%1$s\nDernière modification=%2$s\nMéthode de compression=%3$s\nMéthode de cryptage=%4$s\nTaille de compression=%5$,d\nTaille de décompression=%6$,d\nRapport de compression=%7$d%%%</string>
+        <string name="msgs_zip_zip_item_property_directory">Répertoire=%1$s\nNombre d\'articles = %2$s\nTaille comprimée = %3$,d\nTaille non comprimée = %4$,d\nRapport de compression = %5$d%%%</string>
         <string name="msgs_zip_zip_item_property_encrypted_yes">Oui</string>
         <string name="msgs_zip_zip_item_property_encrypted_no">Non</string>
         <string name="msgs_zip_zip_file_being_updated">Le fichier zip est en cours de mise à jour. Veuillez patienter.</string>

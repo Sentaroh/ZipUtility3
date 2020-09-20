@@ -44,7 +44,7 @@
         <string name="msgs_main_local_file_ccmenu_top">Move to top</string>
         <string name="msgs_main_local_file_ccmenu_bottom">Move to bottom</string>
         <string name="msgs_main_local_file_ccmenu_select">Select item</string>
-        <string name="msgs_local_file_item_property_directory">Directory Count=%1$s\nFile Count=%2$,d\nFile Size=%3$,d</string>
+        <string name="msgs_local_file_item_property_directory">Directory=%1$s\nDirectory Count=%2$s\nFile Count=%3$,d\nFile Size=%4$,d</string>
         <string name="msgs_main_confirm_no_btn">No</string>
         <string name="msgs_main_confirm_noall_btn">No at All</string>
         <string name="msgs_main_confirm_yes_btn">Yes</string>
@@ -107,8 +107,8 @@
         <string name="msgs_zip_zip_file_info">Size=%1$s, Items=%2$s, Encoding=%3$s</string>
         <string name="msgs_zip_zip_file_info_temporary">Readonly ZIP file</string>
         <string name="msgs_zip_zip_file_info_close_button">Close this ZIP</string>
-        <string name="msgs_zip_zip_item_property_file">Last modified time=%1$s\nCompress Method=%2$s\nEncryption Method=%3$s\nCompressed size=%4$,d\nUncmpress size=%5$,d\nCompression ratio=%6$d%%</string>
-        <string name="msgs_zip_zip_item_property_directory">Item count=%1$s\nCompressed size=%2$,d\nUncmpress size=%3$,d\nCompression ratio=%4$d%%</string>
+        <string name="msgs_zip_zip_item_property_file">File=%1$s\nLast modified time=%2$s\nCompress Method=%3$s\nEncryption Method=%4$s\nCompressed size=%5$,d\nUncmpress size=%6$,d\nCompression ratio=%7$d%%</string>
+        <string name="msgs_zip_zip_item_property_directory">Directory=%1$s\nItem count=%2$s\nCompressed size=%3$,d\nUncmpress size=%4$,d\nCompression ratio=%5$d%%</string>
         <string name="msgs_zip_zip_item_property_encrypted_yes">Yes</string>
         <string name="msgs_zip_zip_item_property_encrypted_no">No</string>
         <string name="msgs_zip_zip_file_being_updated">The zip file is being updated. Please wait.</string>
