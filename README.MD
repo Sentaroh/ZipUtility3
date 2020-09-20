@@ -5,7 +5,7 @@
 
 # Download
 
-- Latest version : https://drive.google.com/file/d/1c7o7M0XeB9XNlYysTq37EHp_o6-uN_9t/view?usp=sharing
+- Latest version : https://drive.google.com/drive/folders/1a7HVyvUnlMyiIrrt_I2-0vFrUJwI6yVv?usp=sharing
 
 # How to Build
 
