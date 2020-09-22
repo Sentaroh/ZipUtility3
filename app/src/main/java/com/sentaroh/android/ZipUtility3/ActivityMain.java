@@ -1090,19 +1090,19 @@ public class ActivityMain extends AppCompatActivity {
         final WebView func_view=(WebView)ll_func.findViewById(R.id.about_dialog_function);
         func_view.loadUrl("File:///android_asset/"+getString(R.string.msgs_dlg_title_about_func_desc));
         func_view.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-	    func_view.getSettings().setBuiltInZoomControls(true);
+//	    func_view.getSettings().setBuiltInZoomControls(true);
 //        func_view.getSettings().setDisplayZoomControls(true);
 
         final WebView change_view=(WebView)ll_change.findViewById(R.id.about_dialog_change_history);
         change_view.loadUrl("File:///android_asset/"+getString(R.string.msgs_dlg_title_about_change_desc));
         change_view.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-		change_view.getSettings().setBuiltInZoomControls(true);
+//		change_view.getSettings().setBuiltInZoomControls(true);
 //        change_view.getSettings().setDisplayZoomControls(true);
 
         final WebView privacy_view=(WebView)ll_privacy.findViewById(R.id.about_dialog_privacy);
         privacy_view.loadUrl("File:///android_asset/"+getString(R.string.msgs_dlg_title_about_privacy_desc));
         privacy_view.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-        privacy_view.getSettings().setBuiltInZoomControls(true);
+//        privacy_view.getSettings().setBuiltInZoomControls(true);
 //        privacy_view.getSettings().setDisplayZoomControls(true);
 
         final CustomViewPagerAdapter adapter=new CustomViewPagerAdapter(mActivity, new WebView[]{func_view, privacy_view, change_view});

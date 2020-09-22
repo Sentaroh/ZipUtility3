@@ -2,7 +2,7 @@
 <resources>
     <!-- About -->
         <string name="msgs_about_dlg_func_btn">Function</string>
-        <string name="msgs_about_dlg_privacy_btn">Privacy</string>
+        <string name="msgs_about_dlg_privacy_btn">Privacy policy</string>
         <string name="msgs_about_dlg_change_btn">Change Log</string>
         <string name="msgs_dlg_title_about">About ZipUtility3</string>
         <string name="msgs_dlg_title_about_func_desc">ZipUtility3_Desc_EN_Short.htm</string>
@@ -245,7 +245,7 @@
         <string name="msgs_info_storage_copy_completed">Copied to clipboard</string>
         <string name="msgs_info_storage_send_btn_title">Send to developer</string>
         <string name="msgs_info_storage_title">Storage Information</string>
-        <string name="msgs_your_problem_title">Your problem/question</string>
+        <string name="msgs_your_problem_title">Questions/problems with the application</string>
         <string name="msgs_your_problem_msg">Write a question/problem about ZipUtility3.</string>
         <string name="msgs_your_problem_hint">Example: The sdcard is not recognized.</string>
         <string name="msgs_your_problem_no_desc">Problem/question is not described. If the problem/question of ZipUtility3 is not described, it cannot be answered.</string>

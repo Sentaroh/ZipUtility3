@@ -2,7 +2,7 @@
 <resources>
     <!-- About -->
         <string name="msgs_about_dlg_func_btn">機能</string>
-        <string name="msgs_about_dlg_privacy_btn">プライバシー</string>
+        <string name="msgs_about_dlg_privacy_btn">プライバシーポリシー</string>
         <string name="msgs_about_dlg_change_btn">更新履歴</string>
         <string name="msgs_dlg_title_about">ZipUtility3について</string>
         <string name="msgs_dlg_title_about_func_desc">ZipUtility3_Desc_JA_Short.htm</string>
@@ -245,7 +245,7 @@
         <string name="msgs_info_storage_copy_completed">クリップボードにコピーしました</string>
         <string name="msgs_info_storage_send_btn_title">開発者に送る</string>
         <string name="msgs_info_storage_title">ストレージ情報</string>
-        <string name="msgs_your_problem_title">質問・問題</string>
+        <string name="msgs_your_problem_title">アプリへの質問・問題</string>
         <string name="msgs_your_problem_msg">ZipUtility3への質問・問題を記述してください。</string>
         <string name="msgs_your_problem_hint">例：SDCARDが認識されません</string>
         <string name="msgs_your_problem_no_desc">問題・質問が記述されていません。ZipUtility3の問題・質問が記述されていないと回答することができません。</string>
