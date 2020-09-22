@@ -992,20 +992,6 @@ public class ActivityMain extends AppCompatActivity {
         mTabLayout.setCurrentTabByName(mContext.getString(R.string.msgs_main_tab_name_zip));
 	};
 
-	private void invokeSettingsActivity() {
-		mUtil.addDebugMsg(1,"I","Invoke Settings.");
-
-        ActivityResultLauncher<Intent> laucher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult result) {
-                mUtil.addDebugMsg(1,"I","Return from Setting activity.");
-                applySettingParms(result.getData());
-            }
-        });
-        Intent intent=new Intent(mContext, ActivitySettings.class);
-        laucher.launch(intent);
-	};
-
 	private void invokeLogManagement() {
         NotifyEvent ntfy=new NotifyEvent(mContext);
         ntfy.setListener(new NotifyEvent.NotifyEventListener(){
@@ -1470,6 +1456,20 @@ public class ActivityMain extends AppCompatActivity {
         sp.showDialog();
 
     }
+
+    private void invokeSettingsActivity() {
+        mUtil.addDebugMsg(1,"I","Invoke Settings.");
+
+        ActivityResultLauncher<Intent> laucher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                mUtil.addDebugMsg(1,"I","Return from Setting activity.");
+                applySettingParms(result.getData());
+            }
+        });
+        Intent intent=new Intent(mContext, ActivitySettings.class);
+        laucher.launch(intent);
+    };
 
     private void applySettingParms(Intent in) {
 		int prev_theme=mGp.applicationTheme;
