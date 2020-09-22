@@ -216,6 +216,7 @@
         <string name="msgs_menu_log_management">ログ管理</string>
         <string name="msgs_menu_about">アプリケーションについて</string>
         <string name="msgs_menu_settings">設定</string>
+        <string name="msgs_menu_encoding">文字コード</string>
         <string name="msgs_menu_open_zip">開く</string>
         <string name="msgs_menu_create_new_zip">作成</string>
         <string name="msgs_menu_refresh">再読み込み</string>

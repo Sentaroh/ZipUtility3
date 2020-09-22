@@ -216,6 +216,7 @@
         <string name="msgs_menu_log_management">Gestion des journaux</string>
         <string name="msgs_menu_about">À propos de la candidature</string>
         <string name="msgs_menu_settings">Paramètres</string>
+        <string name="msgs_menu_encoding">Encoding</string>
         <string name="msgs_menu_open_zip">Ouvrir le fichier ZIP</string>
         <string name="msgs_menu_create_new_zip">Créer un fichier ZIP</string>
         <string name="msgs_menu_refresh">Rafraîchir la liste des fichiers</string>

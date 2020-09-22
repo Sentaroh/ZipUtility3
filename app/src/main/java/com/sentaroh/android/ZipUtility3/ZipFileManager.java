@@ -24,10 +24,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,16 +40,20 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckedTextView;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -92,6 +100,8 @@ import net.lingala.zip4j.model.enums.EncryptionMethod;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.deflate64.Deflate64CompressorInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tukaani.xz.LZMAInputStream;
 
 import java.io.BufferedInputStream;
@@ -146,7 +156,6 @@ public class ZipFileManager {
     private Button mFileListUp, mFileListTop, mFileInfoClose;
 	private NonWordwrapTextView mCurrentDirectory;
 	private TextView mFileEmpty, mFileInfoText;
-	private Spinner mEncodingSpinner;
 	private LinearLayout mMainDialogView=null, mFileInfoView=null;
 	
 	private CommonUtilities mUtil=null;
@@ -242,16 +251,6 @@ public class ZipFileManager {
 //		mZipFileSpinner.setPrompt(mContext.getString(R.string.msgs_main_sync_profile_dlg_sync_folder_type_prompt));
 		mZipFileSpinner.setAdapter(adapter);
 		
-		mEncodingSpinner=(Spinner)mMainView.findViewById(R.id.zip_file_encoding);
-		CommonUtilities.setSpinnerBackground(mActivity, mEncodingSpinner, mGp.themeIsLight);
-		final CustomSpinnerAdapter enc_adapter=
-				new CustomSpinnerAdapter(mActivity, android.R.layout.simple_spinner_item);
-		enc_adapter.setDropDownViewResource(android.R.layout.select_dialog_singlechoice);
-		enc_adapter.add(mContext.getString(R.string.msgs_zip_parm_zip_encoding_auto));
-		for(String item:ENCODING_NAME_LIST) enc_adapter.add(item);
-		mEncodingSpinner.setAdapter(enc_adapter);
-		mEncodingSpinner.setSelection(0);
-		
 		mMainDialogView=(LinearLayout)mMainView.findViewById(R.id.main_dialog_view);
 		mMainDialogView.setVisibility(LinearLayout.VISIBLE);
 
@@ -263,6 +262,7 @@ public class ZipFileManager {
         mFileInfoView=(LinearLayout) mMainView.findViewById(R.id.zip_file_info_view);
         mFileInfoText =(TextView)mMainView.findViewById(R.id.zip_file_info_text);
         mFileInfoClose=(Button)mMainView.findViewById(R.id.zip_file_info_close_btn);
+        mFileInfoClose.setVisibility(Button.GONE);
 
         mFileListUp=(Button)mMainView.findViewById(R.id.zip_file_up_btn);
         if (mGp.themeIsLight) mFileListUp.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_16_go_up_dark, 0, 0, 0);
@@ -379,7 +379,180 @@ public class ZipFileManager {
         setContextButtonListener();
 	};
 
-	private void saveZipFileViewerItem(String fp, Bundle bd) {
+    public void changeZipFileNameEncoding() {
+        Dialog dialog=new Dialog(mActivity, mGp.applicationTheme);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.zip_file_name_encoding_dlg);
+
+        final LinearLayout title_view = (LinearLayout) dialog.findViewById(R.id.zip_file_name_encoding_dlg_title_view);
+        final TextView title = (TextView) dialog.findViewById(R.id.zip_file_name_encoding_dlg_title);
+        title_view.setBackgroundColor(mGp.themeColorList.title_background_color);
+        title.setTextColor(mGp.themeColorList.title_text_color);
+
+        final ListView lv_encoding_list=(ListView)dialog.findViewById(R.id.zip_file_name_encoding_dlg_encoding_list);
+        ArrayList<EncodeListItem> enc_list=new ArrayList<EncodeListItem>();
+        boolean checked=false;
+        int sel_pos=0;
+        if (mEncodingDesired.equals(mContext.getString(R.string.msgs_zip_parm_zip_encoding_auto))) checked=true;
+        enc_list.add(new EncodeListItem(checked, mContext.getString(R.string.msgs_zip_parm_zip_encoding_auto)));
+        for(String item:ENCODING_NAME_LIST) {
+            if (!checked && mEncodingDesired.equals(item)) {
+                enc_list.add(new EncodeListItem(true, item));
+                sel_pos=enc_list.size()-1;
+            } else {
+                enc_list.add(new EncodeListItem(item));
+            }
+        }
+        EncodeSelectorAdapter adapter=new EncodeSelectorAdapter(mActivity, R.layout.zip_file_name_encoding_list_item, enc_list);
+        lv_encoding_list.setAdapter(adapter);
+        lv_encoding_list.setSelection(sel_pos);
+
+        final Button dlg_ok=(Button)dialog.findViewById(R.id.zip_file_name_encoding_dlg_ok_btn);
+        final Button dlg_cancel=(Button)dialog.findViewById(R.id.zip_file_name_encoding_dlg_cancel_btn);
+
+        NotifyEvent ntfy_click=new NotifyEvent(mContext);
+        ntfy_click.setListener(new NotifyEventListener() {
+            @Override
+            public void positiveResponse(Context context, Object[] objects) {
+                String sel_name=(String)objects[0];
+                if (!mEncodingDesired.equals(sel_name)) CommonDialog.setViewEnabled(mActivity, dlg_ok, true);
+                else CommonDialog.setViewEnabled(mActivity, dlg_ok, false);
+            }
+
+            @Override
+            public void negativeResponse(Context context, Object[] objects) {}
+        });
+        adapter.setClickListener(ntfy_click);
+
+        CommonDialog.setViewEnabled(mActivity, dlg_ok, false);
+        dlg_ok.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for(EncodeListItem item:enc_list) {
+                    if (item.isChecked) {
+                        mEncodingDesired=item.encode_name;
+                        break;
+                    }
+                }
+                refreshFileList(true);
+                dialog.dismiss();
+            }
+        });
+
+        dlg_cancel.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
+    private class EncodeListItem {
+        public boolean isChecked=false;
+        public String encode_name=null;
+        public EncodeListItem(boolean checked, String name) {
+            isChecked=checked;
+            encode_name=name;
+        }
+        public EncodeListItem(String name) {
+            encode_name=name;
+        }
+    }
+
+    private class EncodeSelectorAdapter extends ArrayAdapter<EncodeListItem> {
+        private ArrayList<EncodeListItem> encode_list=null;
+        private int mLayoutId=0;
+        private Context mContext=null;
+        private Drawable mDefaultBackGroundColor=null;
+        private ColorStateList mDefaultTextColor=null;
+
+        public EncodeSelectorAdapter(Context context, int id, ArrayList<EncodeListItem> objects) {
+            super(context, id, objects);
+            mLayoutId=id;
+            encode_list=objects;
+            mContext=context;
+        };
+
+        private NotifyEvent mNotifyClickListener=null;
+        public void setClickListener(NotifyEvent ntfy){
+            mNotifyClickListener=ntfy;
+        }
+
+        @Override
+        final public View getView(final int position, View convertView, final ViewGroup parent) {
+            final ViewHolder holder;
+            final EncodeListItem item = getItem(position);
+            View v = convertView;
+            if (v == null) {
+                LayoutInflater vi = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                v = vi.inflate(mLayoutId, null);
+                holder=new ViewHolder();
+
+                holder.ll_entry=(LinearLayout)v.findViewById(R.id.zip_file_name_encoding_list_item_entry_view);
+                holder.tv_name=(TextView)v.findViewById(R.id.zip_file_name_encoding_list_item_entry_name);
+                holder.rb_checked=(RadioButton)v.findViewById(R.id.zip_file_name_encoding_list_item_entry_rb);
+
+                if (mDefaultTextColor==null) mDefaultTextColor=holder.tv_name.getTextColors();
+
+                if (mDefaultBackGroundColor==null) mDefaultBackGroundColor=holder.ll_entry.getBackground();
+
+                v.setTag(holder);
+            } else {
+                holder= (ViewHolder)v.getTag();
+            }
+            if (item != null) {
+                if (item.isChecked) {
+                    if (mGp.themeIsLight) {
+                        holder.ll_entry.setBackgroundColor(Color.CYAN);
+                        holder.tv_name.setTextColor(Color.BLACK);
+                    } else {
+                        holder.tv_name.setTextColor(Color.BLACK);
+                        holder.ll_entry.setBackgroundColor(Color.LTGRAY);
+                    }
+                } else {
+                    holder.tv_name.setTextColor(mDefaultTextColor);
+                    holder.ll_entry.setBackground(mDefaultBackGroundColor);
+                }
+
+
+
+                holder.tv_name.setText(item.encode_name);
+                holder.tv_name.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        holder.rb_checked.performClick();
+                    }
+                });
+
+                holder.rb_checked.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
+                    @Override
+                    public void onCheckedChanged(CompoundButton arg0, boolean isChecked) {
+                        if (isChecked) {
+                            for (int i=0;i<encode_list.size();i++) {
+                                encode_list.get(i).isChecked=false;
+                            }
+                            item.isChecked=isChecked;
+                            if (mNotifyClickListener!=null) mNotifyClickListener.notifyToListener(true, new Object[]{item.encode_name});
+                            notifyDataSetChanged();
+                        }
+                    }
+                });
+                holder.rb_checked.setChecked(item.isChecked);
+            }
+            return v;
+        };
+
+        private class ViewHolder {
+            LinearLayout ll_entry;
+            TextView tv_name;
+            RadioButton rb_checked;
+        };
+
+    }
+
+    private void saveZipFileViewerItem(String fp, Bundle bd) {
 		mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered, fp="+fp);
 		for(ZipFileViewerItem fvi:zipFileViewerList) {
 			if (fvi.file_path.equals(fp)) {
@@ -774,7 +947,6 @@ public class ZipFileManager {
 			sv.curr_dir=mCurrentDirectory.getText().toString();
 			sv.encoding_desired=mEncodingDesired;
 			sv.encoding_selected=mEncodingSelected;
-			sv.encoding_spinner_pos=mEncodingSpinner.getSelectedItemPosition();
 			sv.file_last_modified=mCurrentFileLastModified;
 			sv.file_length=mCurrentFileLength;
 
@@ -825,7 +997,6 @@ public class ZipFileManager {
 		mCurrentDirectory.setText(sv.curr_dir);
 		mEncodingDesired=sv.encoding_desired;
 		mEncodingSelected=sv.encoding_selected;
-		mEncodingSpinner.setSelection(sv.encoding_spinner_pos);
 		mCurrentFileLastModified=sv.file_last_modified;
 		mCurrentFileLength=sv.file_length;
         mCurretnFileIsReadOnly =sv.temporary_file;
@@ -1247,6 +1418,7 @@ public class ZipFileManager {
 			setZipTreeFileListener();
 			mTreeFilelistView.setVisibility(ListView.VISIBLE);
 			mFileEmpty.setVisibility(TextView.GONE);
+			mFileInfoClose.setVisibility(Button.VISIBLE);
 			mContextButton.setVisibility(ListView.VISIBLE);
 			mFileListUp.setVisibility(Button.VISIBLE);
 			mFileListTop.setVisibility(Button.VISIBLE);
@@ -1270,6 +1442,7 @@ public class ZipFileManager {
 			mTreeFilelistView.setVisibility(ListView.GONE);
 			mFileEmpty.setVisibility(TextView.VISIBLE);
 			mFileEmpty.setText(R.string.msgs_zip_zip_folder_empty);
+            mFileInfoClose.setVisibility(Button.VISIBLE);
 			mCurrentDirectory.setVisibility(TextView.GONE);
 			mFileListUp.setVisibility(Button.GONE);
 			mFileListTop.setVisibility(Button.GONE);
@@ -1283,7 +1456,6 @@ public class ZipFileManager {
 			setContextCopyCutPasteButton(mTreeFilelistAdapter);
 		}
 		mZipFileSpinner.setVisibility(TextView.VISIBLE);
-		mEncodingSpinner.setVisibility(Spinner.VISIBLE);
         mFileInfoView.setVisibility(TextView.VISIBLE);
 
 		SafFile3 lf=new SafFile3(mContext, fp);
@@ -1397,11 +1569,11 @@ public class ZipFileManager {
         mTreeFilelistView.setVisibility(ListView.GONE);
         mFileEmpty.setVisibility(TextView.VISIBLE);
         mFileEmpty.setText(R.string.msgs_zip_folder_not_specified);
+        mFileInfoClose.setVisibility(Button.GONE);
         mCurrentDirectory.setVisibility(TextView.GONE);
         mFileListUp.setVisibility(Button.GONE);
         mFileListUp.setEnabled(false);
         mFileListTop.setVisibility(Button.GONE);
-        mEncodingSpinner.setVisibility(Spinner.INVISIBLE);
         mZipFileSpinner.setVisibility(TextView.INVISIBLE);
 
         mContextButtonCopyView.setVisibility(LinearLayout.INVISIBLE);
@@ -3274,14 +3446,12 @@ public class ZipFileManager {
 		mActivity.setUiEnabled();
 		hideDialog();
 		mZipFileSpinner.setEnabled(true);
-		mEncodingSpinner.setEnabled(true);
 		refreshOptionMenu();
 	};
 
 	private void setUiDisabled() {
 		mActivity.setUiDisabled();
 		mZipFileSpinner.setEnabled(false);
-		mEncodingSpinner.setEnabled(false);
 		refreshOptionMenu();
 	};
 
@@ -3329,20 +3499,6 @@ public class ZipFileManager {
 	private String mEncodingDesired="";
 	private String mEncodingSelected=ENCODING_NAME_UTF8;
 	private void setZipTreeFileListener() {
-		mEncodingSpinner.setOnItemSelectedListener(new OnItemSelectedListener(){
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				String sel_encoding=mEncodingSpinner.getSelectedItem().toString();
-				if (!mEncodingDesired.equals(sel_encoding)) {
-					mEncodingDesired=sel_encoding;
-					refreshFileList(true);
-				}
-			}
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-			}
-		});
-
 		mContextButtonDeleteView.setVisibility(ImageButton.INVISIBLE);
 		NotifyEvent ntfy_cb=new NotifyEvent(mContext);
 		ntfy_cb.setListener(new NotifyEventListener(){

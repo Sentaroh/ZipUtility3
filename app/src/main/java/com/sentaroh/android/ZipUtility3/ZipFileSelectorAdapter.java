@@ -32,7 +32,6 @@ public class ZipFileSelectorAdapter extends CustomSpinnerAdapter {
         } else {
             view = (TextView)convertView;
         }
-//        log.info("enabled="+isEnabled(position)+", click="+view.isClickable()+", ve="+view.isEnabled());
         String fp=getItem(position);
         String fn="";
         if (fp.lastIndexOf("/")>=0) fn=fp.substring(fp.lastIndexOf("/")+1);

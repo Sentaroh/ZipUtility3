@@ -586,6 +586,7 @@ public class ActivityMain extends AppCompatActivity {
         menu.findItem(R.id.menu_top_save_zip_file).setVisible(false);
 //        if (mMainTabHost.getCurrentTabTag().equals(mContext.getString(R.string.msgs_main_tab_name_local))) {
         if (mTabLayout.getSelectedTabName().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) {
+            menu.findItem(R.id.menu_top_encoding).setVisible(false);
             menu.findItem(R.id.menu_top_save_zip_file).setVisible(false);
         	if (mLocalFileMgr!=null) {
         		if (mLocalFileMgr.isFileListSortAscendant()) menu.findItem(R.id.menu_top_sort).setIcon(R.drawable.ic_128_sort_asc_gray);
@@ -595,11 +596,13 @@ public class ActivityMain extends AppCompatActivity {
         	}
         } else {
         	if (mZipFileMgr!=null) {
+                menu.findItem(R.id.menu_top_encoding).setVisible(true);
         	    if (mZipFileMgr.isZipFileLoaded()) menu.findItem(R.id.menu_top_save_zip_file).setVisible(true);
         	    else menu.findItem(R.id.menu_top_save_zip_file).setVisible(false);
         		if (mZipFileMgr.isFileListSortAscendant()) menu.findItem(R.id.menu_top_sort).setIcon(R.drawable.ic_128_sort_asc_gray);
         		else menu.findItem(R.id.menu_top_sort).setIcon(R.drawable.ic_128_sort_dsc_gray);
         	} else {
+                menu.findItem(R.id.menu_top_encoding).setVisible(false);
         		menu.findItem(R.id.menu_top_sort).setIcon(R.drawable.ic_128_sort_asc_gray);
         	}
         }
@@ -677,6 +680,9 @@ public class ActivityMain extends AppCompatActivity {
 			case R.id.menu_top_settings:
 				invokeSettingsActivity();
 				return true;
+            case R.id.menu_top_encoding:
+                mZipFileMgr.changeZipFileNameEncoding();
+                return true;
             case R.id.menu_top_show_system_information:
                 showSystemInfo();
                 return true;
