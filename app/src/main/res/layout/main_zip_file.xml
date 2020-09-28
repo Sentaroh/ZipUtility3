@@ -17,7 +17,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical" >
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
@@ -33,12 +32,28 @@
                 <Button
                     android:id="@+id/zip_file_info_close_btn"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="45dp"
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="2dp"
                     android:text="@string/msgs_zip_zip_file_info_close_button"
                     android:textAppearance="?android:attr/textAppearanceSmall"/>
 
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/zip_file_info_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+                <TextView
+                    android:id="@+id/zip_file_info_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_gravity="center_vertical"
+                    android:text="Small Text"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
             </LinearLayout>
 
             <LinearLayout
@@ -92,23 +107,6 @@
                 android:fadeScrollbars="false"
                 android:fastScrollAlwaysVisible="false"
                 android:fastScrollEnabled="false" />
-
-            <LinearLayout
-                android:id="@+id/zip_file_info_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" >
-                <TextView
-                    android:id="@+id/zip_file_info_text"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:layout_gravity="center_vertical"
-                    android:text="Small Text"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
-            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/zip_file_copy_cut_view"

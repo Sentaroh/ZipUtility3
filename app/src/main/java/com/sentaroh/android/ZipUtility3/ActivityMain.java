@@ -1545,13 +1545,17 @@ public class ActivityMain extends AppCompatActivity {
 	};
 
     public void clearCopyCutItem() {
+        clearCopyCutItem(true);
+    }
+
+    public void clearCopyCutItem(boolean toast) {
         if (mLocalFileMgr!=null) mLocalFileMgr.setContextButtonPasteEnabled(false);
         if (mZipFileMgr!=null) mZipFileMgr.setContextButtonPasteEnabled(false);
         mGp.copyCutList.clear();
         mGp.localCopyCutView.setVisibility(LinearLayout.GONE);
         mGp.zipCopyCutView.setVisibility(LinearLayout.GONE);
 
-        CommonDialog.showToastShort(mActivity, mContext.getString(R.string.msgs_zip_local_file_clear_copy_cut_list_cleared));
+        if (toast) CommonDialog.showToastShort(mActivity, mContext.getString(R.string.msgs_zip_local_file_clear_copy_cut_list_cleared));
     }
 
     public void setCopyCutItemView() {

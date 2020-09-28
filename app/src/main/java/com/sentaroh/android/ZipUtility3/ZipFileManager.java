@@ -24,7 +24,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 import android.app.Activity;
-import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -100,8 +99,6 @@ import net.lingala.zip4j.model.enums.EncryptionMethod;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.deflate64.Deflate64CompressorInputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tukaani.xz.LZMAInputStream;
 
 import java.io.BufferedInputStream;
@@ -1893,7 +1890,7 @@ public class ZipFileManager {
                                     public void run() {
                                         setUiEnabled();
                                         refreshFileList(true);
-                                        mActivity.clearCopyCutItem();
+                                        mActivity.clearCopyCutItem(false);
                                     }
                                 });
                             }
@@ -1934,7 +1931,7 @@ public class ZipFileManager {
                                                     @Override
                                                     public void run() {
                                                         deleteCopyPasteWorkFile();
-                                                        mActivity.clearCopyCutItem();
+                                                        mActivity.clearCopyCutItem(false);
                                                     }
                                                 });
                                             }

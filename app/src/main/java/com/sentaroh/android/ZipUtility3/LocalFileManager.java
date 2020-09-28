@@ -1192,7 +1192,7 @@ public class LocalFileManager {
                                     @Override
                                     public void run() {
                                         showToast(mActivity, mContext.getString(R.string.msgs_zip_local_file_rename_completed, new_name));
-                                        mActivity.clearCopyCutItem();
+                                        mActivity.clearCopyCutItem(false);
                                         refreshFileList();
                                         setUiEnabled();
                                     }
@@ -1394,7 +1394,7 @@ public class LocalFileManager {
                         mUiHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                mActivity.clearCopyCutItem();
+                                mActivity.clearCopyCutItem(false);
                                 refreshFileList();
                                 setUiEnabled();
                             }
@@ -1817,7 +1817,7 @@ public class LocalFileManager {
                         bzf.removeItem(fh);
                         putProgressMessage(String.format(msg, fh.getFileName()));
                     }
-                    clearCopyCutItem();
+                    clearCopyCutItemX(false);
                     if (!isCancelled(true, tc)) {
                         try {
                             CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, mContext.getString(R.string.msgs_zip_zip_file_being_updated));
@@ -1973,7 +1973,7 @@ public class LocalFileManager {
                         bzf.removeItem(fh);
                         putProgressMessage(String.format(msg, fh.getFileName()));
                     }
-                    clearCopyCutItem();
+                    clearCopyCutItemX(false);
                     if (!isCancelled(true, tc)) {
                         try {
                             CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, mContext.getString(R.string.msgs_zip_zip_file_being_updated));
@@ -2024,11 +2024,11 @@ public class LocalFileManager {
         return result;
     }
 
-    private void clearCopyCutItem() {
+    private void clearCopyCutItemX(final boolean toast) {
         mUiHandler.post(new Runnable(){
             @Override
             public void run() {
-                mActivity.clearCopyCutItem();
+                mActivity.clearCopyCutItem(toast);
                 mContextButtonPasteView.setVisibility(ImageButton.INVISIBLE);
             }
         });
@@ -2414,7 +2414,7 @@ public class LocalFileManager {
 						mUiHandler.post(new Runnable(){
 							@Override
 							public void run() {
-                                clearCopyCutItem();
+                                clearCopyCutItemX(false);
                                 mTreeFilelistAdapter.setAllItemUnchecked();
 								refreshFileList();
 								setUiEnabled();
