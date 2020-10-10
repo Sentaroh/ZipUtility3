@@ -7,65 +7,6 @@
     android:orientation="vertical"
     tools:ignore="ButtonStyle,RtlHardcoded" >
   
-<!--	<TabHost -->
-<!--	    android:id="@android:id/tabhost"-->
-<!--	    android:layout_width="fill_parent"-->
-<!--	    android:layout_height="fill_parent"-->
-<!--	    android:visibility="visible"-->
-<!--	    tools:ignore="HardcodedText,UselessParent" >-->
-<!--	-->
-<!--	    <LinearLayout-->
-<!--	        android:id="@+id/main_screen_view"-->
-<!--	        android:layout_width="fill_parent"-->
-<!--	        android:layout_height="fill_parent"-->
-<!--			android:orientation="vertical" >-->
-<!--	-->
-<!--	        <TabWidget-->
-<!--	            android:id="@android:id/tabs"-->
-<!--	            android:layout_width="fill_parent"-->
-<!--	            android:layout_height="wrap_content"-->
-<!--	            />-->
-<!--	        -->
-<!--	        <FrameLayout-->
-<!--	            android:id="@android:id/tabcontent"-->
-<!--	            android:layout_width="0dp"-->
-<!--	            android:layout_height="0dp" >-->
-<!--	        </FrameLayout>-->
-
-<!--	        <com.sentaroh.android.Utilities3.Widget.CustomViewPager-->
-<!--	            android:id="@+id/main_screen_pager"-->
-<!--	            android:layout_width="fill_parent"-->
-<!--	            android:layout_height="0dp"-->
-<!--	            android:layout_weight="1"/>-->
-
-<!--	        <LinearLayout-->
-<!--	            android:layout_width="match_parent"-->
-<!--	            android:layout_height="wrap_content" >-->
-<!--	-->
-<!--	            <Button-->
-<!--	                android:id="@+id/main_screen_copy_cut_clear_btn"-->
-<!--	                style="?android:attr/buttonStyleSmall"-->
-<!--	                android:layout_width="wrap_content"-->
-<!--	                android:layout_height="wrap_content"-->
-<!--	                android:layout_gravity="center_vertical"-->
-<!--	                android:text="@string/msgs_zip_local_file_clear_copy_cut_item" />-->
-<!--	-->
-<!--	            <Button-->
-<!--	                android:id="@+id/main_screen_copy_cut_item"-->
-<!--	                android:layout_width="match_parent"-->
-<!--	                android:layout_height="wrap_content"-->
-<!--	                android:layout_gravity="center_vertical"-->
-<!--	                android:ellipsize="end"-->
-<!--	                android:gravity="center_vertical|left"-->
-<!--	                android:maxLines="2"-->
-<!--	                android:text="Copy: ......"-->
-<!--	                android:textAppearance="?android:attr/textAppearanceSmall" />-->
-<!--	-->
-<!--	        </LinearLayout>-->
-<!--	        	        	        	        -->
-<!--	    </LinearLayout>-->
-<!--	</TabHost>-->
-
     <LinearLayout
         android:id="@+id/main_screen_view"
         android:layout_width="fill_parent"

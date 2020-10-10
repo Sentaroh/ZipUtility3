@@ -675,9 +675,8 @@ public class ZipFileManager {
                                     OutputStream os=tmp.getOutputStream();
                                     copyFile(tc, in_file.length(), is, os, new CallBackListener() {
                                         @Override
-                                        public boolean onCallBack(Context context, Object o, Object[] objects) {
-                                            putProgressMessage(mContext.getString(R.string.msgs_zip_write_zip_file_writing)+" "+(int)o+"%");
-                                            return false;
+                                        public void onCallBack(Context context, boolean positive, Object[] o) {
+                                            putProgressMessage(mContext.getString(R.string.msgs_zip_write_zip_file_writing)+" "+(int)o[0]+"%");
                                         }
                                     });
                                     if (!isCancelled(true, tc)) {
@@ -746,7 +745,7 @@ public class ZipFileManager {
         long tot_size=input_file_size;
         long progress=0, prev_progress=-1;
         byte[] buff=new byte[1024*1024*2];
-        cbl.onCallBack(mContext, 0, null);
+        cbl.onCallBack(mContext, true, new Object[]{0});
         while((rc=is.read(buff))>0) {
             if (isCancelled(true, tc)) {
                 break;
@@ -756,7 +755,7 @@ public class ZipFileManager {
             progress=(read_size*100)/tot_size;
             if (prev_progress!=progress) {
                 prev_progress=progress;
-                cbl.onCallBack(mContext, (int)progress, null);
+                cbl.onCallBack(mContext, true, new Object[]{(int)progress});
             }
         }
         is.close();
@@ -2396,14 +2395,13 @@ public class ZipFileManager {
                                 try {
                                     CallBackListener cbl=new CallBackListener() {
                                         @Override
-                                        public boolean onCallBack(Context context, Object o, Object[] objects) {
+                                        public void onCallBack(Context c, boolean positive, Object[] o2) {
                                             if (isCancelled(true, tc)) {
                                                 bzf.abort();
                                             } else {
-                                                int prog=(Integer)o;
+                                                int prog=(Integer)o2[0];
                                                 putProgressMessage(mContext.getString(R.string.msgs_zip_add_file_adding, sel_file.getPath(), prog));
                                             }
-                                            return true;
                                         }
                                     };
                                     boolean replace_granted=true;
@@ -2505,14 +2503,13 @@ public class ZipFileManager {
     private CallBackListener getZipProgressCallbackListener(final ThreadCtrl tc, final BufferedZipFile3 bzf, final String msg_txt) {
         CallBackListener cbl=new CallBackListener() {
             @Override
-            public boolean onCallBack(Context context, Object o, Object[] objects) {
+            public void onCallBack(Context c, boolean positive, Object[] o2) {
                 if (isCancelled(tc)) {
                     bzf.abort();
                 } else {
-                    int prog=(Integer)o;
+                    int prog=(Integer)o2[0];
                     putProgressMessage(msg_txt+" "+prog+"%");
                 }
-                return true;
             }
         };
         return cbl;
@@ -3979,9 +3976,8 @@ public class ZipFileManager {
                 final String msg_text=mContext.getString(R.string.msgs_zip_extract_file_extracting);
                 CallBackListener cbl=new CallBackListener() {
                     @Override
-                    public boolean onCallBack(Context context, Object o, Object[] objects) {
-                        putProgressMessage(String.format(msg_text, zip_file_name, (int)o));
-                        return true;
+                    public void onCallBack(Context c, boolean positive, Object[] o2) {
+                        putProgressMessage(String.format(msg_text, zip_file_name, (int)o2[0]));
                     }
                 };
 				if (out_dir_sf.getAppDirectoryCache()==null) {

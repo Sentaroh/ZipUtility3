@@ -3544,14 +3544,13 @@ public class LocalFileManager {
     private CallBackListener getZipProgressCallbackListener(final ThreadCtrl tc, final BufferedZipFile3 bzf, final String msg_txt) {
         CallBackListener cbl=new CallBackListener() {
             @Override
-            public boolean onCallBack(Context context, Object o, Object[] objects) {
+            public void onCallBack(Context context, boolean positive, Object[] objects) {
                 if (isCancelled(true, tc)) {
                     bzf.abort();
                 } else {
-                    int prog=(Integer)o;
+                    int prog=(Integer)objects[0];
                     putProgressMessage(msg_txt+" "+prog+"%");
                 }
-                return true;
             }
         };
         return cbl;
