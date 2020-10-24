@@ -150,7 +150,8 @@ public class ZipFileManager {
     private ArrayList<ZipFileViewerItem> zipFileViewerList=new ArrayList<ZipFileViewerItem>();
     private Spinner mZipFileSpinner=null;
 
-    private Button mFileListUp, mFileListTop, mFileInfoClose;
+    private Button mFileListUp, mFileListTop;
+    private ImageButton mFileInfoClose;
 	private NonWordwrapTextView mCurrentDirectory;
 	private TextView mFileEmpty, mFileInfoText;
 	private LinearLayout mMainDialogView=null, mFileInfoView=null;
@@ -258,7 +259,7 @@ public class ZipFileManager {
         
         mFileInfoView=(LinearLayout) mMainView.findViewById(R.id.zip_file_info_view);
         mFileInfoText =(TextView)mMainView.findViewById(R.id.zip_file_info_text);
-        mFileInfoClose=(Button)mMainView.findViewById(R.id.zip_file_info_close_btn);
+        mFileInfoClose=(ImageButton)mMainView.findViewById(R.id.zip_file_info_close_btn);
         mFileInfoClose.setVisibility(Button.GONE);
 
         mFileListUp=(Button)mMainView.findViewById(R.id.zip_file_up_btn);
