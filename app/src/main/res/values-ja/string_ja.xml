@@ -111,6 +111,7 @@
         <string name="msgs_zip_zip_item_property_directory">ディレクトリ=%1$s\n項目数=%2$s\n圧縮後サイズ=%3$,d\n圧縮前サイズ=%4$,d\n圧縮率=%5$d%%</string>
         <string name="msgs_zip_zip_item_property_encrypted_yes">有り</string>
         <string name="msgs_zip_zip_item_property_encrypted_no">無し</string>
+        <string name="msgs_zip_zip_item_change_encoding">文字コードの変更</string>
         <string name="msgs_zip_zip_file_being_updated">ZIPファイルを更新しています。しばらくお待ちください。</string>
         <string name="msgs_zip_zip_file_creation_failed">BufferedZipFile作成に失敗しました。</string>
         <string name="msgs_zip_sdcard_create_zip_file_start">ZIPの作成を開始しました。</string>
@@ -216,7 +217,7 @@
         <string name="msgs_menu_log_management">ログ管理</string>
         <string name="msgs_menu_about">アプリケーションについて</string>
         <string name="msgs_menu_settings">設定</string>
-        <string name="msgs_menu_encoding">文字コード</string>
+        <string name="msgs_menu_encoding">文字コードの変更</string>
         <string name="msgs_menu_open_zip">開く</string>
         <string name="msgs_menu_create_new_zip">作成</string>
         <string name="msgs_menu_refresh">再読み込み</string>

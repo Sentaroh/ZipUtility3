@@ -371,6 +371,7 @@ public class ZipFileManager {
                 } else {
                     hideTreeFileListView();
                 }
+                mActivity.refreshOptionMenu();
             }
         });
 
@@ -3243,6 +3244,10 @@ public class ZipFileManager {
 		}
 	}
 
+	public ArrayList<ZipFileViewerItem> getZipFileViewerList() {
+	    return zipFileViewerList;
+    }
+
 	public static CustomZipFile createZipFile(Context c, String fp, String select_encoding) {
 		CustomZipFile zf=null;
 //		File lf=new File(fp);
@@ -3850,6 +3855,7 @@ public class ZipFileManager {
 				copyItem(tfa);
 			}
 	  	});
+
 		mCcMenu.addMenuItem(mContext.getString(R.string.msgs_main_local_file_ccmenu_cut)+"("+sel_list+")",R.drawable.context_button_cut)
 	  		.setOnClickListener(new CustomContextMenuOnClickListener() {
 			@Override
@@ -3876,7 +3882,16 @@ public class ZipFileManager {
 		  		});
 			}
 		}
-		mCcMenu.createMenu();
+
+        mCcMenu.addMenuItem(mContext.getString(R.string.msgs_zip_zip_item_change_encoding))
+                .setOnClickListener(new CustomContextMenuOnClickListener() {
+                    @Override
+                    public void onClick(CharSequence menuTitle) {
+                        changeZipFileNameEncoding();
+                    }
+                });
+
+        mCcMenu.createMenu();
 	};
 
 	private static InputStream buildBzip2InputStream(CustomZipFile zf, FileHeader fh, CommonUtilities cu) throws Exception {

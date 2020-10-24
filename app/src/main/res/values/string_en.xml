@@ -111,6 +111,7 @@
         <string name="msgs_zip_zip_item_property_directory">Directory=%1$s\nItem count=%2$s\nCompressed size=%3$,d\nUncmpress size=%4$,d\nCompression ratio=%5$d%%</string>
         <string name="msgs_zip_zip_item_property_encrypted_yes">Yes</string>
         <string name="msgs_zip_zip_item_property_encrypted_no">No</string>
+        <string name="msgs_zip_zip_item_change_encoding">Change encoding</string>
         <string name="msgs_zip_zip_file_being_updated">The zip file is being updated. Please wait.</string>
         <string name="msgs_zip_zip_file_creation_failed">BufferedZipFile create failed.</string>
         <string name="msgs_zip_sdcard_create_zip_file_start">Began the creation of the ZIP file.</string>
@@ -216,7 +217,7 @@
         <string name="msgs_menu_log_management">Log management</string>
         <string name="msgs_menu_about">About application</string>
         <string name="msgs_menu_settings">Settings</string>
-        <string name="msgs_menu_encoding">Encoding</string>
+        <string name="msgs_menu_encoding">Change encoding</string>
         <string name="msgs_menu_open_zip">Open ZIP file</string>
         <string name="msgs_menu_create_new_zip">Create ZIP file</string>
         <string name="msgs_menu_refresh">Refresh file list</string>
