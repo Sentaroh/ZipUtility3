@@ -31,8 +31,7 @@
     
     <item android:id="@+id/menu_top_settings"
           android:title="@string/msgs_menu_settings" 
-          android:icon="@android:drawable/ic_menu_preferences"
-          appv7:showAsAction="ifRoom"/>
+          android:icon="@android:drawable/ic_menu_preferences"/>
 
     <item android:id="@+id/menu_top_encoding"
         android:title="@string/msgs_menu_encoding"
@@ -44,8 +43,7 @@
 
     <item android:id="@+id/menu_top_about"
           android:title="@string/msgs_menu_about" 
-          android:icon="@android:drawable/ic_menu_info_details"
-          appv7:showAsAction="ifRoom"/>
+          android:icon="@android:drawable/ic_menu_info_details"/>
 
     <item android:id="@+id/menu_top_storage_permission"
         android:title="@string/msgs_menu_storage_permission"

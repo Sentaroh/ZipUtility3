@@ -1644,9 +1644,11 @@ public class ActivityMain extends AppCompatActivity {
                                     mLocalFileMgr.refreshFileList();
                                 }
                             },100);
+                            refreshOptionMenu();
                         }
                     } else {
                         if (mZipFileMgr!=null) mZipFileMgr.refreshFileList();
+                        refreshOptionMenu();
                     }
                 }
             }
