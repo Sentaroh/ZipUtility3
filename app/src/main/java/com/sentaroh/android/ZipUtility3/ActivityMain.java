@@ -580,7 +580,7 @@ public class ActivityMain extends AppCompatActivity {
 
     @Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		mUtil.addDebugMsg(2, "I", "onPrepareOptionsMenu Entered");
+		mUtil.addDebugMsg(1, "I", "onPrepareOptionsMenu Entered");
         super.onPrepareOptionsMenu(menu);
 
         menu.findItem(R.id.menu_top_save_zip_file).setVisible(false);
@@ -1559,6 +1559,7 @@ public class ActivityMain extends AppCompatActivity {
                 sep = ", ";
             }
         }
+        c_list=c_list.replaceAll("//", "/");
         String from=mGp.copyCutFrom.equals(COPY_CUT_FROM_LOCAL)? mContext.getString(R.string.msgs_zip_local_file_clear_copy_cut_from_local) : mContext.getString(R.string.msgs_zip_local_file_clear_copy_cut_from_zip);
         String mode=mGp.copyCutModeIsCut?mContext.getString(R.string.msgs_zip_cont_header_cut):mContext.getString(R.string.msgs_zip_cont_header_copy);
 

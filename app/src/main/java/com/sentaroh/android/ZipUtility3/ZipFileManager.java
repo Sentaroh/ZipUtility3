@@ -333,6 +333,7 @@ public class ZipFileManager {
                     c_list+=sep+"/"+tfli.getPath()+"/"+tfli.getName();
                     sep="\n";
                 }
+                c_list=c_list.replaceAll("//", "/");
                 String msg="";
                 if (!mGp.copyCutModeIsCut) msg=mContext.getString(R.string.msgs_zip_cont_header_copy);
                 else msg=mContext.getString(R.string.msgs_zip_cont_header_cut);
@@ -368,8 +369,23 @@ public class ZipFileManager {
 
                 if (zipFileViewerList.size()!=0) {
                     showZipFile(zipFileViewerList.get(0).read_only_file, new SafFile3(mContext, zipFileViewerList.get(0).file_path));
+                    if (mGp.copyCutFrom.equals(GlobalParameters.COPY_CUT_FROM_ZIP)) {
+                        boolean found=false;
+                        for(ZipFileViewerItem zf:zipFileViewerList) {
+                            if (zf.file_path.equals(mGp.copyCutFilePath)) {
+                                found=true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            mActivity.clearCopyCutItem();
+                        }
+                    }
                 } else {
                     hideTreeFileListView();
+                    if (mGp.copyCutFrom.equals(GlobalParameters.COPY_CUT_FROM_ZIP)) {
+                        mActivity.clearCopyCutItem();
+                    }
                 }
                 mActivity.refreshOptionMenu();
             }

@@ -397,6 +397,7 @@ public class LocalFileManager {
                     c_list+=sep+tfli.getPath()+"/"+tfli.getName();
                     sep="\n";
                 }
+                c_list=c_list.replaceAll("//", "/");
                 String msg="";
                 if (!mGp.copyCutModeIsCut) msg=mContext.getString(R.string.msgs_zip_cont_header_copy);
                 else msg=mContext.getString(R.string.msgs_zip_cont_header_cut);
