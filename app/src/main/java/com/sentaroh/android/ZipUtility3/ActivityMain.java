@@ -481,6 +481,7 @@ public class ActivityMain extends AppCompatActivity {
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		switch (keyCode) {
 			case KeyEvent.KEYCODE_BACK:
+			    if (mLocalFileMgr==null) return true;
 				if (isUiEnabled()) {
 //					if (mMainTabHost.getCurrentTab()==0) {//Local tab
                     if (mTabLayout.getSelectedTabPosition()==0) {//Local tab
