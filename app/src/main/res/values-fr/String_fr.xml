@@ -6,8 +6,8 @@
         <string name="msgs_about_dlg_change_btn">Journal des modifications</string>
         <string name="msgs_dlg_title_about">À propos de ZipUtility3</string>
         <string name="msgs_dlg_title_about_func_desc">ZipUtility3_Desc_FR_Short.htm</string>
-        <string name="msgs_dlg_title_about_privacy_desc">ZipUtility3_Privacy_FR.htm</string>
-        <string name="msgs_dlg_title_about_change_desc">ZipUtility3_Change_EN.htm</string>
+        <string name="msgs_dlg_title_about_privacy_desc">ZipUtility3_Privacy_FR.html</string>
+        <string name="msgs_dlg_title_about_change_desc">ZipUtility3_Change_EN.html</string>
     <!-- Log -->
         <string name="msgs_log_management_title">Gestion des journaux</string>
         <string name="msgs_log_management_enable_log_file_hint">Rédigez une question/problème sur ZipUtility3.</string>
