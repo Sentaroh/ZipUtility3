@@ -1,14 +1,20 @@
-# ZipUtility3
+### ZipUtility3
 
-- This software includes the work that is distributed in the Apache License 2.0.
-- This software includes the work that is distributed in the GNU Lesser General Public License v2.1.
-- This software includes the work that is distributed in the MIT License.
+The application to create, edit and extract ZIP files
 
-# Download
+### Download  
 
-- Latest version : https://drive.google.com/drive/folders/1a7HVyvUnlMyiIrrt_I2-0vFrUJwI6yVv?usp=sharing
+https://github.com/Sentaroh/ZipUtility3/releases
 
-# How to Build
-
-- Clone from Github(https://github.com/Sentaroh/ZipUtility3.git) using Android Studio 3.0 or higher(VCS-> Checkout from Version Control-> GitHub).
+### How to Build  
+- Clone from Github(https://github.com/Sentaroh/ZipUtility3.git) using Android Studio 3.0 or higher(VCS-> Checkout from Version Control-> GitHub).  
 - Build by Android Studio.
+
+### License information  
+- This software includes the work that is distributed in the Apache License 2.0.  
+  - [Zip4J 2.2.3](http://www.lingala.net/zip4j.html)  
+- This software includes the work that is distributed in the GNU Lesser General Public License v2.1.  
+  - [Apache Commons Compress 1.20](https://commons.apache.org/proper/commons-compress/index.html)  
+- This software includes the work that is distributed in the MIT License.  
+- This software includes the work that is distributed in the Public domain.  
+  - [XZ-1.8](https://tukaani.org/xz/java.html)  
