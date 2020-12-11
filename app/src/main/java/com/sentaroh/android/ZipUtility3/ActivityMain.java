@@ -817,7 +817,12 @@ public class ActivityMain extends AppCompatActivity {
                         } catch (IOException ex) {}
                     mUtil.addDebugMsg(1,"I","showZipFileByIntent create work file failed, error="+e.getMessage());
                     mCommonDlg.showCommonDialog(false, "W", "ZipFile prepare","create work file failed, error="+e.getMessage(),null);
-                    p_ntfy.notifyToListener(false, new Object[]{cache_file.getPath()});
+                    hndl.post(new Runnable(){
+                        @Override
+                        public void run() {
+                            p_ntfy.notifyToListener(false, new Object[]{cache_file.getPath()});
+                        }
+                    });
                 }
             }
         };
