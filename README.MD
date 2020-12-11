@@ -7,13 +7,14 @@ The application to create, edit and extract ZIP files
 https://github.com/Sentaroh/ZipUtility3/releases
 
 ### How to Build  
-- Clone from Github(https://github.com/Sentaroh/ZipUtility3.git) using Android Studio 3.0 or higher(VCS-> Checkout from Version Control-> GitHub).  
+- Clone or download from Github.
 - Build by Android Studio.
 
 ### License information  
 - This software includes the work that is distributed in the Apache License 2.0.  
-  - [Zip4J 2.2.3](http://www.lingala.net/zip4j.html)  
-- This software includes the work that is distributed in the GNU Lesser General Public License v2.1.  
+  - [Zip4J 2.2.3](http://www.lingala.net/zip4j.html)
+
+- This software includes the work that is distributed in the GNU Lesser General Public License v2.1.
   - [Apache Commons Compress 1.20](https://commons.apache.org/proper/commons-compress/index.html)  
 
 - This software includes the work that is distributed in the MOZILLA PUBLIC LICENSE 1.1.  

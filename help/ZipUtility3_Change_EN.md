@@ -1,3 +1,7 @@
+### 2020/12/12 1.29
+
+- Fixed a bug that caused the app to crash while loading files.
+
 ### 2020/09/30 1.28
 
 - Fixed a bug in Android 11 that prevented file information from being passed　properly when launching external applications.
