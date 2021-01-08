@@ -1459,8 +1459,8 @@ public class ActivityMain extends AppCompatActivity {
         ActivityResultLauncher<Intent> laucher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult result) {
-                mUtil.addDebugMsg(1,"I","Return from Setting activity.");
-                applySettingParms(result.getData());
+                mUtil.addDebugMsg(1,"I","Return from Setting activity. Intent="+result.getData());
+                if (result.getData()!=null) applySettingParms(result.getData());
             }
         });
         Intent intent=new Intent(mContext, ActivitySettings.class);
