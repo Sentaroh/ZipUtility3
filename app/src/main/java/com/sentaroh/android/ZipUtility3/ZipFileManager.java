@@ -958,7 +958,7 @@ public class ZipFileManager {
 			    sv.tree_list_pos_x=mTreeFilelistView.getFirstVisiblePosition();
 			    sv.tree_list_pos_y=mTreeFilelistView.getChildAt(0)==null?0:mTreeFilelistView.getChildAt(0).getTop();
 			}
-			sv.curr_dir=mCurrentDirectory.getText().toString();
+			sv.curr_dir=mCurrentDirectory.getOriginalText().toString();
 			sv.encoding_desired=mEncodingDesired;
 			sv.encoding_selected=mEncodingSelected;
 			sv.file_last_modified=mCurrentFileLastModified;
@@ -1024,7 +1024,7 @@ public class ZipFileManager {
 		if (isZipFileChanged()) {
 			refreshFileList();
 		} else {
-			String cdir=mCurrentDirectory.getText().toString();
+			String cdir=mCurrentDirectory.getOriginalText().toString();
 			String target_dir="";
 			if (cdir.length()>0) target_dir=cdir.substring(1);
 			mZipFileList=sv.zfl;
@@ -1303,7 +1303,7 @@ public class ZipFileManager {
 			int prev_prog=0;
 			for(ZipFileListItem zfli:mZipFileList) {
 			    String zip_dir=zfli.getPath().equals("")?"/":"/"+zfli.getPath()+"/";
-                String curr_dir=mCurrentDirectory.getText().toString().equals("/")?"/":mCurrentDirectory.getText().toString()+"/";
+                String curr_dir=mCurrentDirectory.getOriginalText().toString().equals("/")?"/":mCurrentDirectory.getOriginalText().toString()+"/";
 			    if (zip_dir.startsWith(curr_dir)) {
                     if (!zfli.isDirectory()) {
                         String fn=zfli.getFileName().lastIndexOf("/")>=0?zfli.getFileName().substring(zfli.getFileName().lastIndexOf("/")+1):zfli.getFileName();
@@ -1339,7 +1339,7 @@ public class ZipFileManager {
                             String.format(mContext.getString(R.string.msgs_zip_zip_file_was_not_found),mCurrentFilePath), "", null);
                     zfv.file_error_detected=true;
                     mZipFileList=new ArrayList<ZipFileListItem>();
-                    String cdir=mCurrentDirectory.getText().toString();
+                    String cdir=mCurrentDirectory.getOriginalText().toString();
                     if (cdir.length()>0) cdir=cdir.substring(1);
                     refreshFileListView(cdir, mCurrentFilePath);
                     mFileEmpty.setText(mContext.getString(R.string.msgs_zip_zip_file_was_not_found, mCurrentFilePath));
@@ -1350,7 +1350,7 @@ public class ZipFileManager {
 			    if (zf_err!=null) {
                     zfv.file_error_detected=true;
                     mZipFileList=new ArrayList<ZipFileListItem>();
-                    String cdir=mCurrentDirectory.getText().toString();
+                    String cdir=mCurrentDirectory.getOriginalText().toString();
                     if (cdir.length()>0) cdir=cdir.substring(1);
                     refreshFileListView(cdir, mCurrentFilePath);
                     mFileEmpty.setText(zf_err);
@@ -1360,7 +1360,7 @@ public class ZipFileManager {
                 zfv.file_error_detected=false;
                 if (isZipFileChanged() || force) {
                     mUtil.addDebugMsg(1, "I", "refresh entered");
-                    String cdir=mCurrentDirectory.getText().toString();
+                    String cdir=mCurrentDirectory.getOriginalText().toString();
                     ArrayList<TreeFilelistItem> p_tfl=null;
                     if (mTreeFilelistAdapter!=null) p_tfl=mTreeFilelistAdapter.getDataList();
                     if (cdir.length()>0) createFileList(mCurrentFilePath,null,cdir.substring(1));
@@ -1402,7 +1402,7 @@ public class ZipFileManager {
 				if (tfa.isItemSelected()) {
 					mContextButtonPasteView.setVisibility(LinearLayout.INVISIBLE);
 				} else {
-					String c_dir=mCurrentDirectory.getText().length()==0?"":mCurrentDirectory.getText().toString().substring(1);
+					String c_dir=mCurrentDirectory.getOriginalText().length()==0?"":mCurrentDirectory.getOriginalText().toString().substring(1);
 					String zip_path=mZipFileSpinner.getSelectedItem()==null?mCurrentFilePath:mZipFileSpinner.getSelectedItem().toString();
 					if (isCopyCutDestValid(zip_path, c_dir)) mContextButtonPasteView.setVisibility(LinearLayout.VISIBLE);
 					else mContextButtonPasteView.setVisibility(LinearLayout.INVISIBLE);
@@ -1792,7 +1792,7 @@ public class ZipFileManager {
 		if (tfa.isItemSelected()) {
 			mGp.copyCutModeIsCut=false;
 			mGp.copyCutFilePath=mCurrentFilePath;
-			mGp.copyCutCurrentDirectory=mCurrentDirectory.getText().equals("/")?"":mCurrentDirectory.getText().toString().substring(1);
+			mGp.copyCutCurrentDirectory=mCurrentDirectory.getOriginalText().equals("/")?"":mCurrentDirectory.getOriginalText().toString().substring(1);
 			mGp.copyCutEncoding=mEncodingSelected;
 			mGp.copyCutFrom =GlobalParameters.COPY_CUT_FROM_ZIP;
 			mGp.copyCutList.clear();
@@ -1811,7 +1811,7 @@ public class ZipFileManager {
 		if (tfa.isItemSelected()) {
 			mGp.copyCutModeIsCut=true;
 			mGp.copyCutFilePath=mCurrentFilePath;
-			mGp.copyCutCurrentDirectory=mCurrentDirectory.getText().equals("/")?"":mCurrentDirectory.getText().toString().substring(1);
+			mGp.copyCutCurrentDirectory=mCurrentDirectory.getOriginalText().equals("/")?"":mCurrentDirectory.getOriginalText().toString().substring(1);
 			mGp.copyCutEncoding=mEncodingSelected;
 			mGp.copyCutFrom =GlobalParameters.COPY_CUT_FROM_ZIP;
 			mGp.copyCutList.clear();
@@ -2219,8 +2219,8 @@ public class ZipFileManager {
                             cnt++;
                         }
                         String zip_curr_dir="";
-                        if (mCurrentDirectory.getText().toString().equals("") || mCurrentDirectory.getText().toString().equals("/")) zip_curr_dir="";
-                        else zip_curr_dir=mCurrentDirectory.getText().toString().substring(1);
+                        if (mCurrentDirectory.getOriginalText().toString().equals("") || mCurrentDirectory.getOriginalText().toString().equals("/")) zip_curr_dir="";
+                        else zip_curr_dir=mCurrentDirectory.getOriginalText().toString().substring(1);
                         NotifyEvent ntfy_add=new NotifyEvent(mContext);
                         ntfy_add.setListener(new NotifyEventListener() {
                             @Override
@@ -2282,8 +2282,8 @@ public class ZipFileManager {
             public void positiveResponse(Context c, final Object[] o) {
                 CustomZipParameters zp=(CustomZipParameters)o[0];
                 String zip_curr_dir="";
-                if (mCurrentDirectory.getText().toString().equals("") || mCurrentDirectory.getText().toString().equals("/")) zip_curr_dir="";
-                else zip_curr_dir=mCurrentDirectory.getText().toString().substring(1);
+                if (mCurrentDirectory.getOriginalText().toString().equals("") || mCurrentDirectory.getOriginalText().toString().equals("/")) zip_curr_dir="";
+                else zip_curr_dir=mCurrentDirectory.getOriginalText().toString().substring(1);
                 String parent_dir=add_item[0].lastIndexOf("/")>0?add_item[0].substring(0,add_item[0].lastIndexOf("/")):add_item[0];
                 NotifyEvent ntfy_addItem=new NotifyEvent(mContext);
                 ntfy_addItem.setListener(new NotifyEventListener() {
@@ -2751,7 +2751,7 @@ public class ZipFileManager {
 				ntfy_confirm.setListener(new NotifyEventListener(){
 					@Override
 					public void positiveResponse(Context c, Object[] o) {
-						String t_cd=mCurrentDirectory.getText().equals("/")?"":mCurrentDirectory.getText().toString().substring(1);
+						String t_cd=mCurrentDirectory.getOriginalText().equals("/")?"":mCurrentDirectory.getOriginalText().toString().substring(1);
 						buildExtractZipItemList(mCurrentFilePath, mEncodingSelected,
 								tfa, t_cd, dest_path, null, true, true);
 					}
@@ -3566,7 +3566,7 @@ public class ZipFileManager {
 	    		final TreeFilelistItem tfi=mTreeFilelistAdapter.getItem(idx);
 				if (tfi.getName().startsWith("---")) return;
 				if (!mTreeFilelistAdapter.isItemSelected() && tfi.isDirectory()) {
-					String curr_dir=mCurrentDirectory.getText().toString().substring(1);
+					String curr_dir=mCurrentDirectory.getOriginalText().toString().substring(1);
 					FileManagerDirectoryListItem dli=
 							CommonUtilities.getDirectoryItem(mDirectoryList, mZipFileSpinner.getSelectedItem().toString()+"/"+curr_dir);
 					if (dli==null) {
@@ -3629,7 +3629,7 @@ public class ZipFileManager {
 			@Override
 			public void onClick(View v) {
 				if (!isUiEnabled()) return;
-				String dir=mCurrentDirectory.getText().toString();
+				String dir=mCurrentDirectory.getOriginalText().toString();
 				if (!dir.equals("/")) {
 					FileManagerDirectoryListItem dli=
 							CommonUtilities.getDirectoryItem(mDirectoryList, mZipFileSpinner.getSelectedItem().toString()+dir);
@@ -3817,7 +3817,7 @@ public class ZipFileManager {
 	  			.setOnClickListener(new CustomContextMenuOnClickListener() {
 				@Override
 				public void onClick(CharSequence menuTitle) {
-					String curr_dir=mCurrentDirectory.getText().toString().substring(1);
+					String curr_dir=mCurrentDirectory.getOriginalText().toString().substring(1);
 					FileManagerDirectoryListItem dli=
 							CommonUtilities.getDirectoryItem(mDirectoryList, mZipFileSpinner.getSelectedItem().toString()+"/"+curr_dir);
 					if (dli==null) {

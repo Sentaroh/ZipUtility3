@@ -867,7 +867,7 @@ public class ActivityMain extends AppCompatActivity {
             public void onClick(View view) {
                 ClipboardManager cm=(ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData cd=cm.getPrimaryClip();
-                cm.setPrimaryClip(ClipData.newPlainText("ZipUtility3 Storage info", tv_msg.getText().toString()));
+                cm.setPrimaryClip(ClipData.newPlainText("ZipUtility3 Storage info", tv_msg.getOriginalText().toString()));
                 Toast.makeText(mContext,
                         mContext.getString(R.string.msgs_info_storage_copy_completed), Toast.LENGTH_LONG).show();
             }

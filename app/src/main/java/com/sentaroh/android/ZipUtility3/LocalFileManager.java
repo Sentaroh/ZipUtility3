@@ -170,7 +170,7 @@ public class LocalFileManager {
     public void refreshFileList() {
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered");
 
-        final String curr_dir = mCurrentDirectory.getText().toString();
+        final String curr_dir = mCurrentDirectory.getOriginalText().toString();
 
         final int pos_x = mTreeFilelistView.getFirstVisiblePosition();
         final int pos_y = mTreeFilelistView.getChildAt(0) == null ? 0 : mTreeFilelistView.getChildAt(0).getTop();
@@ -216,7 +216,7 @@ public class LocalFileManager {
         if (refresh_file_list) {
             refreshFileList();
         } else {
-            final String curr_dir = mCurrentDirectory.getText().toString();
+            final String curr_dir = mCurrentDirectory.getOriginalText().toString();
 
             if (isCopyCutDestinationValid(curr_dir)) {
                 mContextButtonPasteView.setVisibility(ImageButton.VISIBLE);
@@ -1227,7 +1227,7 @@ public class LocalFileManager {
             mGp.copyCutList.clear();
             mGp.copyCutFrom = GlobalParameters.COPY_CUT_FROM_LOCAL;
             mGp.copyCutFilePath = mMainFilePath;
-            mGp.copyCutCurrentDirectory = mCurrentDirectory.getText().equals("/") ? "" : (mCurrentDirectory.getText().length() == 0 ? "" : mCurrentDirectory.getText().toString().substring(1));
+            mGp.copyCutCurrentDirectory = mCurrentDirectory.getOriginalText().equals("/") ? "" : (mCurrentDirectory.getOriginalText().length() == 0 ? "" : mCurrentDirectory.getOriginalText().toString().substring(1));
             String c_list = "", sep = "";
             for (TreeFilelistItem tfl : tfa.getDataList()) {
                 if (tfl.isChecked()) {
@@ -1248,8 +1248,8 @@ public class LocalFileManager {
             mGp.copyCutList.clear();
             mGp.copyCutFrom = GlobalParameters.COPY_CUT_FROM_LOCAL;
             mGp.copyCutFilePath = mMainFilePath;
-//			mGp.copyCutCurrentDirectory=mCurrentDirectory.getText().equals("/")?"":mCurrentDirectory.getText().substring(1);
-            mGp.copyCutCurrentDirectory = mCurrentDirectory.getText().equals("/") ? "" : (mCurrentDirectory.getText().length() == 0 ? "" : mCurrentDirectory.getText().toString().substring(1));
+//			mGp.copyCutCurrentDirectory=mCurrentDirectory.getOriginalText().equals("/")?"":mCurrentDirectory.getOriginalText().substring(1);
+            mGp.copyCutCurrentDirectory = mCurrentDirectory.getOriginalText().equals("/") ? "" : (mCurrentDirectory.getOriginalText().length() == 0 ? "" : mCurrentDirectory.getOriginalText().toString().substring(1));
             for (TreeFilelistItem tfl : tfa.getDataList()) {
                 if (tfl.isChecked()) {
                     mGp.copyCutList.add(tfl);
@@ -2507,8 +2507,8 @@ public class LocalFileManager {
 	private ArrayList<FileManagerDirectoryListItem> mDirectoryList=new ArrayList<FileManagerDirectoryListItem>();
 
 	private void openSppecificDirectory(final String dir_name, final String file_name) {
-		String curr_dir= mLocalStorageSelector.getSelectedItem().toString()+mCurrentDirectory.getText().toString();
-		if (mCurrentDirectory.getText().toString().equals("/")) curr_dir= mLocalStorageSelector.getSelectedItem().toString();
+		String curr_dir= mLocalStorageSelector.getSelectedItem().toString()+mCurrentDirectory.getOriginalText().toString();
+		if (mCurrentDirectory.getOriginalText().toString().equals("/")) curr_dir= mLocalStorageSelector.getSelectedItem().toString();
 		FileManagerDirectoryListItem dli=CommonUtilities.getDirectoryItem(mDirectoryList, curr_dir);
 		if (dli==null) {
 			dli=new FileManagerDirectoryListItem();
@@ -2687,7 +2687,7 @@ public class LocalFileManager {
                 svc.tree_list=mTreeFilelistAdapter.getDataList();
                 svc.pos_x=mTreeFilelistView.getFirstVisiblePosition();
                 svc.pos_y=mTreeFilelistView.getChildAt(0)==null?0:mTreeFilelistView.getChildAt(0).getTop();
-//                svc.curr_dir=mCurrentDirectory.getText().toString();
+//                svc.curr_dir=mCurrentDirectory.getOriginalText().toString();
                 svc.sort_ascendant=mTreeFilelistAdapter.isSortAscendant();
                 svc.sort_key_name=mTreeFilelistAdapter.isSortKeyName();
                 svc.sort_key_size=mTreeFilelistAdapter.isSortKeySize();
@@ -2840,7 +2840,7 @@ public class LocalFileManager {
         		if (!isUiEnabled()) return;
 	    		final TreeFilelistItem tfi=mTreeFilelistAdapter.getItem(idx);
 				if (!mTreeFilelistAdapter.isItemSelected() && tfi.isDirectory()) {
-					String curr_dir=mCurrentDirectory.getText().toString();
+					String curr_dir=mCurrentDirectory.getOriginalText().toString();
 					FileManagerDirectoryListItem dli=CommonUtilities.getDirectoryItem(mDirectoryList, curr_dir);
 					if (dli==null) {
 						dli=new FileManagerDirectoryListItem();
@@ -3206,8 +3206,8 @@ public class LocalFileManager {
 	  			.setOnClickListener(new CustomContextMenuOnClickListener() {
 				@Override
 				public void onClick(CharSequence menuTitle) {
-					String curr_dir=mCurrentDirectory.getText().toString();
-//					if (mCurrentDirectory.getText().toString().equals("/")) curr_dir= mLocalStorageSelector.getSelectedItem().toString();
+					String curr_dir=mCurrentDirectory.getOriginalText().toString();
+//					if (mCurrentDirectory.getOriginalText().toString().equals("/")) curr_dir= mLocalStorageSelector.getSelectedItem().toString();
 					FileManagerDirectoryListItem dli=CommonUtilities.getDirectoryItem(mDirectoryList, curr_dir);
 					if (dli==null) {
 						dli=new FileManagerDirectoryListItem();
