@@ -1,3 +1,7 @@
+### 2021/01/09 1.30
+
+- Prevent app crash
+
 ### 2020/12/12 1.29
 
 - Fixed a bug that caused the app to crash while loading files.
