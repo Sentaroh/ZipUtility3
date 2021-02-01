@@ -23,12 +23,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -42,7 +41,6 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.sentaroh.android.Utilities3.Dialog.CommonDialog;
 import com.sentaroh.android.Utilities3.NotifyEvent;
 import com.sentaroh.android.Utilities3.ThemeColorList;
 import com.sentaroh.android.Utilities3.ThemeUtil;
@@ -59,7 +57,7 @@ import java.util.Comparator;
 public class CustomTreeFilelistAdapter extends BaseAdapter {
     private static Logger log= LoggerFactory.getLogger(CustomTreeFilelistAdapter.class);
 
-	private Context mContext;
+	private Activity mActivity;
 //	private ArrayList<Integer>mShowItems=new ArrayList<Integer>();
 	private ArrayList<TreeFilelistItem> mDataItems=null;
 	private boolean mSingleSelectMode=false;
@@ -80,25 +78,25 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
 	public void setCheckBoxEnabled(boolean p) {mCheckBoxEnabled=p;}
 	public boolean isCheckBoxEnabled() {return mCheckBoxEnabled;}
 	
-	public CustomTreeFilelistAdapter(Context c) {
-		mContext = c;
+	public CustomTreeFilelistAdapter(Activity c) {
+		mActivity = c;
 		mDataItems=new ArrayList<TreeFilelistItem>();
 		initTextColor();
 		
 	};
 
-	public CustomTreeFilelistAdapter(Context c,
+	public CustomTreeFilelistAdapter(Activity c,
                                      boolean singleSelectMode, boolean showLastModified) {
-		mContext = c;
+		mActivity = c;
 		this.mSingleSelectMode=singleSelectMode;
 		this.mShowLastModified=showLastModified;
 		mDataItems=new ArrayList<TreeFilelistItem>();
 		initTextColor();
 	};
 
-	public CustomTreeFilelistAdapter(Context c,
+	public CustomTreeFilelistAdapter(Activity c,
                                      boolean singleSelectMode, boolean showLastModified, boolean set_color) {
-		mContext = c;
+		mActivity = c;
 		this.mSingleSelectMode=singleSelectMode;
 		this.mShowLastModified=showLastModified;
 		mDataItems=new ArrayList<TreeFilelistItem>();
@@ -107,7 +105,7 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
 	};
 
 	private void initTextColor() {
-		mThemeColorList=ThemeUtil.getThemeColorList(mContext);
+		mThemeColorList=ThemeUtil.getThemeColorList(mActivity);
 	}
 	
 	@Override
@@ -376,7 +374,7 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
 		 	
             View v = convertView;
             if (v == null) {
-                LayoutInflater vi = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                LayoutInflater vi = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 v = vi.inflate(R.layout.custom_tree_file_list_item, null);
                 holder=new ViewHolder();
 
@@ -399,7 +397,7 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
         		holder.ll_date_time_view=(LinearLayout)v.findViewById(R.id.tree_file_list_date_time_view);
                 if (mDefaultBgColor==null) mDefaultBgColor=holder.ll_view.getBackground();
                 if (mDefaultTextColor==null) mDefaultTextColor=holder.tv_name.getTextColors();
-            	if (ThemeUtil.isLightThemeUsed(mContext)) {
+            	if (ThemeUtil.isLightThemeUsed(mActivity)) {
 
             		if (mSetColor) {
 //                    	holder.tv_spacer.setBackgroundColor(mThemeColorList.dialog_msg_background_color);
@@ -458,7 +456,7 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
                     holder.tv_count.setVisibility(TextView.VISIBLE);
                 } else {
 //                	    holder.tv_size.setText(String.format("%3d Item",o.getSubDirItemCount()));
-                    holder.tv_size.setText(mContext.getString(R.string.msgs_file_list_size_calculating));
+                    holder.tv_size.setText(mActivity.getString(R.string.msgs_file_list_size_calculating));
 //                        holder.tv_count.setVisibility(TextView.GONE);
                 }
                 if (o.isDirectory()) {
@@ -575,7 +573,7 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
                 }
 
             	if (o.isChecked()) {
-            		if (ThemeUtil.isLightThemeUsed(mContext)) holder.ll_view.setBackgroundColor(Color.CYAN);
+            		if (ThemeUtil.isLightThemeUsed(mActivity)) holder.ll_view.setBackgroundColor(Color.CYAN);
             		else holder.ll_view.setBackgroundColor(Color.GRAY);
             	} else {
             		holder.ll_view.setBackgroundDrawable(mDefaultBgColor);

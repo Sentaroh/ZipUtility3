@@ -22,6 +22,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.sentaroh.android.ZipUtility3;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,11 +35,11 @@ import org.slf4j.LoggerFactory;
 
 public class ZipFileSelectorAdapter extends CustomSpinnerAdapter {
     final private static Logger log= LoggerFactory.getLogger(ZipFileSelectorAdapter.class);
-    private Context mContext=null;
+    private Activity mActivity=null;
 
-    public ZipFileSelectorAdapter(Context c, int textViewResourceId) {
+    public ZipFileSelectorAdapter(Activity c, int textViewResourceId) {
         super(c, textViewResourceId);
-        mContext=c;
+        mActivity=c;
     }
 
     @Override
@@ -61,7 +62,7 @@ public class ZipFileSelectorAdapter extends CustomSpinnerAdapter {
         view.setText(fn);
         view.setCompoundDrawablePadding(10);
         view.setCompoundDrawablesWithIntrinsicBounds(
-                mContext.getResources().getDrawable(android.R.drawable.arrow_down_float),
+                mActivity.getResources().getDrawable(android.R.drawable.arrow_down_float),
                 null, null, null);
         setSelectedPosition(position);
         return view;

@@ -23,14 +23,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.media.MediaScannerConnection;
 import android.net.wifi.WifiManager;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -45,8 +44,6 @@ import android.widget.TextView;
 import com.sentaroh.android.Utilities3.Dialog.CommonDialog;
 import com.sentaroh.android.Utilities3.NotifyEvent;
 import com.sentaroh.android.Utilities3.SafFile3;
-import com.sentaroh.android.Utilities3.SystemInfo;
-import com.sentaroh.android.Utilities3.ThreadCtrl;
 import com.sentaroh.android.ZipUtility3.Log.LogUtil;
 
 import java.io.File;
@@ -55,10 +52,9 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 
 import static com.sentaroh.android.ZipUtility3.Constants.DEFAULT_PREFS_FILENAME;
-import static com.sentaroh.android.ZipUtility3.Constants.WORK_DIRECTORY;
 
 public final class CommonUtilities {
-	private Context mContext=null;
+	private Context mContext =null;
 
    	private LogUtil mLog=null;
    	
@@ -69,7 +65,7 @@ public final class CommonUtilities {
     private CommonDialog mCommonDlg=null;
 
 	public CommonUtilities(Context c, String li, GlobalParameters gp, CommonDialog cd) {
-		mContext=c;// ContextはApplicationContext
+		mContext =c;// ContextはApplicationContext
 		mLog=new LogUtil(c, li);
 		mLogIdent=li;
         mGp=gp;
@@ -227,7 +223,7 @@ public final class CommonUtilities {
 
 //    final public boolean getSettingsLogOption() {
 //		boolean result = false;
-//		result=getPrefMgr().getBoolean(mContext.getString(R.string.settings_log_option), false);
+//		result=getPrefMgr().getBoolean(mActivity.getString(R.string.settings_log_option), false);
 //		addDebugMsg(2,"I","LogOption="+result);
 //		return result;
 //	};
@@ -267,7 +263,7 @@ public final class CommonUtilities {
 	
 	public boolean isWifiActive() { 
 		boolean ret=false;
-		WifiManager mWifi =(WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
+		WifiManager mWifi =(WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
 		if (mWifi.isWifiEnabled()) ret=true;
 		addDebugMsg(2,"I","isWifiActive WifiEnabled="+ret);
 		return ret;
@@ -275,7 +271,7 @@ public final class CommonUtilities {
 
 	public String getConnectedWifiSsid() {
 		String ret="";
-		WifiManager mWifi =(WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
+		WifiManager mWifi =(WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
 		String ssid="";
 		if (mWifi.isWifiEnabled()) {
 			ssid=mWifi.getConnectionInfo().getSSID();

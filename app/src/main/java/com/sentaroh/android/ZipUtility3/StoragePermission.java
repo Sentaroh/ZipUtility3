@@ -48,7 +48,6 @@ import java.util.ArrayList;
 
 public class StoragePermission {
 
-    private Context mContext=null;
     private Activity mActivity=null;
     private CommonDialog commonDlg=null;
     
@@ -61,7 +60,6 @@ public class StoragePermission {
     private NotifyEvent mNtfyGrantRequest=null;
 
     public StoragePermission(Activity a, CommonDialog cd, NotifyEvent ntfy_request) {
-        mContext = a.getApplicationContext();
         mActivity = a;
         mSafMgr =new SafManager3(a.getApplicationContext());
         commonDlg = cd;
@@ -88,7 +86,7 @@ public class StoragePermission {
         title_view.setBackgroundColor(tcl.title_background_color);
         TextView dlg_title = (TextView) mDialog.findViewById(R.id.storage_permission_dlg_title);
         dlg_title.setTextColor(tcl.title_text_color);
-        dlg_title.setText(mContext.getString(R.string.msgs_menu_storage_permission));
+        dlg_title.setText(mActivity.getString(R.string.msgs_menu_storage_permission));
 
         CommonDialog.setDlgBoxSizeLimit(mDialog, true);
 
@@ -105,7 +103,7 @@ public class StoragePermission {
             return;
         }
 
-        final ArrayList<SafManager3.StorageVolumeInfo> grant_required_list= SafManager3.buildStoragePermissionRequiredList(mContext);
+        final ArrayList<SafManager3.StorageVolumeInfo> grant_required_list= SafManager3.buildStoragePermissionRequiredList(mActivity);
         final ArrayList<String>rows=new ArrayList<String>();
         for(SafManager3.StorageVolumeInfo svi:grant_required_list) rows.add(svi.description);
         lv.setAdapter(new ArrayAdapter<String>(mActivity, android.R.layout.simple_list_item_multiple_choice, rows));

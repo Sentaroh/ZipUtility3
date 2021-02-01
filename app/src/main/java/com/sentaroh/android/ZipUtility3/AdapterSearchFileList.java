@@ -23,6 +23,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,18 +41,18 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class AdapterSearchFileList extends BaseAdapter {
-	private Context mContext;
+	private Activity mActivity;
 	private ArrayList<TreeFilelistItem> mDataItems=null;
 	private ThemeColorList mThemeColorList;
 	
-	public AdapterSearchFileList(Context c) {
-		mContext = c;
+	public AdapterSearchFileList(Activity c) {
+		mActivity = c;
 		mDataItems=new ArrayList<TreeFilelistItem>();
 		initTextColor();
 		
 	};
 	private void initTextColor() {
-		mThemeColorList=ThemeUtil.getThemeColorList(mContext);
+		mThemeColorList=ThemeUtil.getThemeColorList(mActivity);
 	}
 	
 	@Override
@@ -147,7 +148,7 @@ public class AdapterSearchFileList extends BaseAdapter {
 	 	
         View v = convertView;
         if (v == null) {
-            LayoutInflater vi = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater vi = (LayoutInflater)mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.search_file_result_list_item, null);
             holder=new ViewHolder();
 
@@ -158,7 +159,7 @@ public class AdapterSearchFileList extends BaseAdapter {
         	holder.comp_method=(TextView)v.findViewById(R.id.search_file_result_list_item_comp_method);
         	holder.file_date=(TextView)v.findViewById(R.id.search_file_result_list_item_last_modified_date);
         	holder.file_time=(TextView)v.findViewById(R.id.search_file_result_list_item_last_modified_time);
-//        	if (ThemeUtil.isLightThemeUsed(mContext)) {
+//        	if (ThemeUtil.isLightThemeUsed(mActivity)) {
 ////    			holder.result_view.setBackgroundColor(mThemeColorList.dialog_msg_background_color);
 //        	}
 

@@ -122,7 +122,6 @@ public class ActivityMain extends AppCompatActivity {
 
 	private FragmentManager mFragmentManager=null;
 	
-	private Context mContext;
 	private ActivityMain mActivity;
 	
 	private CommonUtilities mUtil=null;
@@ -189,12 +188,11 @@ public class ActivityMain extends AppCompatActivity {
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
 
-        mContext=ActivityMain.this;
         mActivity=ActivityMain.this;
         mUiHandler=new Handler();
         mFragmentManager=getSupportFragmentManager();
         mRestartStatus=START_STATUS_START_NORMAL;
-       	mGp=GlobalWorkArea.getGlobalParameters(mContext);
+       	mGp=GlobalWorkArea.getGlobalParameters(mActivity);
         setTheme(mGp.applicationTheme);
         mGp.themeColorList= ThemeUtil.getThemeColorList(mActivity);
         super.onCreate(savedInstanceState);
@@ -205,12 +203,12 @@ public class ActivityMain extends AppCompatActivity {
 
         mCommonDlg=new CommonDialog(mActivity, mFragmentManager);
 
-        mUtil=new CommonUtilities(mContext, "ZipActivity", mGp, mCommonDlg);
+        mUtil=new CommonUtilities(mActivity, "ZipActivity", mGp, mCommonDlg);
         
         mUtil.addDebugMsg(1, "I", "onCreate entered");
 
         MyUncaughtExceptionHandler myUncaughtExceptionHandler = new MyUncaughtExceptionHandler();
-        myUncaughtExceptionHandler.init(mContext, myUncaughtExceptionHandler);
+        myUncaughtExceptionHandler.init(mActivity, myUncaughtExceptionHandler);
 
         putSystemInfo();
 
@@ -239,7 +237,7 @@ public class ActivityMain extends AppCompatActivity {
     };
 
     private void putSystemInfo() {
-        ArrayList<String> sil= SystemInfo.listSystemInfo(mContext, mGp.safMgr);
+        ArrayList<String> sil= SystemInfo.listSystemInfo(mActivity, mGp.safMgr);
         for(String item:sil) mUtil.addDebugMsg(1,"I",item);
     }
 
@@ -260,7 +258,7 @@ public class ActivityMain extends AppCompatActivity {
 		super.onResume();
 		mUtil.addDebugMsg(1, "I", "onResume entered, restartStatus="+mRestartStatus);
 
-        NotifyEvent ntfy_resume=new NotifyEvent(mContext);
+        NotifyEvent ntfy_resume=new NotifyEvent(mActivity);
         ntfy_resume.setListener(new NotifyEvent.NotifyEventListener() {
             @Override
             public void positiveResponse(Context context, Object[] objects) {
@@ -281,7 +279,7 @@ public class ActivityMain extends AppCompatActivity {
 	private void processOnResumed() {
         if (mRestartStatus==START_STATUS_START_COMPLETED) {
             if (isUiEnabled()) {
-                if (mTabLayout.getSelectedTabName().equals(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.refreshFileList();
+                if (mTabLayout.getSelectedTabName().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.refreshFileList();
                 else mZipFileMgr.refreshFileList();
             }
             try {
@@ -291,7 +289,7 @@ public class ActivityMain extends AppCompatActivity {
             }
 
         } else {
-            NotifyEvent ntfy=new NotifyEvent(mContext);
+            NotifyEvent ntfy=new NotifyEvent(mActivity);
             ntfy.setListener(new NotifyEvent.NotifyEventListener(){
                 @Override
                 public void positiveResponse(Context c, Object[] o) {
@@ -338,15 +336,15 @@ public class ActivityMain extends AppCompatActivity {
                 " entered, isStoragePermissionRequired="+mGp.safMgr.isStoragePermissionRequired()+
                 ", isSupressAddExternalStorageNotification"+mGp.isSupressAddExternalStorageNotification());
         if (mGp.safMgr.isStoragePermissionRequired() && !mGp.isSupressAddExternalStorageNotification()) {
-            NotifyEvent ntfy=new NotifyEvent(mContext);
+            NotifyEvent ntfy=new NotifyEvent(mActivity);
             ntfy.setListener(new NotifyEvent.NotifyEventListener() {
                 @Override
                 public void positiveResponse(Context context, Object[] objects) {
                     boolean suppress=(boolean)objects[0];
                     if (suppress) {
-                        mGp.setSupressAddExternalStorageNotification(mContext, true);
+                        mGp.setSupressAddExternalStorageNotification(mActivity, true);
                     }
-                    NotifyEvent ntfy_add=new NotifyEvent(mContext);
+                    NotifyEvent ntfy_add=new NotifyEvent(mActivity);
                     ntfy_add.setListener(new NotifyEvent.NotifyEventListener() {
                         @Override
                         public void positiveResponse(Context context, Object[] objects) {
@@ -364,21 +362,21 @@ public class ActivityMain extends AppCompatActivity {
                 public void negativeResponse(Context context, Object[] objects) {
                     boolean suppress=(boolean)objects[0];
                     if (suppress) {
-                        mGp.setSupressAddExternalStorageNotification(mContext, true);
+                        mGp.setSupressAddExternalStorageNotification(mActivity, true);
                     }
                 }
             });
-            ArrayList<SafManager3.StorageVolumeInfo>svl=SafManager3.buildStoragePermissionRequiredList(mContext);
+            ArrayList<SafManager3.StorageVolumeInfo>svl=SafManager3.buildStoragePermissionRequiredList(mActivity);
             String new_storage="";
             for(SafManager3.StorageVolumeInfo si:svl) {
                 new_storage+=si.description+"("+si.uuid+")"+"\n";
             }
             showDialogWithHideOption(mActivity, mGp, mUtil,
-                    true, mContext.getString(R.string.msgs_common_dialog_ok),
-                    true, mContext.getString(R.string.msgs_common_dialog_close),
-                    mContext.getString(R.string.msgs_main_suppress_add_external_storage_notification_title),
-                    mContext.getString(R.string.msgs_main_suppress_add_external_storage_notification_msg)+"\n-"+new_storage,
-                    mContext.getString(R.string.msgs_main_suppress_add_external_storage_notification_suppress), ntfy);
+                    true, mActivity.getString(R.string.msgs_common_dialog_ok),
+                    true, mActivity.getString(R.string.msgs_common_dialog_close),
+                    mActivity.getString(R.string.msgs_main_suppress_add_external_storage_notification_title),
+                    mActivity.getString(R.string.msgs_main_suppress_add_external_storage_notification_msg)+"\n-"+new_storage,
+                    mActivity.getString(R.string.msgs_main_suppress_add_external_storage_notification_suppress), ntfy);
         }
 
     }
@@ -528,7 +526,7 @@ public class ActivityMain extends AppCompatActivity {
     }
 
     private void cleanupCacheFile() {
-        File[] fl=mContext.getExternalCacheDirs();
+        File[] fl=mActivity.getExternalCacheDirs();
         if (fl!=null && fl.length>0) {
             for(File cf:fl) {
                 if (cf!=null) {
@@ -543,7 +541,7 @@ public class ActivityMain extends AppCompatActivity {
                 }
             }
         } else {
-            fl=mContext.getExternalCacheDirs();
+            fl=mActivity.getExternalCacheDirs();
         }
     }
 
@@ -585,7 +583,7 @@ public class ActivityMain extends AppCompatActivity {
         super.onPrepareOptionsMenu(menu);
 
         menu.findItem(R.id.menu_top_save_zip_file).setVisible(false);
-//        if (mMainTabHost.getCurrentTabTag().equals(mContext.getString(R.string.msgs_main_tab_name_local))) {
+//        if (mMainTabHost.getCurrentTabTag().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) {
         if (mTabLayout.getSelectedTabName().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) {
             menu.findItem(R.id.menu_top_encoding).setVisible(false);
             menu.findItem(R.id.menu_top_save_zip_file).setVisible(false);
@@ -642,21 +640,21 @@ public class ActivityMain extends AppCompatActivity {
 			case android.R.id.home:
 				return true;
 			case R.id.menu_top_find:
-//				if (mMainTabHost.getCurrentTabTag().equals(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.searchFile();
+//				if (mMainTabHost.getCurrentTabTag().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.searchFile();
 //				else mZipFileMgr.searchFile();
-                if (mTabLayout.getSelectedTabName().equals(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.searchFile();
+                if (mTabLayout.getSelectedTabName().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.searchFile();
                 else mZipFileMgr.searchFile();
 				return true;
 			case R.id.menu_top_refresh:
-//				if (mMainTabHost.getCurrentTabTag().equals(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.refreshFileList();
+//				if (mMainTabHost.getCurrentTabTag().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.refreshFileList();
 //				else mZipFileMgr.refreshFileList(true);
-                if (mTabLayout.getSelectedTabName().equals(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.refreshFileList();
+                if (mTabLayout.getSelectedTabName().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.refreshFileList();
                 else mZipFileMgr.refreshFileList(true);
 				return true;
 			case R.id.menu_top_sort:
-//				if (mMainTabHost.getCurrentTabTag().equals(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.sortFileList();
+//				if (mMainTabHost.getCurrentTabTag().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.sortFileList();
 //				else mZipFileMgr.sortFileList();
-                if (mTabLayout.getSelectedTabName().equals(mContext.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.sortFileList();
+                if (mTabLayout.getSelectedTabName().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.sortFileList();
                 else mZipFileMgr.sortFileList();
 				return true;
 			case R.id.menu_top_save_zip_file:
@@ -696,15 +694,15 @@ public class ActivityMain extends AppCompatActivity {
     private void showZipFileByIntent(final Intent intent) {
         if (intent!=null && intent.getData()!=null) {
             mUtil.addDebugMsg(1,"I","showZipFileByIntent entered, "+"Uri="+intent.getData()+", type="+intent.getType());
-            final SafFile3 in_file=new SafFile3(mContext, intent.getData());
+            final SafFile3 in_file=new SafFile3(mActivity, intent.getData());
             final Handler hndl=new Handler();
             if (in_file.getUuid().equals(SAF_FILE_UNKNOWN_UUID)) {
-                NotifyEvent ntfy=new NotifyEvent(mContext);
+                NotifyEvent ntfy=new NotifyEvent(mActivity);
                 ntfy.setListener(new NotifyEventListener() {
                     @Override
                     public void positiveResponse(Context context, Object[] objects) {
                         String cp=(String)objects[0];
-                        SafFile3 new_in_file=new SafFile3(mContext, cp);
+                        SafFile3 new_in_file=new SafFile3(mActivity, cp);
                         mLocalFileMgr.showLocalFileView(false);
                         showZipFile(true, new_in_file);
                         hndl.post(new Runnable(){
@@ -770,7 +768,7 @@ public class ActivityMain extends AppCompatActivity {
 
         String fn="unkonw_file_name";
         if (in_file!=null && in_file.getName()!=null) fn=in_file.getName();
-        final File cache_file=new File(mContext.getExternalCacheDir(), fn);
+        final File cache_file=new File(mActivity.getExternalCacheDir(), fn);
         final Handler hndl=new Handler();
         Thread th=new Thread() {
             @Override
@@ -847,14 +845,14 @@ public class ActivityMain extends AppCompatActivity {
         final Button btn_copy=(Button)dialog.findViewById(R.id.common_dialog_btn_ok);
         final Button btn_close=(Button)dialog.findViewById(R.id.common_dialog_btn_cancel);
         final Button btn_send=(Button)dialog.findViewById(R.id.common_dialog_extra_button);
-        btn_send.setText(mContext.getString(R.string.msgs_info_storage_send_btn_title));
+        btn_send.setText(mActivity.getString(R.string.msgs_info_storage_send_btn_title));
         btn_send.setVisibility(Button.VISIBLE);
 
-        tv_title.setText(mContext.getString(R.string.msgs_menu_list_system_info));
-        btn_close.setText(mContext.getString(R.string.msgs_common_dialog_close));
-        btn_copy.setText(mContext.getString(R.string.msgs_info_storage_copy_clipboard));
+        tv_title.setText(mActivity.getString(R.string.msgs_menu_list_system_info));
+        btn_close.setText(mActivity.getString(R.string.msgs_common_dialog_close));
+        btn_copy.setText(mActivity.getString(R.string.msgs_info_storage_copy_clipboard));
 
-        ArrayList<String> sil= SystemInfo.listSystemInfo(mContext, mGp.safMgr);
+        ArrayList<String> sil= SystemInfo.listSystemInfo(mActivity, mGp.safMgr);
         String si_text="";
         for(String si_item:sil) si_text+=si_item+"\n";
 
@@ -865,11 +863,11 @@ public class ActivityMain extends AppCompatActivity {
         btn_copy.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                ClipboardManager cm=(ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipboardManager cm=(ClipboardManager) mActivity.getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData cd=cm.getPrimaryClip();
                 cm.setPrimaryClip(ClipData.newPlainText("ZipUtility3 Storage info", tv_msg.getOriginalText().toString()));
-                Toast.makeText(mContext,
-                        mContext.getString(R.string.msgs_info_storage_copy_completed), Toast.LENGTH_LONG).show();
+                Toast.makeText(mActivity,
+                        mActivity.getString(R.string.msgs_info_storage_copy_completed), Toast.LENGTH_LONG).show();
             }
         });
 
@@ -883,7 +881,7 @@ public class ActivityMain extends AppCompatActivity {
         btn_send.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                NotifyEvent ntfy=new NotifyEvent(mContext);
+                NotifyEvent ntfy=new NotifyEvent(mActivity);
                 ntfy.setListener(new NotifyEventListener() {
                     @Override
                     public void positiveResponse(Context context, Object[] objects) {
@@ -901,7 +899,7 @@ public class ActivityMain extends AppCompatActivity {
                         intent.putExtra(Intent.EXTRA_SUBJECT, APPLICATION_TAG+" System Info");
                         intent.putExtra(Intent.EXTRA_TEXT, desc+ "\n\n\n"+tv_msg.getText().toString());
 //                intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(lf));
-                        mContext.startActivity(intent);
+                        mActivity.startActivity(intent);
                     }
                     @Override
                     public void negativeResponse(Context context, Object[] objects) {
@@ -927,25 +925,25 @@ public class ActivityMain extends AppCompatActivity {
         dialog.setContentView(R.layout.single_item_input_dlg);
 
         final TextView tv_title=(TextView)dialog.findViewById(R.id.single_item_input_title);
-        tv_title.setText(mContext.getString(R.string.msgs_your_problem_title));
+        tv_title.setText(mActivity.getString(R.string.msgs_your_problem_title));
         final TextView tv_msg=(TextView)dialog.findViewById(R.id.single_item_input_msg);
         tv_msg.setVisibility(TextView.GONE);
         final TextView tv_desc=(TextView)dialog.findViewById(R.id.single_item_input_name);
-        tv_desc.setText(mContext.getString(R.string.msgs_your_problem_msg));
+        tv_desc.setText(mActivity.getString(R.string.msgs_your_problem_msg));
         final EditText et_msg=(EditText)dialog.findViewById(R.id.single_item_input_dir);
-        et_msg.setHint(mContext.getString(R.string.msgs_your_problem_hint));
+        et_msg.setHint(mActivity.getString(R.string.msgs_your_problem_hint));
         et_msg.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
         final Button btn_ok=(Button)dialog.findViewById(R.id.single_item_input_ok_btn);
         final Button btn_cancel=(Button)dialog.findViewById(R.id.single_item_input_cancel_btn);
 
-//        btn_cancel.setText(mContext.getString(R.string.msgs_common_dialog_close));
+//        btn_cancel.setText(mActivity.getString(R.string.msgs_common_dialog_close));
 
         CommonDialog.setDlgBoxSizeLimit(dialog,true);
 
         btn_ok.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                NotifyEvent ntfy_desc=new NotifyEvent(mContext);
+                NotifyEvent ntfy_desc=new NotifyEvent(mActivity);
                 ntfy_desc.setListener(new NotifyEventListener() {
                     @Override
                     public void positiveResponse(Context context, Object[] objects) {
@@ -958,7 +956,7 @@ public class ActivityMain extends AppCompatActivity {
                     }
                 });
                 if (et_msg.getText().length()<=10) {
-                    mCommonDlg.showCommonDialog(false, "W", mContext.getString(R.string.msgs_your_problem_no_desc),"",null);
+                    mCommonDlg.showCommonDialog(false, "W", mActivity.getString(R.string.msgs_your_problem_no_desc),"",null);
                 } else {
                     ntfy_desc.notifyToListener(true, null);
                 }
@@ -985,11 +983,11 @@ public class ActivityMain extends AppCompatActivity {
 	public void showZipFile(boolean read_only, final SafFile3 in_file) {
 		if (!isUiEnabled()) return;
         mZipFileMgr.showZipFile(read_only, in_file);
-        mTabLayout.setCurrentTabByName(mContext.getString(R.string.msgs_main_tab_name_zip));
+        mTabLayout.setCurrentTabByName(mActivity.getString(R.string.msgs_main_tab_name_zip));
 	};
 
 	private void invokeLogManagement() {
-        NotifyEvent ntfy=new NotifyEvent(mContext);
+        NotifyEvent ntfy=new NotifyEvent(mActivity);
         ntfy.setListener(new NotifyEvent.NotifyEventListener(){
             @Override
             public void positiveResponse(Context c, Object[] o) {
@@ -999,14 +997,14 @@ public class ActivityMain extends AppCompatActivity {
             }
         });
         mUtil.flushLog();
-        LogManagementFragment lfm= LogManagementFragment.newInstance(mContext, false, mContext.getString(R.string.msgs_log_management_title));
-        lfm.showDialog(mContext, getSupportFragmentManager(), lfm, ntfy);
+        LogManagementFragment lfm= LogManagementFragment.newInstance(mActivity, false, mActivity.getString(R.string.msgs_log_management_title));
+        lfm.showDialog(mActivity, getSupportFragmentManager(), lfm, ntfy);
 	};
 
 	public boolean isApplicationTerminating() {return mTerminateApplication;}
 
 	private void confirmExit() {
-		NotifyEvent ntfy=new NotifyEvent(mContext);
+		NotifyEvent ntfy=new NotifyEvent(mActivity);
 		ntfy.setListener(new NotifyEventListener(){
 			@Override
 			public void positiveResponse(Context c, Object[] o) {
@@ -1018,12 +1016,12 @@ public class ActivityMain extends AppCompatActivity {
 				mGp.settingExitClean=false;
 			}
 		});
-		if (mGp.settingConfirmAppExit) mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_main_exit_confirm_msg), "", ntfy);
+		if (mGp.settingConfirmAppExit) mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_main_exit_confirm_msg), "", ntfy);
 		else ntfy.notifyToListener(true, null);
 	};
 
 	private void confirmKill() {
-		NotifyEvent ntfy=new NotifyEvent(mContext);
+		NotifyEvent ntfy=new NotifyEvent(mActivity);
 		ntfy.setListener(new NotifyEventListener(){
 			@Override
 			public void positiveResponse(Context c, Object[] o) {
@@ -1034,7 +1032,7 @@ public class ActivityMain extends AppCompatActivity {
 				mGp.settingExitClean=false;
 			}
 		});
-		mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_main_kill_confirm_msg), "", ntfy);
+		mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_main_kill_confirm_msg), "", ntfy);
 	};
 
     public String getAppVersionName() {
@@ -1059,9 +1057,9 @@ public class ActivityMain extends AppCompatActivity {
         title.setText(getString(R.string.msgs_dlg_title_about)+"(Ver "+getAppVersionName()+")");
 
         CustomTabLayout tab_layout=(CustomTabLayout)dialog.findViewById(R.id.about_tab_view);
-        tab_layout.addTab(mContext.getString(R.string.msgs_about_dlg_func_btn));
-        tab_layout.addTab(mContext.getString(R.string.msgs_about_dlg_privacy_btn));
-        tab_layout.addTab(mContext.getString(R.string.msgs_about_dlg_change_btn));
+        tab_layout.addTab(mActivity.getString(R.string.msgs_about_dlg_func_btn));
+        tab_layout.addTab(mActivity.getString(R.string.msgs_about_dlg_privacy_btn));
+        tab_layout.addTab(mActivity.getString(R.string.msgs_about_dlg_change_btn));
         tab_layout.adjustTabWidth();
 
         LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -1175,7 +1173,7 @@ public class ActivityMain extends AppCompatActivity {
     private boolean checkLegacyStoragePermissions(final NotifyEvent p_ntfy) {
         log.debug("Prermission WriteExternalStorage="+checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE));
         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            NotifyEvent ntfy=new NotifyEvent(mContext);
+            NotifyEvent ntfy=new NotifyEvent(mActivity);
             ntfy.setListener(new NotifyEventListener(){
                 @Override
                 public void positiveResponse(Context c, Object[] o) {
@@ -1183,7 +1181,7 @@ public class ActivityMain extends AppCompatActivity {
                         if (isGranted) {
                             p_ntfy.notifyToListener(true, null);
                         } else {
-                            NotifyEvent ntfy_term = new NotifyEvent(mContext);
+                            NotifyEvent ntfy_term = new NotifyEvent(mActivity);
                             ntfy_term.setListener(new NotifyEvent.NotifyEventListener() {
                                 @Override
                                 public void positiveResponse(Context c, Object[] o) {
@@ -1194,8 +1192,8 @@ public class ActivityMain extends AppCompatActivity {
                                 public void negativeResponse(Context c, Object[] o) {}
                             });
                             mCommonDlg.showCommonDialog(false, "W",
-                                    mContext.getString(R.string.msgs_main_permission_primary_storage_title),
-                                    mContext.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
+                                    mActivity.getString(R.string.msgs_main_permission_primary_storage_title),
+                                    mActivity.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
                         }
 
                     });
@@ -1203,7 +1201,7 @@ public class ActivityMain extends AppCompatActivity {
                 }
                 @Override
                 public void negativeResponse(Context c, Object[] o) {
-                    NotifyEvent ntfy_term=new NotifyEvent(mContext);
+                    NotifyEvent ntfy_term=new NotifyEvent(mActivity);
                     ntfy_term.setListener(new NotifyEventListener(){
                         @Override
                         public void positiveResponse(Context c, Object[] o) {
@@ -1213,13 +1211,13 @@ public class ActivityMain extends AppCompatActivity {
                         public void negativeResponse(Context c, Object[] o) {}
                     });
                     mCommonDlg.showCommonDialog(false, "W",
-                            mContext.getString(R.string.msgs_main_permission_primary_storage_title),
-                            mContext.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
+                            mActivity.getString(R.string.msgs_main_permission_primary_storage_title),
+                            mActivity.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
                 }
             });
             mCommonDlg.showCommonDialog(false, "W",
-                    mContext.getString(R.string.msgs_main_permission_primary_storage_title),
-                    mContext.getString(R.string.msgs_main_permission_primary_storage_request_msg),
+                    mActivity.getString(R.string.msgs_main_permission_primary_storage_title),
+                    mActivity.getString(R.string.msgs_main_permission_primary_storage_request_msg),
                     ntfy);
             return false;
         } else {
@@ -1231,12 +1229,12 @@ public class ActivityMain extends AppCompatActivity {
 //        ArrayList<SafStorage3>ssl=mGp.safMgr.getSafStorageList();
 //        boolean internal_permitted=isPrimaryStorageAccessGranted();
 //        if (!internal_permitted) {
-//            NotifyEvent ntfy_request=new NotifyEvent(mContext);
+//            NotifyEvent ntfy_request=new NotifyEvent(mActivity);
 //            mStoragePermissionPrimaryListener = ntfy_request;
 //            ntfy_request.setListener(new NotifyEvent.NotifyEventListener() {
 //                @Override
 //                public void positiveResponse(Context context, Object[] objects) {
-//                    final NotifyEvent ntfy_response=new NotifyEvent(mContext);
+//                    final NotifyEvent ntfy_response=new NotifyEvent(mActivity);
 //                    mStoragePermissionPrimaryListener = ntfy_response;
 //                    ntfy_response.setListener(new NotifyEvent.NotifyEventListener() {
 //                        @Override
@@ -1255,7 +1253,7 @@ public class ActivityMain extends AppCompatActivity {
 //                                if (!mGp.safMgr.isRootTreeUri(data.getData())) {
 //                                    mUtil.addDebugMsg(1, "I", "Selected UUID="+ SafManager3.getUuidFromUri(data.getData().toString()));
 //
-//                                    NotifyEvent ntfy_retry = new NotifyEvent(mContext);
+//                                    NotifyEvent ntfy_retry = new NotifyEvent(mActivity);
 //                                    ntfy_retry.setListener(new NotifyEvent.NotifyEventListener() {
 //                                        @Override
 //                                        public void positiveResponse(Context c, Object[] o) {
@@ -1264,7 +1262,7 @@ public class ActivityMain extends AppCompatActivity {
 //                                        }
 //                                        @Override
 //                                        public void negativeResponse(Context c, Object[] o) {
-//                                            NotifyEvent ntfy_term = new NotifyEvent(mContext);
+//                                            NotifyEvent ntfy_term = new NotifyEvent(mActivity);
 //                                            ntfy_term.setListener(new NotifyEvent.NotifyEventListener() {
 //                                                @Override
 //                                                public void positiveResponse(Context c, Object[] o) {
@@ -1274,11 +1272,11 @@ public class ActivityMain extends AppCompatActivity {
 //                                                public void negativeResponse(Context c, Object[] o) {}
 //                                            });
 //                                            mCommonDlg.showCommonDialog(false, "W",
-//                                                    mContext.getString(R.string.msgs_main_permission_primary_storage_title),
-//                                                    mContext.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
+//                                                    mActivity.getString(R.string.msgs_main_permission_primary_storage_title),
+//                                                    mActivity.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
 //                                        }
 //                                    });
-//                                    mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_main_permission_primary_storage_request_msg),
+//                                    mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_main_permission_primary_storage_request_msg),
 //                                            data.getData().getPath(), ntfy_retry);
 //                                } else {
 //                                    mUtil.addDebugMsg(1, "I", "Selected UUID="+SafManager3.getUuidFromUri(data.getData().toString()));
@@ -1291,7 +1289,7 @@ public class ActivityMain extends AppCompatActivity {
 //                                    p_ntfy.notifyToListener(true, null);
 //                                }
 //                            } else {
-//                                NotifyEvent ntfy_term = new NotifyEvent(mContext);
+//                                NotifyEvent ntfy_term = new NotifyEvent(mActivity);
 //                                ntfy_term.setListener(new NotifyEvent.NotifyEventListener() {
 //                                    @Override
 //                                    public void positiveResponse(Context c, Object[] o) {
@@ -1301,8 +1299,8 @@ public class ActivityMain extends AppCompatActivity {
 //                                    public void negativeResponse(Context c, Object[] o) {}
 //                                });
 //                                mCommonDlg.showCommonDialog(false, "W",
-//                                        mContext.getString(R.string.msgs_main_permission_primary_storage_title),
-//                                        mContext.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
+//                                        mActivity.getString(R.string.msgs_main_permission_primary_storage_title),
+//                                        mActivity.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
 //                            }
 //                        }
 //                        @Override
@@ -1314,7 +1312,7 @@ public class ActivityMain extends AppCompatActivity {
 //
 //                @Override
 //                public void negativeResponse(Context context, Object[] objects) {
-//                    NotifyEvent ntfy_term = new NotifyEvent(mContext);
+//                    NotifyEvent ntfy_term = new NotifyEvent(mActivity);
 //                    ntfy_term.setListener(new NotifyEvent.NotifyEventListener() {
 //                        @Override
 //                        public void positiveResponse(Context c, Object[] o) {
@@ -1325,13 +1323,13 @@ public class ActivityMain extends AppCompatActivity {
 //                        public void negativeResponse(Context c, Object[] o) {}
 //                    });
 //                    mCommonDlg.showCommonDialog(false, "W",
-//                            mContext.getString(R.string.msgs_main_permission_primary_storage_title),
-//                            mContext.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
+//                            mActivity.getString(R.string.msgs_main_permission_primary_storage_title),
+//                            mActivity.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
 //                }
 //            });
 //            mCommonDlg.showCommonDialog(true, "W",
-//                    mContext.getString(R.string.msgs_main_permission_primary_storage_title),
-//                    mContext.getString(R.string.msgs_main_permission_primary_storage_request_msg),
+//                    mActivity.getString(R.string.msgs_main_permission_primary_storage_title),
+//                    mActivity.getString(R.string.msgs_main_permission_primary_storage_request_msg),
 //                    ntfy_request);
 //        } else {
 //            p_ntfy.notifyToListener(true, null);
@@ -1351,8 +1349,8 @@ public class ActivityMain extends AppCompatActivity {
 
     public void requestStoragePermissionsByUuid(String uuid, NotifyEvent ntfy) {
         Intent intent = null;
-        StorageManager sm = (StorageManager) mContext.getSystemService(Context.STORAGE_SERVICE);
-        ArrayList<SafManager3.StorageVolumeInfo>vol_list=SafManager3.getStorageVolumeInfo(mContext);
+        StorageManager sm = (StorageManager) mActivity.getSystemService(Context.STORAGE_SERVICE);
+        ArrayList<SafManager3.StorageVolumeInfo>vol_list=SafManager3.getStorageVolumeInfo(mActivity);
         for(SafManager3.StorageVolumeInfo svi:vol_list) {
             if (svi.uuid.equals(uuid)) {
                 if (Build.VERSION.SDK_INT>=29) intent=svi.volume.createOpenDocumentTreeIntent();
@@ -1375,12 +1373,12 @@ public class ActivityMain extends AppCompatActivity {
     }
 
     private void requestLocalStoragePermission(final NotifyEvent p_ntfy) {
-        NotifyEvent ntfy=new NotifyEvent(mContext);
+        NotifyEvent ntfy=new NotifyEvent(mActivity);
         ntfy.setListener(new NotifyEvent.NotifyEventListener() {
             @Override
             public void positiveResponse(Context context, Object[] objects) {
                 ArrayList<String>uuid_list=(ArrayList<String>)objects[0];
-                final NotifyEvent ntfy_response=new NotifyEvent(mContext);
+                final NotifyEvent ntfy_response=new NotifyEvent(mActivity);
                 ntfy_response.setListener(new NotifyEvent.NotifyEventListener() {
                     @Override
                     public void positiveResponse(Context context, Object[] objects) {
@@ -1400,7 +1398,7 @@ public class ActivityMain extends AppCompatActivity {
                                 String em=mGp.safMgr.getLastErrorMessage();
                                 if (em.length()>0) mUtil.addDebugMsg(1, "I", "SafMessage="+em);
 
-                                NotifyEvent ntfy_retry = new NotifyEvent(mContext);
+                                NotifyEvent ntfy_retry = new NotifyEvent(mActivity);
                                 ntfy_retry.setListener(new NotifyEvent.NotifyEventListener() {
                                     @Override
                                     public void positiveResponse(Context c, Object[] o) {
@@ -1410,7 +1408,7 @@ public class ActivityMain extends AppCompatActivity {
                                     @Override
                                     public void negativeResponse(Context c, Object[] o) {}
                                 });
-                                mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_main_external_storage_select_retry_select_msg),
+                                mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_main_external_storage_select_retry_select_msg),
                                         data.getData().getPath(), ntfy_retry);
                             } else {
                                 mUtil.addDebugMsg(1, "I", "Selected UUID="+SafManager3.getUuidFromUri(data.getData().toString()));
@@ -1429,8 +1427,8 @@ public class ActivityMain extends AppCompatActivity {
                             }
                         } else {
                             mCommonDlg.showCommonDialog(false, "W",
-                                    mContext.getString(R.string.msgs_main_external_storage_select_required_title),
-                                    mContext.getString(R.string.msgs_main_external_storage_select_deny_msg), null);
+                                    mActivity.getString(R.string.msgs_main_external_storage_select_required_title),
+                                    mActivity.getString(R.string.msgs_main_external_storage_select_deny_msg), null);
 
                         }
                     }
@@ -1463,7 +1461,7 @@ public class ActivityMain extends AppCompatActivity {
                 if (result.getData()!=null) applySettingParms(result.getData());
             }
         });
-        Intent intent=new Intent(mContext, ActivitySettings.class);
+        Intent intent=new Intent(mActivity, ActivitySettings.class);
         laucher.launch(intent);
     };
 
@@ -1471,22 +1469,22 @@ public class ActivityMain extends AppCompatActivity {
 		int prev_theme=mGp.applicationTheme;
 		String prev_language=in.getExtras().getString(ActivitySettings.LANGUAGE_KEY, "");
         String prev_font_scale=in.getExtras().getString(ActivitySettings.FONT_SCALE_KEY, "");
-		mGp.loadSettingsParms(mContext);
-		mGp.refreshMediaDir(mContext);
+		mGp.loadSettingsParms(mActivity);
+		mGp.refreshMediaDir(mActivity);
 		
         if (mGp.settingFixDeviceOrientationToPortrait) setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
-        String new_font_scale=mGp.getFontScaleFactor(mContext);
+        String new_font_scale=mGp.getFontScaleFactor(mActivity);
         if (prev_theme!=mGp.applicationTheme || (!prev_language.equals("") && !prev_language.equals(mGp.settingLanguageValue)) ||
             !prev_font_scale.equals(new_font_scale)) {
-            NotifyEvent ntfy=new NotifyEvent(mContext);
+            NotifyEvent ntfy=new NotifyEvent(mActivity);
             ntfy.setListener(new NotifyEventListener() {
                 @Override
                 public void positiveResponse(Context context, Object[] objects) {
                     finish();
                     mGp.settingExitClean=true;
-                    Intent in=new Intent(mContext, ActivityMain.class);
+                    Intent in=new Intent(mActivity, ActivityMain.class);
                     startActivity(in);
 
                 }
@@ -1496,7 +1494,7 @@ public class ActivityMain extends AppCompatActivity {
 
                 }
             });
-        	mCommonDlg.showCommonDialog(true, "W", mContext.getString(R.string.msgs_main_theme_changed_msg), "", ntfy);
+        	mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_main_theme_changed_msg), "", ntfy);
 //        	mGp.settingExitClean=true;
         }
 
@@ -1512,7 +1510,7 @@ public class ActivityMain extends AppCompatActivity {
 		
 		try {
 		    if (mSvcClient!=null)
-			    mSvcClient.aidlUpdateNotificationMessage(mContext.getString(R.string.msgs_main_notification_end_message));
+			    mSvcClient.aidlUpdateNotificationMessage(mActivity.getString(R.string.msgs_main_notification_end_message));
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -1551,7 +1549,7 @@ public class ActivityMain extends AppCompatActivity {
         mGp.localCopyCutView.setVisibility(LinearLayout.GONE);
         mGp.zipCopyCutView.setVisibility(LinearLayout.GONE);
 
-        if (toast) CommonDialog.showToastShort(mActivity, mContext.getString(R.string.msgs_zip_local_file_clear_copy_cut_list_cleared));
+        if (toast) CommonDialog.showToastShort(mActivity, mActivity.getString(R.string.msgs_zip_local_file_clear_copy_cut_list_cleared));
     }
 
     public void setCopyCutItemView() {
@@ -1566,8 +1564,8 @@ public class ActivityMain extends AppCompatActivity {
             }
         }
         c_list=c_list.replaceAll("//", "/");
-        String from=mGp.copyCutFrom.equals(COPY_CUT_FROM_LOCAL)? mContext.getString(R.string.msgs_zip_local_file_clear_copy_cut_from_local) : mContext.getString(R.string.msgs_zip_local_file_clear_copy_cut_from_zip);
-        String mode=mGp.copyCutModeIsCut?mContext.getString(R.string.msgs_zip_cont_header_cut):mContext.getString(R.string.msgs_zip_cont_header_copy);
+        String from=mGp.copyCutFrom.equals(COPY_CUT_FROM_LOCAL)? mActivity.getString(R.string.msgs_zip_local_file_clear_copy_cut_from_local) : mActivity.getString(R.string.msgs_zip_local_file_clear_copy_cut_from_zip);
+        String mode=mGp.copyCutModeIsCut?mActivity.getString(R.string.msgs_zip_cont_header_cut):mActivity.getString(R.string.msgs_zip_cont_header_copy);
 
         mGp.localCopyCutView.setVisibility(LinearLayout.VISIBLE);
         mGp.localCopyCutItemMode.setText(mode);
@@ -1606,8 +1604,8 @@ public class ActivityMain extends AppCompatActivity {
 
     private void createTabView() {
         mTabLayout=(CustomTabLayout)findViewById(R.id.main_screen_tab);
-        mTabLayout.addTab(mContext.getString(R.string.msgs_main_tab_name_local));
-        mTabLayout.addTab(mContext.getString(R.string.msgs_main_tab_name_zip));
+        mTabLayout.addTab(mActivity.getString(R.string.msgs_main_tab_name_local));
+        mTabLayout.addTab(mActivity.getString(R.string.msgs_main_tab_name_zip));
 
         LinearLayout ll_main=(LinearLayout)findViewById(R.id.main_screen_view);
 //		ll_main.setBackgroundColor(mGp.themeColorList.window_background_color_content);
@@ -1643,7 +1641,7 @@ public class ActivityMain extends AppCompatActivity {
                 mUtil.addDebugMsg(2,"I","onPageSelected entered, pos="+position);
                 mTabLayout.setCurrentTabByPosition(position);
                 if (mTabLayout.getSelectedTabName()!=null) {
-                    if (mTabLayout.getSelectedTabName().equals(mContext.getString(R.string.msgs_main_tab_name_local))) {
+                    if (mTabLayout.getSelectedTabName().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) {
                         if (mLocalFileMgr!=null) {
                             mUiHandler.postDelayed(new Runnable() {
                                 @Override
@@ -1711,7 +1709,7 @@ public class ActivityMain extends AppCompatActivity {
                 }
             };
 
-            Intent intmsg = new Intent(mContext, ZipService.class);
+            Intent intmsg = new Intent(mActivity, ZipService.class);
             intmsg.setAction("Bind");
             bindService(intmsg, mSvcConnection, BIND_AUTO_CREATE);
         }
@@ -1757,7 +1755,7 @@ public class ActivityMain extends AppCompatActivity {
             mUtil.addDebugMsg(1,"I", "cbNotifyMediaStatus entered, Action="+action);
             if (mLocalFileMgr!=null) {
                 boolean sc=mLocalFileMgr.refreshLocalStorageSelector();
-                if (sc) mCommonDlg.showCommonDialog(false, "W", mContext.getString(R.string.msgs_main_local_mount_point_unmounted), "", null);
+                if (sc) mCommonDlg.showCommonDialog(false, "W", mActivity.getString(R.string.msgs_main_local_mount_point_unmounted), "", null);
             }
 		}
     };

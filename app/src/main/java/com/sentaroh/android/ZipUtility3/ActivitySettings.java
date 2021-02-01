@@ -42,7 +42,7 @@ import java.util.Locale;
 import static com.sentaroh.android.ZipUtility3.GlobalParameters.DEFAULT_OPEN_AS_TEXT_FILE_TYPE;
 
 public class ActivitySettings extends PreferenceActivity {
-	private Context mContext=null;
+	private Activity mActivity=null;
 	private PreferenceFragment mPrefFrag=null;
 
 	private ActivitySettings mPrefActivity=null;
@@ -69,15 +69,15 @@ public class ActivitySettings extends PreferenceActivity {
 
     @Override
 	public void onCreate(Bundle savedInstanceState) {
-		mContext=ActivitySettings.this;
-        SharedPreferences shared_pref = PreferenceManager.getDefaultSharedPreferences(mContext);
-		mGp=GlobalWorkArea.getGlobalParameters(mContext);
+		mActivity=ActivitySettings.this;
+        SharedPreferences shared_pref = PreferenceManager.getDefaultSharedPreferences(mActivity);
+		mGp=GlobalWorkArea.getGlobalParameters(mActivity);
 		setTheme(mGp.applicationTheme);
         GlobalParameters.setDisplayFontScale(ActivitySettings.this);
 		super.onCreate(savedInstanceState);
 		mPrefActivity=ActivitySettings.this;
         mCurrentThemeLangaue=shared_pref.getString(getString(R.string.settings_language), GlobalParameters.LANGUAGE_USE_SYSTEM_SETTING);
-		if (mUtil==null) mUtil=new CommonUtilities(mContext, "SettingsActivity", mGp, null);
+		if (mUtil==null) mUtil=new CommonUtilities(mActivity, "SettingsActivity", mGp, null);
 		mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" entered");
 		if (mGp.settingFixDeviceOrientationToPortrait) setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -110,12 +110,12 @@ public class ActivitySettings extends PreferenceActivity {
 
 	@Override
 	public boolean onIsMultiPane () {
-		mContext=ActivitySettings.this.getApplicationContext();
-		mGp=GlobalWorkArea.getGlobalParameters(mContext);
+		mActivity=ActivitySettings.this;
+		mGp=GlobalWorkArea.getGlobalParameters(mActivity);
 //    	mPrefActivity=this;
-		mUtil=new CommonUtilities(mContext, "SettingsActivity", mGp, null);
+		mUtil=new CommonUtilities(mActivity, "SettingsActivity", mGp, null);
 		mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" entered");
-		return isTablet(mContext, mUtil);
+		return isTablet(mActivity, mUtil);
 	};
 
     public static boolean isTablet(Context context, CommonUtilities cu) {
