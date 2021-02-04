@@ -3617,6 +3617,11 @@ public class LocalFileManager {
         mFileListTop.setVisibility(Button.VISIBLE);
         String n_sn= mLocalStorageSelector.getSelectedItem().toString();
         String n_fp=getSafStorageByDescription(n_sn).saf_file.getPath();
+        if (n_fp==null) {
+            mCommonDlg.showCommonDialog(false, "E", "New file path obtain error","fp="+fp+"\nn_sn="+n_sn+"\nn_fp="+n_fp, null);
+            if (p_ntfy!=null) p_ntfy.notifyToListener(false, null);
+            return;
+        }
         if (fp.equals(n_fp)) {
             setTopUpButtonEnabled(false);
         } else {

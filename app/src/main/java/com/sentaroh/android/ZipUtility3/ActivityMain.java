@@ -104,6 +104,8 @@ import static com.sentaroh.android.Utilities3.SafFile3.SAF_FILE_PRIMARY_UUID;
 import static com.sentaroh.android.Utilities3.SafFile3.SAF_FILE_UNKNOWN_UUID;
 import static com.sentaroh.android.ZipUtility3.Constants.APPLICATION_TAG;
 import static com.sentaroh.android.ZipUtility3.GlobalParameters.COPY_CUT_FROM_LOCAL;
+import static com.sentaroh.android.ZipUtility3.GlobalParameters.FONT_SCALE_FACTOR_NORMAL;
+import static com.sentaroh.android.ZipUtility3.GlobalParameters.LANGUAGE_USE_SYSTEM_SETTING;
 
 @SuppressLint("NewApi")
 public class ActivityMain extends AppCompatActivity {
@@ -1451,6 +1453,9 @@ public class ActivityMain extends AppCompatActivity {
 
     }
 
+    private String mPrevLanguageSetting=LANGUAGE_USE_SYSTEM_SETTING;
+    private String mPrevFontSetting=FONT_SCALE_FACTOR_NORMAL;
+
     private void invokeSettingsActivity() {
         mUtil.addDebugMsg(1,"I","Invoke Settings.");
 
@@ -1458,17 +1463,17 @@ public class ActivityMain extends AppCompatActivity {
             @Override
             public void onActivityResult(ActivityResult result) {
                 mUtil.addDebugMsg(1,"I","Return from Setting activity. Intent="+result.getData());
-                if (result.getData()!=null) applySettingParms(result.getData());
+                applySettingParms();
             }
         });
+        mPrevLanguageSetting=mGp.settingLanguageValue;
+        mPrevFontSetting=mGp.getFontScaleFactor(mActivity);
         Intent intent=new Intent(mActivity, ActivitySettings.class);
         laucher.launch(intent);
     };
 
-    private void applySettingParms(Intent in) {
+    private void applySettingParms() {
 		int prev_theme=mGp.applicationTheme;
-		String prev_language=in.getExtras().getString(ActivitySettings.LANGUAGE_KEY, "");
-        String prev_font_scale=in.getExtras().getString(ActivitySettings.FONT_SCALE_KEY, "");
 		mGp.loadSettingsParms(mActivity);
 		mGp.refreshMediaDir(mActivity);
 		
@@ -1476,8 +1481,8 @@ public class ActivityMain extends AppCompatActivity {
         else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
         String new_font_scale=mGp.getFontScaleFactor(mActivity);
-        if (prev_theme!=mGp.applicationTheme || (!prev_language.equals("") && !prev_language.equals(mGp.settingLanguageValue)) ||
-            !prev_font_scale.equals(new_font_scale)) {
+        if (prev_theme!=mGp.applicationTheme || (!mPrevLanguageSetting.equals("") && !mPrevLanguageSetting.equals(mGp.settingLanguageValue)) ||
+            !mPrevFontSetting.equals(new_font_scale)) {
             NotifyEvent ntfy=new NotifyEvent(mActivity);
             ntfy.setListener(new NotifyEventListener() {
                 @Override

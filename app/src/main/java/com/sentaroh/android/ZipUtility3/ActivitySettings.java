@@ -82,11 +82,6 @@ public class ActivitySettings extends PreferenceActivity {
 		if (mGp.settingFixDeviceOrientationToPortrait) setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
-		Intent in=new Intent();
-		in.putExtra(LANGUAGE_KEY, mCurrentThemeLangaue);
-        String mCurrentFontScaleFactor=shared_pref.getString(getString(R.string.settings_display_font_scale_factor), GlobalParameters.FONT_SCALE_FACTOR_NORMAL);
-        in.putExtra(FONT_SCALE_KEY, mCurrentFontScaleFactor);
-		setResult(Activity.RESULT_OK, in);
 	}
 
 	@Override
