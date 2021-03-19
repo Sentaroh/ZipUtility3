@@ -132,6 +132,9 @@ public class LocalFileManager {
         mMainView = mv;
         initViewWidget();
         mTreeFilelistAdapter = new CustomTreeFilelistAdapter(mActivity, false, true);
+        mTreeFilelistAdapter.setSortKey(mGp.localSortKey);
+        if (mGp.localSortOrderAsc) mTreeFilelistAdapter.setSortAscendant();
+        else mTreeFilelistAdapter.setSortDescendant();
 
         mLocalStorageSelector.setEnabled(false);
         createFileList(mMainFilePath, null);
@@ -153,6 +156,9 @@ public class LocalFileManager {
             v_pos_top = mTreeFilelistView.getChildAt(0).getTop();
 
         mTreeFilelistAdapter = new CustomTreeFilelistAdapter(mActivity, false, true);
+        mTreeFilelistAdapter.setSortKey(mGp.localSortKey);
+        if (mGp.localSortOrderAsc) mTreeFilelistAdapter.setSortAscendant();
+        else mTreeFilelistAdapter.setSortDescendant();
 
         mTreeFilelistAdapter.setDataList(fl);
         mTreeFilelistView.setAdapter(mTreeFilelistAdapter);
@@ -578,7 +584,17 @@ public class LocalFileManager {
     }
 
     public void sortFileList() {
-        CommonUtilities.sortFileList(mActivity, mGp, mTreeFilelistAdapter, null);
+        NotifyEvent ntfy=new NotifyEvent(mActivity);
+        ntfy.setListener(new NotifyEventListener() {
+            @Override
+            public void positiveResponse(Context context, Object[] objects) {
+                mGp.saveLocalSortParameter(context, mTreeFilelistAdapter);
+            }
+
+            @Override
+            public void negativeResponse(Context context, Object[] objects) {}
+        });
+        CommonUtilities.sortFileList(mActivity, mGp, mTreeFilelistAdapter, ntfy);
     }
 
     final static public void getAllPictureFileInDirectory(ArrayList<File> fl, File lf, boolean process_sub_directories) {
@@ -1482,7 +1498,7 @@ public class LocalFileManager {
         try {
             SafFile3 out_file = new SafFile3(mActivity, to_path);
             OutputStream temp_out_stream=null;
-            String tmp_file_name=out_file.getAppDirectoryCache()+"/"+from_file.getName();
+            String tmp_file_name=out_file.getAppDirectoryCache()+"/"+System.currentTimeMillis();//from_file.getName();
             SafFile3 temp_out_file = new SafFile3(mActivity, tmp_file_name);
             File temp_os_file=new File(tmp_file_name);
             OutputStream fos =new FileOutputStream(temp_os_file);
@@ -1516,7 +1532,7 @@ public class LocalFileManager {
                 temp_os_file.setLastModified(in_last_mod);
 
                 out_file.deleteIfExists();
-                result=temp_out_file.moveTo(out_file);
+                result=temp_out_file.moveToWithRename(out_file);
                 scanMediaFile(mGp, mUtil, out_file.getPath());
 
                 if (move && result) from_file.deleteIfExists();
@@ -2196,7 +2212,7 @@ public class LocalFileManager {
     }
 
     private void showToast(Activity a, String msg) {
-        Thread.dumpStack();
+//        Thread.dumpStack();
         mUiHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -3634,6 +3650,10 @@ public class LocalFileManager {
             public void positiveResponse(Context context, Object[] objects) {
                 ArrayList<TreeFilelistItem> tfl=(ArrayList<TreeFilelistItem>)objects[0];
                 if (mTreeFilelistAdapter==null) mTreeFilelistAdapter=new CustomTreeFilelistAdapter(mActivity, false, true);
+                mTreeFilelistAdapter.setSortKey(mGp.localSortKey);
+                if (mGp.localSortOrderAsc) mTreeFilelistAdapter.setSortAscendant();
+                else mTreeFilelistAdapter.setSortDescendant();
+
                 mTreeFilelistAdapter.setDataList(tfl);
                 mTreeFilelistAdapter.setCheckBoxEnabled(isUiEnabled());
                 mTreeFilelistAdapter.notifyDataSetChanged();

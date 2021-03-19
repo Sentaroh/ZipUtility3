@@ -114,12 +114,12 @@ public class ActivitySettings extends PreferenceActivity {
 	};
 
     public static boolean isTablet(Context context, CommonUtilities cu) {
-        int multiPaneDP=540;
-        String lang_code=Locale.getDefault().getLanguage();
-        if (lang_code.equals("en")) multiPaneDP=500;
-        else if (lang_code.equals("fr")) multiPaneDP=540;
-        else if (lang_code.equals("ja")) multiPaneDP=500;
-        else if (lang_code.equals("ru")) multiPaneDP=1000;
+        int multiPaneDP=400;//540;
+//        String lang_code=Locale.getDefault().getLanguage();
+//        if (lang_code.equals("en")) multiPaneDP=500;
+//        else if (lang_code.equals("fr")) multiPaneDP=540;
+//        else if (lang_code.equals("ja")) multiPaneDP=500;
+//        else if (lang_code.equals("ru")) multiPaneDP=1000;
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         final float x_px = (float) Math.min(metrics.heightPixels, metrics.widthPixels);
         final float y_px = (float) Math.max(metrics.heightPixels, metrics.widthPixels);
@@ -335,6 +335,8 @@ public class ActivitySettings extends PreferenceActivity {
                 }
 
             } else if (key_string.equals(c.getString(R.string.settings_device_orientation_portrait))) {
+                isChecked=true;
+            } else if (key_string.equals(c.getString(R.string.settings_restore_sort_order_when_app_starts))) {
                 isChecked=true;
             } else if (key_string.equals(c.getString(R.string.settings_confirm_exit))) {
                 isChecked=true;

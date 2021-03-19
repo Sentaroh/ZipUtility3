@@ -305,6 +305,7 @@ public class ActivityMain extends AppCompatActivity {
                         mLocalFileMgr.showLocalFileView(false);
                         mZipFileMgr=new ZipFileManager(mGp, mActivity, mFragmentManager, mZipView);
                     }
+                    refreshOptionMenu();
                     if (!mRestartRestoreReqired) {
                         Intent in=getIntent();
                         if (in!=null && in.getData()!=null) showZipFileByIntent(in);
@@ -585,7 +586,6 @@ public class ActivityMain extends AppCompatActivity {
         super.onPrepareOptionsMenu(menu);
 
         menu.findItem(R.id.menu_top_save_zip_file).setVisible(false);
-//        if (mMainTabHost.getCurrentTabTag().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) {
         if (mTabLayout.getSelectedTabName().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) {
             menu.findItem(R.id.menu_top_encoding).setVisible(false);
             menu.findItem(R.id.menu_top_save_zip_file).setVisible(false);
@@ -642,20 +642,14 @@ public class ActivityMain extends AppCompatActivity {
 			case android.R.id.home:
 				return true;
 			case R.id.menu_top_find:
-//				if (mMainTabHost.getCurrentTabTag().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.searchFile();
-//				else mZipFileMgr.searchFile();
                 if (mTabLayout.getSelectedTabName().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.searchFile();
                 else mZipFileMgr.searchFile();
 				return true;
 			case R.id.menu_top_refresh:
-//				if (mMainTabHost.getCurrentTabTag().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.refreshFileList();
-//				else mZipFileMgr.refreshFileList(true);
                 if (mTabLayout.getSelectedTabName().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.refreshFileList();
                 else mZipFileMgr.refreshFileList(true);
 				return true;
 			case R.id.menu_top_sort:
-//				if (mMainTabHost.getCurrentTabTag().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.sortFileList();
-//				else mZipFileMgr.sortFileList();
                 if (mTabLayout.getSelectedTabName().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.sortFileList();
                 else mZipFileMgr.sortFileList();
 				return true;
@@ -683,7 +677,6 @@ public class ActivityMain extends AppCompatActivity {
 				return true;
             case R.id.menu_top_storage_permission:
                 requestLocalStoragePermission(null);
-//                reselectSdcard("");
                 return true;
 			case R.id.menu_top_kill:
 				confirmKill();
@@ -1495,14 +1488,12 @@ public class ActivityMain extends AppCompatActivity {
                 }
 
                 @Override
-                public void negativeResponse(Context context, Object[] objects) {
-
-                }
+                public void negativeResponse(Context context, Object[] objects) {}
             });
         	mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_main_theme_changed_msg), "", ntfy);
 //        	mGp.settingExitClean=true;
         }
-
+        refreshOptionMenu();
     };
 
     private boolean enableMainUi=true;

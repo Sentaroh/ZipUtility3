@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:ignore="ButtonStyle,RtlHardcoded" >
-  
+
     <LinearLayout
         android:id="@+id/main_screen_view"
         android:layout_width="fill_parent"

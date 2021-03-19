@@ -104,6 +104,8 @@ public class GlobalParameters {
 	public boolean settingExitClean=true;
 	public boolean settingUseLightTheme=false;
 
+    public boolean settingRestoreSortOrder=false;
+
 	public boolean settingFixDeviceOrientationToPortrait=false;
 
     public boolean settingConfirmAppExit=true;
@@ -205,6 +207,9 @@ public class GlobalParameters {
         if (!prefs.contains(c.getString(R.string.settings_display_font_scale_factor)))
             prefs.edit().putString(c.getString(R.string.settings_display_font_scale_factor), FONT_SCALE_FACTOR_NORMAL).commit();
 
+        if (!prefs.contains(c.getString(R.string.settings_restore_sort_order_when_app_starts)))
+            prefs.edit().putBoolean(c.getString(R.string.settings_restore_sort_order_when_app_starts), false).commit();
+
     };
 
 	public void loadSettingsParms(Context c) {
@@ -234,9 +239,51 @@ public class GlobalParameters {
 
         settingExitClean=prefs.getBoolean(c.getString(R.string.settings_exit_clean), true);
 
+        settingRestoreSortOrder=prefs.getBoolean(c.getString(R.string.settings_restore_sort_order_when_app_starts), false);
+
         loadLanguagePreference(c);
         setDisplayFontScale(c);
+
+        if (settingRestoreSortOrder) loadSortParameter(c);
+
     };
+
+	private void loadSortParameter(Context c) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+	    localSortOrderAsc=prefs.getBoolean(SORT_PARM_LOCAL_ASC_KEY, true);
+	    localSortKey=prefs.getInt(SORT_PARM_LOCAL_SORT_KEY, 0);
+
+        zipSortOrderAsc=prefs.getBoolean(SORT_PARM_ZIP_ASC_KEY, true);
+        zipSortKey=prefs.getInt(SORT_PARM_ZIP_SORT_KEY, 0);
+    }
+
+    public void saveLocalSortParameter(Context c, CustomTreeFilelistAdapter ctfa) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+        SharedPreferences.Editor edit=prefs.edit();
+        edit.putBoolean(SORT_PARM_LOCAL_ASC_KEY, ctfa.isSortAscendant());
+        edit.putInt(SORT_PARM_LOCAL_SORT_KEY, ctfa.getSortKey());
+        edit.commit();
+    }
+
+    public void saveZipSortParameter(Context c, CustomTreeFilelistAdapter ctfa) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+        SharedPreferences.Editor edit=prefs.edit();
+        edit.putBoolean(SORT_PARM_ZIP_ASC_KEY, ctfa.isSortAscendant());
+        edit.putInt(SORT_PARM_ZIP_SORT_KEY, ctfa.getSortKey());
+        edit.commit();
+    }
+
+    private final static String SORT_PARM_LOCAL_ASC_KEY="sort_local_parm_asc";
+    private final static String SORT_PARM_LOCAL_SORT_KEY="sort_local_parm_sort";
+
+    private final static String SORT_PARM_ZIP_ASC_KEY="sort_zip_parm_asc";
+    private final static String SORT_PARM_ZIP_SORT_KEY="sort_zip_parm_sort";
+
+    public boolean localSortOrderAsc=true;
+    public int localSortKey=CustomTreeFilelistAdapter.SORT_KEY_NAME;
+
+    public boolean zipSortOrderAsc=true;
+    public int zipSortKey=CustomTreeFilelistAdapter.SORT_KEY_NAME;
 
     public static final String FONT_SCALE_FACTOR_SMALL="0";
     public static final float FONT_SCALE_FACTOR_SMALL_VALUE=0.8f;

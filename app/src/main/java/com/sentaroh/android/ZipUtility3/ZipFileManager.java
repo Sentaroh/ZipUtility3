@@ -211,7 +211,10 @@ public class ZipFileManager {
         initViewWidget();
 
 		mTreeFilelistAdapter=new CustomTreeFilelistAdapter(mActivity, false, true);
-		mTreeFilelistView.setAdapter(mTreeFilelistAdapter);
+        mTreeFilelistAdapter.setSortKey(mGp.zipSortKey);
+        if (mGp.zipSortOrderAsc) mTreeFilelistAdapter.setSortAscendant();
+        else mTreeFilelistAdapter.setSortDescendant();
+        mTreeFilelistView.setAdapter(mTreeFilelistAdapter);
 
         hideTreeFileListView();
 	};
@@ -223,6 +226,9 @@ public class ZipFileManager {
         if (mTreeFilelistView.getChildAt(0)!=null) v_pos_top=mTreeFilelistView.getChildAt(0).getTop();
 
         mTreeFilelistAdapter=new CustomTreeFilelistAdapter(mActivity, false, true);
+        mTreeFilelistAdapter.setSortKey(mGp.zipSortKey);
+        if (mGp.zipSortOrderAsc) mTreeFilelistAdapter.setSortAscendant();
+        else mTreeFilelistAdapter.setSortDescendant();
 
         mTreeFilelistAdapter.setDataList(fl);
         mTreeFilelistView.setAdapter(mTreeFilelistAdapter);
@@ -1045,7 +1051,17 @@ public class ZipFileManager {
 	};
 	
 	public void sortFileList() {
-		CommonUtilities.sortFileList(mActivity, mGp, mTreeFilelistAdapter, null);	
+        NotifyEvent ntfy=new NotifyEvent(mActivity);
+        ntfy.setListener(new NotifyEventListener() {
+            @Override
+            public void positiveResponse(Context context, Object[] objects) {
+                mGp.saveZipSortParameter(context, mTreeFilelistAdapter);
+            }
+
+            @Override
+            public void negativeResponse(Context context, Object[] objects) {}
+        });
+        CommonUtilities.sortFileList(mActivity, mGp, mTreeFilelistAdapter, ntfy);
 	};
 	
 	public void searchFile() {

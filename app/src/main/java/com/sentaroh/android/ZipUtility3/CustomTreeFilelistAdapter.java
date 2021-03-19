@@ -252,9 +252,17 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
 		return mSortKey==SORT_KEY_TIME;
 	};
 
-	final static private int SORT_KEY_NAME=0;
-	final static private int SORT_KEY_TIME=1;
-	final static private int SORT_KEY_SIZE=2;
+	public int getSortKey() {
+	    return mSortKey;
+    }
+
+    public void setSortKey(int key_value) {
+        mSortKey=key_value;
+    }
+
+    final static public int SORT_KEY_NAME=0;
+	final static public int SORT_KEY_TIME=1;
+	final static public int SORT_KEY_SIZE=2;
 	private int mSortKey=SORT_KEY_NAME;
 	public void setSortKeyName() {
 		mSortKey=SORT_KEY_NAME;

@@ -61,13 +61,16 @@ public class ZipService extends Service {
 //	private SleepReceiver mSleepReceiver=new SleepReceiver();
 	
 	private WakeLock mPartialWakelock=null;
+
+	private Handler mUiHandler=null;
 	
 	@Override
 	public void onCreate() {
 		super.onCreate();
         mContext=getApplicationContext();
 		mGp=GlobalWorkArea.getGlobalParameters(mContext);
-		mUtil=new CommonUtilities(getApplicationContext(), "Service", mGp, null);
+		mUtil=new CommonUtilities(getApplicationContext(), "ZipService", mGp, null);
+        mUiHandler=new Handler();
 		
 		mUtil.addDebugMsg(1,"I","onCreate entered");
 		
@@ -80,33 +83,10 @@ public class ZipService extends Service {
     	mPartialWakelock=((PowerManager)getSystemService(Context.POWER_SERVICE))
     			.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "ZipUtility-Partial");
         initNotification();
+
+        setMediaStatusListener();
 	}
 
-	private void setHeartBeat() {
-//		if (Build.VERSION.SDK_INT>=21) {
-////			Thread.dumpStack();
-//			long time= System.currentTimeMillis()+1000*5;
-////			Intent in = new Intent(mContext, SyncService.class);
-//			Intent in = new Intent(mContext, ZipService.class);
-//			in.setAction(SERVICE_HEART_BEAT);
-//			PendingIntent pi = PendingIntent.getService(mContext, 0, in, PendingIntent.FLAG_UPDATE_CURRENT);
-////			PendingIntent pi = PendingIntent.getService(mContext, 0, in, PendingIntent.FLAG_UPDATE_CURRENT);
-//		    AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
-//		    if (Build.VERSION.SDK_INT>=23) am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pi);
-//		    else am.set(AlarmManager.RTC_WAKEUP, time, pi);
-//		}
-	}
-	
-	private void cancelHeartBeat() {
-//		Intent in = new Intent(mContext, SyncService.class);
-        Intent in = new Intent(mContext, ZipService.class);
-		in.setAction(SERVICE_HEART_BEAT);
-		PendingIntent pi = PendingIntent.getService(mContext, 0, in, PendingIntent.FLAG_CANCEL_CURRENT);
-//		PendingIntent pi = PendingIntent.getService(mContext, 0, in, PendingIntent.FLAG_CANCEL_CURRENT);
-	    AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
-	    am.cancel(pi);
-	};
-	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
@@ -115,47 +95,8 @@ public class ZipService extends Service {
 		wl.acquire();
 		String action="";
 		if (intent!=null) if (intent.getAction()!=null) action=intent.getAction();
-		if (action.equals(SERVICE_HEART_BEAT)) {
-            setHeartBeat();
-        } else if (action.equals(Intent.ACTION_MEDIA_MOUNTED) || action.equals(Intent.ACTION_MEDIA_UNMOUNTED) ||
-                action.equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)|| action.equals(UsbManager.ACTION_USB_DEVICE_DETACHED)) {
-            mUtil.addDebugMsg(1,"I","onStartCommand entered, action="+action);
-            Handler hndl=new Handler();
-            final String f_action=action;
-            Thread th=new Thread() {
-                @Override
-                public void run() {
-                    int prev_ls=mGp.safMgr.getSafStorageList().size();
-                    for(int i=0;i<10;i++) {
-                        mGp.refreshMediaDir(mContext);
-                        ArrayList<SafStorage3> new_list=mGp.safMgr.getSafStorageList();
-                        if (prev_ls!=new_list.size()) {
-                            hndl.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (mGp.callbackStub!=null) {
-                                        try {
-                                            mGp.callbackStub.cbNotifyMediaStatus(f_action);
-                                        } catch (RemoteException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                }
-                            });
-                            break;
-                        } else {
-                            SystemClock.sleep(300);
-                        }
-//                        mUtil.addDebugMsg(1,"I","i="+i+", cnt="+prev_ls+", new="+new_list.size());
-                    }
-                }
-            };
-            th.start();
-		} else {
-			mUtil.addDebugMsg(2,"I","onStartCommand entered, action="+action);
-		}
+        mUtil.addDebugMsg(1,"I","onStartCommand entered, action="+action);
 		wl.release();
-//		if (isServiceToBeStopped()) stopSelf();
 		return START_STICKY;
 	};
 
@@ -187,8 +128,8 @@ public class ZipService extends Service {
 		super.onDestroy();
 		mUtil.addDebugMsg(1,"I",CommonUtilities.getExecutedMethodName()+" entered");
 //		unregisterReceiver(mSleepReceiver);
-		cancelHeartBeat();
 		stopForeground(true);
+		unsetMediaStatusListener();
 		LogUtil.closeLog(mContext);
 		if (mGp.settingExitClean) {
             android.os.Process.killProcess(android.os.Process.myPid());
@@ -294,7 +235,6 @@ public class ZipService extends Service {
 
     private void setActivityForeground() {
 		mGp.activityIsBackground=false;
-		cancelHeartBeat();
 		if (mPartialWakelock.isHeld()) mPartialWakelock.release();
 		stopForeground(true);
 		mNotification=null;
@@ -305,7 +245,6 @@ public class ZipService extends Service {
     private void setActivityBackground() {
 		mGp.activityIsBackground=true;
 		if (!mPartialWakelock.isHeld()) mPartialWakelock.acquire();;
-		setHeartBeat();
 
 		mNotificationBuilder.setWhen(System.currentTimeMillis())
 	    	.setContentText(mContext.getString(R.string.msgs_main_notification_message));
@@ -327,5 +266,50 @@ public class ZipService extends Service {
 //			}
 //		}
 //    };
+
+    private void setMediaStatusListener() {
+        mUtil.addDebugMsg(1, "I", "setMediaStatusListener entered");
+        IntentFilter media_filter = new IntentFilter();
+        media_filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
+        media_filter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
+        media_filter.addAction(Intent.ACTION_MEDIA_EJECT);
+        media_filter.addAction(Intent.ACTION_MEDIA_REMOVED);
+        media_filter.addDataScheme("file");
+        registerReceiver(mMediaStatusChangeListener, media_filter);
+    }
+
+    private void unsetMediaStatusListener() {
+        mUtil.addDebugMsg(1, "I", "unsetMediaStatusListener entered");
+        unregisterReceiver(mMediaStatusChangeListener);
+    }
+
+
+    MediaStatusChangeReceiver mMediaStatusChangeListener=new MediaStatusChangeReceiver();
+    final private class MediaStatusChangeReceiver extends BroadcastReceiver {
+        @Override
+        final public void onReceive(Context c, Intent in) {
+            String action = in.getAction();
+            mUtil.addDebugMsg(1, "I", "Media status change receiver, action=" + action);
+            if (action.equals(Intent.ACTION_MEDIA_MOUNTED) || action.equals(Intent.ACTION_MEDIA_UNMOUNTED)
+                    || action.equals(Intent.ACTION_MEDIA_EJECT) || action.equals(Intent.ACTION_MEDIA_REMOVED)) {
+                if (action.equals(Intent.ACTION_MEDIA_EJECT)) SystemClock.sleep(1000);
+                mGp.refreshMediaDir(c);
+                mUiHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mGp.callbackStub!=null) {
+                            try {
+                                mGp.callbackStub.cbNotifyMediaStatus(action);
+                            } catch (RemoteException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+                mUtil.addDebugMsg(1, "I", "Media status change process ended, path=" + in.getDataString());
+            }
+        }
+
+    }
 
 }

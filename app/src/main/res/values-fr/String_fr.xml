@@ -322,6 +322,9 @@
         <string name="settings_device_orientation_portrait_title">L\'orientation de l\'appareil</string>
         <string name="settings_device_orientation_portrait_summary_ena">Fixer l\'orientation de l\'appareil au portrait</string>
         <string name="settings_device_orientation_portrait">settings_device_orientation_portrait</string>
+        <string name="settings_restore_sort_order_when_app_starts_title">Reprise de l\'ordre de tri</string>
+        <string name="settings_restore_sort_order_when_app_starts_summary_ena">Reprendre l\'ordre de tri de la liste des fichiers de la fois précédente.</string>
+        <string name="settings_restore_sort_order_when_app_starts">settings_restore_sort_order_when_app_starts</string>
         <string name="settings_exit_clean_title">Sortir proprement</string>
         <string name="settings_exit_clean_summary_ena">Supprimer le processus de demande après le nettoyage de la demande</string>
         <string name="settings_exit_clean">settings_exit_clean</string>
