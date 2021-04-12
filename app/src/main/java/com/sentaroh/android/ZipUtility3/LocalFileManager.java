@@ -1183,7 +1183,15 @@ public class LocalFileManager {
                                 SafFile3 cf=new SafFile3(mActivity, current_name);
                                 SafFile3 nf=new SafFile3(mActivity, new_name);
                                 try {
+                                    ArrayList<String>cf_list=new ArrayList<String>();
+                                    buildMediaScanList(cf, cf_list);
                                     rc_rename=renameSafFile(cf, nf);
+                                    if (rc_rename) {
+                                        ArrayList<String>nf_list=new ArrayList<String>();
+                                        buildMediaScanList(nf, nf_list);
+                                        for(String item:cf_list) scanMediaFile(mGp, mUtil, item);
+                                        for(String item:nf_list) scanMediaFile(mGp, mUtil, item);
+                                    }
                                 } catch(Exception e) {
                                     e.printStackTrace();
                                     e_msg_tmp=MiscUtil.getStackTraceString(e);
@@ -1233,6 +1241,17 @@ public class LocalFileManager {
         });
         dialog.show();
 
+    }
+
+    private void buildMediaScanList(SafFile3 sf, ArrayList<String>file_list) {
+        if (sf.isDirectory()) {
+            SafFile3[] fl=sf.listFiles();
+            if (fl!=null && fl.length>0) {
+                for(SafFile3 item:fl) file_list.add(item.getPath());
+            }
+        } else {
+            file_list.add(sf.getPath());
+        }
     }
 
     private void copyItem(CustomTreeFilelistAdapter tfa) {
@@ -2341,6 +2360,7 @@ public class LocalFileManager {
                         else {
                             result=item.delete();
                             if (result) {
+                                scanMediaFile(mGp, mUtil, fp);
                                 putProgressMessage(
                                         String.format(mActivity.getString(R.string.msgs_zip_delete_file_was_deleted),
                                                 item.getPath()));
@@ -2365,6 +2385,7 @@ public class LocalFileManager {
                 SafFile3 del_sf = new SafFile3(mActivity,fp);
                 result = del_sf.delete();
                 if (result) {
+                    scanMediaFile(mGp, mUtil, fp);
                     putProgressMessage(String.format(mActivity.getString(R.string.msgs_zip_delete_file_was_deleted), lf.getPath()));
                     mUtil.addLogMsg("I", String.format(mActivity.getString(R.string.msgs_zip_delete_file_was_deleted), lf.getPath()));
                 }
