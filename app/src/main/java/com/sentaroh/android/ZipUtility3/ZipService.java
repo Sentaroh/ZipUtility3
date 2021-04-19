@@ -256,17 +256,6 @@ public class ZipService extends Service {
 		startForeground(R.string.app_name, mNotification);
     };
 
-//    final private class SleepReceiver  extends BroadcastReceiver {
-//		@Override
-//		final public void onReceive(Context c, Intent in) {
-//			String action = in.getAction();
-//			if(action.equals(Intent.ACTION_SCREEN_ON)) {
-//			} else if(action.equals(Intent.ACTION_SCREEN_OFF)) {
-//			} else if(action.equals(Intent.ACTION_USER_PRESENT)) {
-//			}
-//		}
-//    };
-
     private void setMediaStatusListener() {
         mUtil.addDebugMsg(1, "I", "setMediaStatusListener entered");
         IntentFilter media_filter = new IntentFilter();
@@ -290,8 +279,11 @@ public class ZipService extends Service {
         final public void onReceive(Context c, Intent in) {
             String action = in.getAction();
             mUtil.addDebugMsg(1, "I", "Media status change receiver, action=" + action);
-            if (action.equals(Intent.ACTION_MEDIA_MOUNTED) || action.equals(Intent.ACTION_MEDIA_UNMOUNTED)
-                    || action.equals(Intent.ACTION_MEDIA_EJECT) || action.equals(Intent.ACTION_MEDIA_REMOVED)) {
+            if (action.equals(Intent.ACTION_MEDIA_MOUNTED)
+                    || action.equals(Intent.ACTION_MEDIA_UNMOUNTED)
+                    || action.equals(Intent.ACTION_MEDIA_EJECT)
+//                    || action.equals(Intent.ACTION_MEDIA_REMOVED)
+                ) {
                 if (action.equals(Intent.ACTION_MEDIA_EJECT)) SystemClock.sleep(1000);
                 mGp.refreshMediaDir(c);
                 mUiHandler.post(new Runnable() {

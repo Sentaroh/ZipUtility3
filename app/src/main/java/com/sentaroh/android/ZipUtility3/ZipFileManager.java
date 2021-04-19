@@ -91,6 +91,7 @@ import com.sentaroh.android.Utilities3.Zip.ZipUtil;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.io.inputstream.ZipInputStream;
 import net.lingala.zip4j.model.FileHeader;
+import net.lingala.zip4j.model.ZipModel;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.AesKeyStrength;
 import net.lingala.zip4j.model.enums.CompressionLevel;
@@ -833,12 +834,16 @@ public class ZipFileManager {
                                 public void run() {
                                     pd.dismiss();
                                     if (err_msg==null) {
-                                        mCurretnFileIsReadOnly=read_only;
-                                        addZipFileViewerItem(read_only, in_file.getPath());
-                                        mCurrentFilePath=in_file.getPath();
-                                        mCurrentDirectory.setText("/");
-                                        refreshFileList(true);
-                                        refreshZipFileSpinner(in_file);
+                                        if (!ZipUtil.isSplitArchiveFile(mActivity, in_file)) {
+                                            mCurretnFileIsReadOnly=read_only;
+                                            addZipFileViewerItem(read_only, in_file.getPath());
+                                            mCurrentFilePath=in_file.getPath();
+                                            mCurrentDirectory.setText("/");
+                                            refreshFileList(true);
+                                            refreshZipFileSpinner(in_file);
+                                        } else {
+                                            mCommonDlg.showCommonDialog(false, "W", "Split ZIP file can not be used", "File="+in_file.getPath(), null);
+                                        }
                                     } else {
                                         mCommonDlg.showCommonDialog(false, "W", "Invalid ZIP file", "File="+in_file.getPath()+"\n"+err_msg, null);
                                     }
@@ -872,7 +877,7 @@ public class ZipFileManager {
 		}
 	};
 
-	class ZipFileViewerItem {
+    class ZipFileViewerItem {
 		public String file_path="";
 //        public boolean temporary_file=false;
         public boolean file_error_detected=false;
