@@ -41,20 +41,29 @@ import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.fragment.app.FragmentManager;
+
+import com.sentaroh.android.Utilities3.CallBackListener;
 import com.sentaroh.android.Utilities3.Dialog.CommonDialog;
+import com.sentaroh.android.Utilities3.Dialog.MessageDialogFragment;
 import com.sentaroh.android.Utilities3.NotifyEvent;
 import com.sentaroh.android.Utilities3.SafFile3;
 import com.sentaroh.android.ZipUtility3.Log.LogUtil;
 
+import org.markdownj.MarkdownProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 
 import static com.sentaroh.android.ZipUtility3.Constants.DEFAULT_PREFS_FILENAME;
-
 public final class CommonUtilities {
-	private Context mContext =null;
+    private static Logger log= LoggerFactory.getLogger(CommonUtilities.class);
+    private Context mContext =null;
 
    	private LogUtil mLog=null;
    	
@@ -62,18 +71,17 @@ public final class CommonUtilities {
    	
 	private String mLogIdent="";
 
-    private CommonDialog mCommonDlg=null;
-
-	public CommonUtilities(Context c, String li, GlobalParameters gp, CommonDialog cd) {
-		mContext =c;// ContextはApplicationContext
-		mLog=new LogUtil(c, li);
+    private FragmentManager mFragMgr=null;
+	public CommonUtilities(Context a, String li, GlobalParameters gp, FragmentManager fm) {
+		mContext =a;// ContextはApplicationContexte
+		mLog=new LogUtil(a, li);
 		mLogIdent=li;
         mGp=gp;
-        mCommonDlg=cd;
+        mFragMgr=fm;
 	}
 
-	final public SharedPreferences getPrefMgr() {
-    	return getPrefMgr(mContext);
+	final public SharedPreferences getSharedPreference() {
+    	return getSharedPreference(mContext);
     }
 
 //	static public void scanMediaFile(GlobalParameters gp, CommonUtilities util, String fp) {
@@ -98,8 +106,35 @@ public final class CommonUtilities {
 //			}
 //		}
 //	};
-	
-	final static public void getAllFileInDirectory(GlobalParameters gp, CommonUtilities util,
+
+    static public void showCommonDialog(FragmentManager fm, final boolean negative, String type, String title, String msgtext, Object listener) {
+        MessageDialogFragment cdf =MessageDialogFragment.newInstance(negative, type, title, msgtext);
+        cdf.showDialog(fm, cdf,listener);
+    };
+
+    static public void showCommonDialog(FragmentManager fm, final boolean negative, String type, String title, String msgtext,
+                                        String ok_btn_label, String cancel_btn_label, String extra_btn_label,
+                                        Object listener, CallBackListener cbl, boolean max) {
+        MessageDialogFragment cdf =MessageDialogFragment.newInstance(negative, type, title, msgtext, ok_btn_label, cancel_btn_label, extra_btn_label);
+        cdf.showDialog(fm, cdf, listener, cbl, max);
+    };
+
+    public static String convertMakdownToHtml(Context c, String mark_down_fp) {
+//        long b_time=System.currentTimeMillis();
+        String html ="";
+        try {
+            InputStream is = c.getAssets().open(mark_down_fp);
+            MarkdownProcessor processor = new MarkdownProcessor();
+            html=processor.markdown(false, is);
+        } catch(Exception e) {
+            log.error("MarkDown conversion error.", e);
+            e.printStackTrace();
+        }
+//        Log.v(APPLICATION_TAG, "convertMakdownToHtml elapsed time="+(System.currentTimeMillis()-b_time));
+        return html;
+    }
+
+    final static public void getAllFileInDirectory(GlobalParameters gp, CommonUtilities util,
                                                    ArrayList<SafFile3> fl, SafFile3 lf, boolean process_sub_directories) {
 		if (lf.isDirectory()) {
 			SafFile3[] cfl=lf.listFiles();
@@ -147,11 +182,11 @@ public final class CommonUtilities {
 	};
 
 
-	final static public SharedPreferences getPrefMgr(Context c) {
+	final static public SharedPreferences getSharedPreference(Context c) {
     	return c.getSharedPreferences(DEFAULT_PREFS_FILENAME, Context.MODE_PRIVATE| Context.MODE_MULTI_PROCESS);
     }
 
-	final public void setLogId(String li) {
+    final public void setLogId(String li) {
 		mLog.setLogId(li);
 	};
 	

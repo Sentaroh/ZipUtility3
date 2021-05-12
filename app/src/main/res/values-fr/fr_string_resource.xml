@@ -6,8 +6,8 @@
         <string name="msgs_about_dlg_change_btn">Journal des modifications</string>
         <string name="msgs_dlg_title_about">À propos de ZipUtility3</string>
         <string name="msgs_dlg_title_about_func_desc">ZipUtility3_Desc_FR_Short.htm</string>
-        <string name="msgs_dlg_title_about_privacy_desc">ZipUtility3_Privacy_FR.html</string>
-        <string name="msgs_dlg_title_about_change_desc">ZipUtility3_Change_EN.html</string>
+        <string name="msgs_dlg_title_about_privacy_desc">ZipUtility3_about_EN_Privacy.md</string>
+        <string name="msgs_dlg_title_about_change_desc">ZipUtility3_Help_EN_change.md</string>
     <!-- Log -->
         <string name="msgs_log_management_title">Gestion des journaux</string>
         <string name="msgs_log_management_enable_log_file_hint">Rédigez une question/problème sur ZipUtility3.</string>
@@ -67,6 +67,8 @@
         <string name="msgs_zip_cont_header_copy">Copy</string>
         <string name="msgs_zip_cont_header_cut">Cut</string>
         <string name="msgs_zip_cont_header_clipboard">Clipboard :</string>
+        <string name="msgs_zip_button_header_copy_item_list">Afficher les éléments copier/couper</string>
+        <string name="msgs_zip_button_header_clear_copy_item">Clair la liste de copie/coupe </string>
         <string name="msgs_zip_local_file_clear_copy_cut_item">Clair</string>
         <string name="msgs_zip_local_file_clear_copy_cut_from_local">Local</string>
         <string name="msgs_zip_local_file_clear_copy_cut_from_zip">ZIP</string>
@@ -226,20 +228,31 @@
         <string name="msgs_menu_kill">Supprimer la demande</string>
         <string name="msgs_menu_sort">Trier</string>
         <string name="msgs_menu_save_zip_file">Enregistrer sous</string>
-        <string name="msgs_menu_storage_permission">Permettre l\'utilisation d\'un stockage externe</string>
+        <string name="msgs_menu_storage_permission">Autorisation d\'utilisation de la mémoire SDCARD/USB</string>
     <!-- Storage permission -->
         <string name="msgs_storage_permission_title">Autorisation d\'utiliser le stockage</string>
-        <string name="msgs_main_external_storage_select_required_title">Autorisation d\'accès au stockage externe</string>
-        <string name="msgs_main_external_storage_select_required_select_msg">Pour écrire le stockage, étape 1, veuillez appuyer sur le &#8220;SDCARD&#8221; ou &#8220;USB&#8221;, étape 2 puis sur le &#8220;Select&#8221; dans l\'écran affiché. \(Veuillez appuyer sur le bouton &#8220;Select&#8221; lorsque l\'écran de &#8220;SDCARD&#8221; ou &#8220;USB&#8221; à l\'étape2 s\'affiche directement dans le coin supérieur gauche. Si le coin supérieur gauche est autre que &#8220;SDCARD&#8221; ou &#8220;USB&#8221; sont affichés, appuyez sur le coin supérieur gauche du menu, à partir de l\'étape 1 ; veuillez réessayer).</string>
-        <string name="msgs_main_external_storage_select_retry_select_msg">Le répertoire racine du stockage externe n\'a pas été sélectionné. Voulez-vous le sélectionner à nouveau ?</string>
-        <string name="msgs_main_external_storage_select_deny_msg">L\'autorisation d\'accéder au stockage externe a été refusée. Vous ne pouvez pas enregistrer de fichiers sur le stockage externe tant que vous n\'avez pas la permission d\'y accéder.</string>
+        <string name="msgs_main_external_storage_select_required_title">Autorisation d\'accès au stockage SDCARD/USB</string>
+        <string name="msgs_main_external_storage_select_retry_select_msg">Le répertoire racine du stockage SDCARD/USB n\'a pas été sélectionné. Voulez-vous le sélectionner à nouveau ?</string>
+        <string name="msgs_main_external_storage_select_deny_msg">L\'autorisation d\'accéder au stockage SDCARD/USB a été refusée, vous ne pouvez pas enregistrer de fichiers sur le stockage SDCARD/USB tant que vous n\'avez pas obtenu l\'autorisation d\'accéder au stockage SDCARD/USB.</string>
         <string name="msgs_main_external_storage_required_select_msg_file">SMBSync_STORAGE_10.0_EN.png</string>
-        <string name="msgs_main_permission_primary_storage_title">Autorisation de stockage interne</string>
-        <string name="msgs_main_permission_primary_storage_request_msg">Veuillez donner l\'autorisation d\'accéder au stockage interne afin de lire et d\'écrire des photos des données de stockage et de gestion internes.</string>
-        <string name="msgs_main_permission_primary_storage_denied_msg">Comme l\'autorisation d\'accéder au stockage interne n\'est pas donnée, il est impossible de lire et d\'écrire des photos et des données de gestion, quittez l\'application.</string>
-        <string name="msgs_main_suppress_add_external_storage_notification_title">Notification de l\'ajout d\'un stockage externe</string>
-        <string name="msgs_main_suppress_add_external_storage_notification_msg">Un nouveau stockage externe a été détecté. Ajouter un stockage externe ?</string>
+        <string name="msgs_main_permission_primary_storage_title">Autorisation d\'accès au stockage externe</string>
+        <string name="msgs_main_permission_primary_storage_request_msg">Afin d\'effectuer des opérations sur les répertoires et les fichiers (création, suppression, renommage, mise à jour), veuillez suivre les étapes ci-dessous pour accorder la permission d\'accéder au stockage.\n
+1. Appuyez sur le bouton \"OK\".\n
+2. Appuyez sur \"Autoriser\" sur l\'écran d\'autorisation.\n\n
+Veuillez vous référer à la politique de confidentialité pour le traitement des données et les autorisations requises.\n\n</string>
+        <string name="msgs_main_permission_primary_storage_denied_msg">L\'application ne peut pas continuer car vous n\'avez pas l\'autorisation d\'accéder au stockage, fermez l\'application.</string>
+        <string name="msgs_main_suppress_add_external_storage_notification_title">Notification d\'ajout de stockage SDCARD/USB</string>
+        <string name="msgs_main_suppress_add_external_storage_notification_msg">Un nouveau stockage SDCARD/USB a été détecté, voulez-vous ajouter le stockage SDCARD/USB ?</string>
         <string name="msgs_main_suppress_add_external_storage_notification_suppress">Désactivez cette notification (peut être activée dans les paramètres de synchronisation)</string>
+        <string name="msgs_storage_permission_all_file_access_title">All File Access</string>
+        <string name="msgs_storage_permission_all_file_access_image">all_file_access_desc_en.png</string>
+        <string name="msgs_storage_permission_all_file_access_request_message">ZipUtility3 nécessite l\'autorisation \"All File Access\" pour créer, supprimer, renommer et décompresser des fichiers zip dans les différents répertoires/fichiers que vous spécifiez. Veuillez consulter la politique de confidentialité de l\'application pour connaître le traitement des données et les autorisations requises.\n0. Appuyez sur \"Suivant\" au bas de l\'écran.\n1. L\'écran \"Accès à tous les fichiers\" s\'affiche. Appuyez sur \"ZipUtility3\".\n2. Allumez l\'interrupteur sur le côté droit de l\'écran.\n3. Assurez-vous que l\'interrupteur situé sur le côté droit de l\'écran est bleu.\n4. Utilisez la touche retour pour revenir à l\'écran de l\'application.</string>
+        <string name="msgs_storage_permission_all_file_access_button_text">Next</string>
+        <string name="msgs_storage_permission_all_file_access_denied_message">Vous ne pouvez pas lancer l\'application tant que \"All File Access\" n\'est pas autorisé. Si vous souhaitez l\'autoriser, veuillez relancer l\'application.</string>
+        <string name="msgs_storage_permission_all_file_access_error_message">L\'écran d\'autorisation \"Accès à tous les fichiers\" n\'a pas pu être affiché.\nErreur=%s</string>
+    <!-- Privacy Policy confirm -->
+        <string name="msgs_privacy_policy_title">Confidentialité</string>
+        <string name="msgs_privacy_policy_show_privacy_policy">Afficher la politique de confidentialité</string>
     <!-- System info -->
         <string name="msgs_menu_list_system_info">Informations sur le système</string>
         <string name="msgs_info_storage_copy_clipboard">Copie</string>
@@ -330,6 +343,6 @@
         <string name="settings_exit_clean">settings_exit_clean</string>
         <string name="settings_misc_title">Divers</string>
         <string name="settings_suppress_add_external_storage_notification">settings_suppress_add_external_storage_notification</string>
-        <string name="settings_suppress_add_external_storage_notification_summary_ena">Ne pas afficher la notification d\'ajout de stockage externe.</string>
-        <string name="settings_suppress_add_external_storage_notification_title">Notification de l\'ajout de stockage externe</string>
+        <string name="settings_suppress_add_external_storage_notification_summary_ena">Ne pas afficher la notification d\'ajout de stockage SDCARD/USB.</string>
+        <string name="settings_suppress_add_external_storage_notification_title">Notification de l\'ajout de stockage SDCARD/USB</string>
 </resources>

@@ -6,8 +6,8 @@
         <string name="msgs_about_dlg_change_btn">Change Log</string>
         <string name="msgs_dlg_title_about">About ZipUtility3</string>
         <string name="msgs_dlg_title_about_func_desc">ZipUtility3_Desc_EN_Short.htm</string>
-        <string name="msgs_dlg_title_about_privacy_desc">ZipUtility3_Privacy_EN.html</string>
-        <string name="msgs_dlg_title_about_change_desc">ZipUtility3_Change_EN.html</string>
+        <string name="msgs_dlg_title_about_privacy_desc">ZipUtility3_about_EN_Privacy.md</string>
+        <string name="msgs_dlg_title_about_change_desc">ZipUtility3_Help_EN_change.md</string>
     <!-- Log -->
         <string name="msgs_log_management_title">Log management</string>
         <string name="msgs_log_management_enable_log_file_hint">Write a question/problem about ZipUtility3.</string>
@@ -67,6 +67,8 @@
         <string name="msgs_zip_cont_header_copy">Copy</string>
         <string name="msgs_zip_cont_header_cut">Cut</string>
         <string name="msgs_zip_cont_header_clipboard">Clipboard :</string>
+        <string name="msgs_zip_button_header_copy_item_list">Show copy/cut items</string>
+        <string name="msgs_zip_button_header_clear_copy_item">Clear copy/cut list</string>
         <string name="msgs_zip_local_file_clear_copy_cut_item">Clear</string>
         <string name="msgs_zip_local_file_clear_copy_cut_from_local">Local</string>
         <string name="msgs_zip_local_file_clear_copy_cut_from_zip">ZIP</string>
@@ -226,20 +228,31 @@
         <string name="msgs_menu_kill">Kill the application</string>
         <string name="msgs_menu_sort">Sort</string>
         <string name="msgs_menu_save_zip_file">Save as</string>
-        <string name="msgs_menu_storage_permission">Allow use external storage</string>
+        <string name="msgs_menu_storage_permission">Allow use SDCARD/USB storage</string>
     <!-- Storage permission -->
         <string name="msgs_storage_permission_title">Permission to use storage</string>
-        <string name="msgs_main_external_storage_select_required_title">External Storage Access Permission</string>
-        <string name="msgs_main_external_storage_select_required_select_msg">In order to write the storage, Step 1 please tap the &#8220;SDCARD&#8221; or &#8220;USB&#8221;, Step2 then　Please tap the &#8220;Select&#8221; in the displayed screen.\n(Please tap the &#8220;Select&#8221; when the screen of &#8220;SDCARD&#8221; or &#8220;USB&#8221; in step2 is displayed directly in the upper left corner. If the upper left is other than &#8220;SDCARD&#8221; or &#8220;USB&#8221; are displayed, tap the upper left corner of the menu, from step 1 please try again.)</string>
-        <string name="msgs_main_external_storage_select_retry_select_msg">The root directory of the external storage was not selected. Do you wants to re select?</string>
-        <string name="msgs_main_external_storage_select_deny_msg">Permission to access external storage has been denied. You cannot save files to the external storage until you have permission to access the external storage.</string>
+        <string name="msgs_main_external_storage_select_required_title">SDCARD/USB storage access permission</string>
+        <string name="msgs_main_external_storage_select_retry_select_msg">The root directory of SDCARD/USB storage was not selected. Do you want to select it again?</string>
+        <string name="msgs_main_external_storage_select_deny_msg">Permission to access the SDCARD/USB storage was denied, you cannot save files to the SDCARD/USB storage until you are granted access to the SDCARD/USB storage.</string>
         <string name="msgs_main_external_storage_required_select_msg_file">SMBSync_STORAGE_10.0_EN.png</string>
-        <string name="msgs_main_permission_primary_storage_title">Internal storage permission</string>
-        <string name="msgs_main_permission_primary_storage_request_msg">Please give permission to access internal storage in order to read and write photos of internal storage and management data.</string>
-        <string name="msgs_main_permission_primary_storage_denied_msg">Since permission to access internal storage is not given, it is impossible to read and write photos and management data, quit the application.</string>
-        <string name="msgs_main_suppress_add_external_storage_notification_title">Notification of adding external storage</string>
-        <string name="msgs_main_suppress_add_external_storage_notification_msg">New external storage has been detected. Add external storage?</string>
+        <string name="msgs_main_permission_primary_storage_title">External Storage Access Permission</string>
+        <string name="msgs_main_permission_primary_storage_request_msg">In order to perform directory and file operations (create, delete, rename, update), please follow the steps below to grant permission to access the storage.\n
+1. Tap the \"OK\" button.\n
+2. Tap \"Allow\" on the permission screen.\n\n
+Please refer to the Privacy Policy for data handling and required permissions.\n\n</string>
+        <string name="msgs_main_permission_primary_storage_denied_msg">The application cannot continue because you do not have permission to access the storage, close the application.</string>
+        <string name="msgs_main_suppress_add_external_storage_notification_title">Notification of adding SDCARD/USB storage</string>
+        <string name="msgs_main_suppress_add_external_storage_notification_msg">A new SDCARD/USB storage has been detected, would you like to add the SDCARD/USB storage?</string>
         <string name="msgs_main_suppress_add_external_storage_notification_suppress">Disable this notification (can be enabled in sync settings)</string>
+        <string name="msgs_storage_permission_all_file_access_title">All File Access</string>
+        <string name="msgs_storage_permission_all_file_access_image">all_file_access_desc_en.png</string>
+        <string name="msgs_storage_permission_all_file_access_request_message">ZipUtility3 requires \"All File Access\" permission in order to create, delete, rename and unzip zip files in various directories/files you specify. Please check the app\'s privacy policy for data handling and required permissions.\n0.  Tap \"Next\" at the bottom of the screen.\n1.  The \"Access all files\" screen will appear. Tap \"ZipUtility3\".\n2.  Turn on the switch on the right side of the screen.\n3.  Make sure that the switch on the right side of the screen is blue.\n4.  Use the back key to return to the application screen</string>
+        <string name="msgs_storage_permission_all_file_access_button_text">Next</string>
+        <string name="msgs_storage_permission_all_file_access_denied_message">You cannot launch the app until \"All File Access\" is allowed. If you want to allow it, please start the app again.</string>
+        <string name="msgs_storage_permission_all_file_access_error_message">The \"All File Access\" permission screen could not be displayed.\nError=%s</string>
+    <!-- Privacy Policy confirm -->
+        <string name="msgs_privacy_policy_title">Privacy Policy</string>
+        <string name="msgs_privacy_policy_show_privacy_policy">Show Privacy Policy</string>
     <!-- System info -->
         <string name="msgs_menu_list_system_info">System information</string>
         <string name="msgs_info_storage_copy_clipboard">Copy</string>
@@ -330,6 +343,6 @@
         <string name="settings_exit_clean">settings_exit_clean</string>
         <string name="settings_misc_title">Miscellaneous</string>
         <string name="settings_suppress_add_external_storage_notification">settings_suppress_add_external_storage_notification</string>
-        <string name="settings_suppress_add_external_storage_notification_summary_ena">Do not show notification of external storage addition.</string>
-        <string name="settings_suppress_add_external_storage_notification_title">Notification of adding external storage</string>
+        <string name="settings_suppress_add_external_storage_notification_summary_ena">Do not show notification of SDCARD/USB storage addition.</string>
+        <string name="settings_suppress_add_external_storage_notification_title">Notification of adding SDCARD/USB storage</string>
 </resources>

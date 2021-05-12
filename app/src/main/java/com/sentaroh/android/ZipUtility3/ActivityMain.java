@@ -39,14 +39,19 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.StrictMode;
 import android.os.storage.StorageManager;
+import android.provider.Settings;
 import android.text.InputType;
+import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -57,17 +62,15 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -76,12 +79,14 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
 
 import com.sentaroh.android.Utilities3.AppUncaughtExceptionHandler;
+import com.sentaroh.android.Utilities3.CallBackListener;
 import com.sentaroh.android.Utilities3.Dialog.CommonDialog;
 import com.sentaroh.android.Utilities3.MiscUtil;
 import com.sentaroh.android.Utilities3.NotifyEvent;
 import com.sentaroh.android.Utilities3.NotifyEvent.NotifyEventListener;
 import com.sentaroh.android.Utilities3.SafFile3;
 import com.sentaroh.android.Utilities3.SafManager3;
+import com.sentaroh.android.Utilities3.SafStorage3;
 import com.sentaroh.android.Utilities3.SystemInfo;
 import com.sentaroh.android.Utilities3.ThemeUtil;
 import com.sentaroh.android.Utilities3.ThreadCtrl;
@@ -94,6 +99,7 @@ import com.sentaroh.android.ZipUtility3.Log.LogManagementFragment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -114,13 +120,13 @@ public class ActivityMain extends AppCompatActivity {
 	private GlobalParameters mGp=null;
 	
 	private boolean mTerminateApplication=false;
-    private final static int START_STATUS_START_NORMAL = 0;
-    private final static int START_STATUS_START_COMPLETED = 1;
-    private final static int START_STATUS_START_INPROGRESS = 2;
-    private int mRestartStatus=START_STATUS_START_NORMAL;
+    private final static int START_STATUS_BEGINING = 0;
+    private final static int START_STATUS_COMPLETED = 1;
+    private final static int START_STATUS_INITIALYZING = 2;
+    private int mRestartStatus= START_STATUS_BEGINING;
     private boolean mRestartRestoreReqired=false;
 
-	private CommonDialog mCommonDlg=null;
+//	private CommonDialog mCommonDlg=null;
 
 	private FragmentManager mFragmentManager=null;
 	
@@ -156,7 +162,7 @@ public class ActivityMain extends AppCompatActivity {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		mUtil.addDebugMsg(1, "I", "onSaveInstanceState entered");
+		mUtil.addDebugMsg(1, "I", "onSaveInstanceState entered, startStatus="+mRestartStatus);
 		
 		saveViewContents(outState);
 	};  
@@ -167,7 +173,7 @@ public class ActivityMain extends AppCompatActivity {
 	@Override
 	protected void onRestoreInstanceState(Bundle savedState) {
 		super.onRestoreInstanceState(savedState);
-		mUtil.addDebugMsg(1, "I", "onRestoreInstanceState entered");
+		mUtil.addDebugMsg(1, "I", "onRestoreInstanceState entered, startStatus="+mRestartStatus);
 		restoreViewContents(savedState);
         mRestartRestoreReqired=true;
 	};
@@ -179,7 +185,7 @@ public class ActivityMain extends AppCompatActivity {
 	protected void onNewIntent(Intent in) {
 		super.onNewIntent(in);
 		mUtil.addDebugMsg(1, "I", "onNewIntent entered, restartStatus="+mRestartStatus);
-		if (mRestartStatus!=START_STATUS_START_COMPLETED) return;
+		if (mRestartStatus!= START_STATUS_COMPLETED) return;
 		if (in!=null && in.getData()!=null) showZipFileByIntent(in);
 	};
 
@@ -193,7 +199,7 @@ public class ActivityMain extends AppCompatActivity {
         mActivity=ActivityMain.this;
         mUiHandler=new Handler();
         mFragmentManager=getSupportFragmentManager();
-        mRestartStatus=START_STATUS_START_NORMAL;
+        mRestartStatus= START_STATUS_BEGINING;
        	mGp=GlobalWorkArea.getGlobalParameters(mActivity);
         setTheme(mGp.applicationTheme);
         mGp.themeColorList= ThemeUtil.getThemeColorList(mActivity);
@@ -203,9 +209,7 @@ public class ActivityMain extends AppCompatActivity {
 		mActionBar.setDisplayShowHomeEnabled(false);
 		mActionBar.setHomeButtonEnabled(false);
 
-        mCommonDlg=new CommonDialog(mActivity, mFragmentManager);
-
-        mUtil=new CommonUtilities(mActivity, "ZipActivity", mGp, mCommonDlg);
+        mUtil=new CommonUtilities(mActivity, "ZipActivity", mGp, getSupportFragmentManager());
         
         mUtil.addDebugMsg(1, "I", "onCreate entered");
 
@@ -246,13 +250,13 @@ public class ActivityMain extends AppCompatActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		mUtil.addDebugMsg(1, "I", "onStart entered");
+		mUtil.addDebugMsg(1, "I", "onStart entered, startStatus="+mRestartStatus);
 	};
 
 	@Override
 	public void onRestart() {
 		super.onStart();
-		mUtil.addDebugMsg(1, "I", "onRestart entered");
+		mUtil.addDebugMsg(1, "I", "onRestart entered, startStatus="+mRestartStatus);
 	};
 
 	@Override
@@ -260,78 +264,86 @@ public class ActivityMain extends AppCompatActivity {
 		super.onResume();
 		mUtil.addDebugMsg(1, "I", "onResume entered, restartStatus="+mRestartStatus);
 
-        NotifyEvent ntfy_resume=new NotifyEvent(mActivity);
-        ntfy_resume.setListener(new NotifyEvent.NotifyEventListener() {
-            @Override
-            public void positiveResponse(Context context, Object[] objects) {
-                processOnResumed();
+        if (mRestartStatus== START_STATUS_BEGINING) {
+            mRestartStatus = START_STATUS_INITIALYZING;
+            if (Build.VERSION.SDK_INT>=30) {
+                //Enable "ALL_FILE_ACCESS"
+                if (!isAllFileAccessPermissionGranted()) {
+                    requestAllFileAccessPermission(new CallBackListener() {
+                        @Override
+                        public void onCallBack(Context context, boolean b, Object[] objects) {
+                            initApplication();
+                        }
+                    });
+                } else {
+                    initApplication();
+                }
+            } else {
+                if (isLegacyStorageAccessGranted()) initApplication();
+                else {
+                    requestLegacyStoragePermission(new CallBackListener(){
+                        @Override
+                        public void onCallBack(Context c, boolean positive, Object[] o) {
+                            initApplication();
+                        }
+                    });
+                }
             }
-            @Override
-            public void negativeResponse(Context context, Object[] objects) { }
-        });
-        if (isLegacyStorageAccessGranted()) ntfy_resume.notifyToListener(true, null);
-        else {
-            if (mRestartStatus==START_STATUS_START_NORMAL) {
-                checkLegacyStoragePermissions(ntfy_resume);
-                mRestartStatus=START_STATUS_START_INPROGRESS;
+        } else if (mRestartStatus== START_STATUS_COMPLETED) {
+            if (mLocalFileMgr!=null) {
+                if (isUiEnabled()) {
+                    if (mTabLayout.getSelectedTabName().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.refreshFileList();
+                    else mZipFileMgr.refreshFileList();
+                }
+                try {
+                    mSvcClient.aidlSetActivityInForeground();
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
-	private void processOnResumed() {
-        if (mRestartStatus==START_STATUS_START_COMPLETED) {
-            if (isUiEnabled()) {
-                if (mTabLayout.getSelectedTabName().equals(mActivity.getString(R.string.msgs_main_tab_name_local))) mLocalFileMgr.refreshFileList();
-                else mZipFileMgr.refreshFileList();
-            }
-            try {
-                mSvcClient.aidlSetActivityInForeground();
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-
-        } else {
-            NotifyEvent ntfy=new NotifyEvent(mActivity);
-            ntfy.setListener(new NotifyEvent.NotifyEventListener(){
-                @Override
-                public void positiveResponse(Context c, Object[] o) {
-                    try {
-                        mSvcClient.aidlSetActivityInForeground();
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                    if (mLocalFileMgr==null) {
-                        mLocalFileMgr=new LocalFileManager(mGp, mActivity, mFragmentManager, mLocalView);
-                        mLocalFileMgr.showLocalFileView(false);
-                        mZipFileMgr=new ZipFileManager(mGp, mActivity, mFragmentManager, mZipView);
-                    }
-                    refreshOptionMenu();
-                    if (!mRestartRestoreReqired) {
-                        Intent in=getIntent();
-                        if (in!=null && in.getData()!=null) showZipFileByIntent(in);
-                        else {
-                            mLocalFileMgr.showLocalFileView(true);
-                            showAddExternalStorageNotification();
-                        }
-                    } else {
+	private void initApplication() {
+        NotifyEvent ntfy=new NotifyEvent(mActivity);
+        ntfy.setListener(new NotifyEvent.NotifyEventListener(){
+            @Override
+            public void positiveResponse(Context c, Object[] o) {
+                mRestartStatus= START_STATUS_COMPLETED;
+                try {
+                    mSvcClient.aidlSetActivityInForeground();
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                if (mLocalFileMgr==null) {
+                    mLocalFileMgr=new LocalFileManager(mGp, mActivity, mFragmentManager, mLocalView);
+                    mLocalFileMgr.showLocalFileView(false);
+                    mZipFileMgr=new ZipFileManager(mGp, mActivity, mFragmentManager, mZipView);
+                }
+                refreshOptionMenu();
+                if (!mRestartRestoreReqired) {
+                    Intent in=getIntent();
+                    if (in!=null && in.getData()!=null) showZipFileByIntent(in);
+                    else {
                         mLocalFileMgr.showLocalFileView(true);
-                        if (mGp.activityIsDestroyed) {
-                            mCommonDlg.showCommonDialog(false, "W", getString(R.string.msgs_main_restart_by_destroyed),"",null);
-                        } else {
-                            mCommonDlg.showCommonDialog(false, "W", getString(R.string.msgs_main_restart_by_killed),"",null);
-                        }
+                        showAddExternalStorageNotification();
                     }
-                    mRestartStatus=START_STATUS_START_COMPLETED;
-                    mGp.activityIsDestroyed=false;
+                } else {
+                    mLocalFileMgr.showLocalFileView(true);
+                    if (mGp.activityIsDestroyed) {
+                        CommonDialog.showCommonDialog(mFragmentManager, false, "W", getString(R.string.msgs_main_restart_by_destroyed),"",null);
+                    } else {
+                        CommonDialog.showCommonDialog(mFragmentManager, false, "W", getString(R.string.msgs_main_restart_by_killed),"",null);
+                    }
                 }
-                @Override
-                public void negativeResponse(Context c, Object[] o) {
-                }
+                mGp.activityIsDestroyed=false;
+            }
+            @Override
+            public void negativeResponse(Context c, Object[] o) {
+            }
 
-            });
-            openService(ntfy);
-        }
-
+        });
+        openService(ntfy);
     }
 
     private void showAddExternalStorageNotification() {
@@ -358,7 +370,7 @@ public class ActivityMain extends AppCompatActivity {
 
                         }
                     });
-                    requestLocalStoragePermission(ntfy_add);
+                    requestSafStoragePermission(ntfy_add);
                 }
 
                 @Override
@@ -446,7 +458,7 @@ public class ActivityMain extends AppCompatActivity {
 	@Override
 	public void onPause() {
 		super.onPause();
-		mUtil.addDebugMsg(1, "I", "onPause entered");
+		mUtil.addDebugMsg(1, "I", "onPause entered, startStatus="+mRestartStatus);
         // Application process is follow
 		
 	};
@@ -454,7 +466,7 @@ public class ActivityMain extends AppCompatActivity {
 	@Override
 	public void onStop() {
 		super.onStop();
-		mUtil.addDebugMsg(1, "I", "onStop entered");
+		mUtil.addDebugMsg(1, "I", "onStop entered, startStatus="+mRestartStatus);
         // Application process is follow
 		try {
 			if (!isUiEnabled()) mSvcClient.aidlSetActivityInBackground();
@@ -466,7 +478,7 @@ public class ActivityMain extends AppCompatActivity {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		mUtil.addDebugMsg(1, "I", "onDestroy entered");
+		mUtil.addDebugMsg(1, "I", "onDestroy entered, startStatus="+mRestartStatus);
         // Application process is follow
 		closeService();
 		if (mTerminateApplication) {
@@ -676,7 +688,7 @@ public class ActivityMain extends AppCompatActivity {
 				confirmExit();
 				return true;
             case R.id.menu_top_storage_permission:
-                requestLocalStoragePermission(null);
+                requestSafStoragePermission(null);
                 return true;
 			case R.id.menu_top_kill:
 				confirmKill();
@@ -734,7 +746,7 @@ public class ActivityMain extends AppCompatActivity {
                     });
                     refreshOptionMenu();
                 } else {
-                    mCommonDlg.showCommonDialog(false, "E", "ZIP file display error",
+                    CommonDialog.showCommonDialog(mFragmentManager, false, "E", "ZIP file display error",
                             "Unable to display ZIP file because File name is null, PATH="+in_file.getPath()+", URI="+in_file.getUri(), null);
                     mLocalFileMgr.showLocalFileView(false);
                     hndl.post(new Runnable(){
@@ -783,7 +795,7 @@ public class ActivityMain extends AppCompatActivity {
                             is.close();
                             cache_file.delete();
                             mUtil.addDebugMsg(1,"I","showZipFileByIntent create work file cancelled by user");
-                            mCommonDlg.showCommonDialog(false, "W", "ZipFile prepare","Work file create cancelled by user",null);
+                            CommonDialog.showCommonDialog(mFragmentManager, false, "W", "ZipFile prepare","Work file create cancelled by user",null);
                             p_ntfy.notifyToListener(false, new Object[]{cache_file.getPath()});
                             break;
                         }
@@ -809,7 +821,7 @@ public class ActivityMain extends AppCompatActivity {
                             if (cache_file.exists()) cache_file.delete();
                         } catch (IOException ex) {}
                     mUtil.addDebugMsg(1,"I","showZipFileByIntent create work file failed, error="+e.getMessage());
-                    mCommonDlg.showCommonDialog(false, "W", "ZipFile prepare","create work file failed, error="+e.getMessage(),null);
+                    CommonDialog.showCommonDialog(mFragmentManager, false, "W", "ZipFile prepare","create work file failed, error="+e.getMessage(),null);
                     hndl.post(new Runnable(){
                         @Override
                         public void run() {
@@ -951,7 +963,7 @@ public class ActivityMain extends AppCompatActivity {
                     }
                 });
                 if (et_msg.getText().length()<=10) {
-                    mCommonDlg.showCommonDialog(false, "W", mActivity.getString(R.string.msgs_your_problem_no_desc),"",null);
+                    CommonDialog.showCommonDialog(mFragmentManager, false, "W", mActivity.getString(R.string.msgs_your_problem_no_desc),"",null);
                 } else {
                     ntfy_desc.notifyToListener(true, null);
                 }
@@ -1011,8 +1023,11 @@ public class ActivityMain extends AppCompatActivity {
 				mGp.settingExitClean=false;
 			}
 		});
-		if (mGp.settingConfirmAppExit) mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_main_exit_confirm_msg), "", ntfy);
-		else ntfy.notifyToListener(true, null);
+		if (mGp.settingConfirmAppExit) {
+		    CommonDialog.showCommonDialog(mFragmentManager, true, "W", mActivity.getString(R.string.msgs_main_exit_confirm_msg), "", ntfy);
+        } else {
+		    ntfy.notifyToListener(true, null);
+        }
 	};
 
 	private void confirmKill() {
@@ -1027,7 +1042,7 @@ public class ActivityMain extends AppCompatActivity {
 				mGp.settingExitClean=false;
 			}
 		});
-		mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_main_kill_confirm_msg), "", ntfy);
+        CommonDialog.showCommonDialog(mFragmentManager, true, "W", mActivity.getString(R.string.msgs_main_kill_confirm_msg), "", ntfy);
 	};
 
     public String getAppVersionName() {
@@ -1069,14 +1084,16 @@ public class ActivityMain extends AppCompatActivity {
 //        func_view.getSettings().setDisplayZoomControls(true);
 
         final WebView change_view=(WebView)ll_change.findViewById(R.id.about_dialog_change_history);
-        change_view.loadUrl("File:///android_asset/"+getString(R.string.msgs_dlg_title_about_change_desc));
+//        change_view.loadUrl("File:///android_asset/"+getString(R.string.msgs_dlg_title_about_change_desc));
         change_view.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-//		change_view.getSettings().setBuiltInZoomControls(true);
-//        change_view.getSettings().setDisplayZoomControls(true);
+        loadHelpFile(change_view, getString(R.string.msgs_dlg_title_about_change_desc));
+        setWebViewListener(change_view, 100);
 
         final WebView privacy_view=(WebView)ll_privacy.findViewById(R.id.about_dialog_privacy);
-        privacy_view.loadUrl("File:///android_asset/"+getString(R.string.msgs_dlg_title_about_privacy_desc));
+//        privacy_view.loadUrl("File:///android_asset/"+getString(R.string.msgs_dlg_title_about_privacy_desc));
+        loadHelpFile(privacy_view, getString(R.string.msgs_dlg_title_about_privacy_desc));
         privacy_view.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+        setWebViewListener(privacy_view, 100);
 //        privacy_view.getSettings().setBuiltInZoomControls(true);
 //        privacy_view.getSettings().setDisplayZoomControls(true);
 
@@ -1155,219 +1172,230 @@ public class ActivityMain extends AppCompatActivity {
 		}
 	}
 
-//    private boolean isPrimaryStorageAccessGranted() {
-//        if (mGp.safMgr.isUuidRegistered(SAF_FILE_PRIMARY_UUID)) return true;
-//        return false;
-//    }
+    private void loadHelpFile(final WebView web_view, String fn) {
+        final Handler hndl=new Handler();
+        Thread th1=new Thread(){
+            @Override
+            public void run() {
+                String html=CommonUtilities.convertMakdownToHtml(mActivity, fn);
+                final String b64= Base64.encodeToString(html.getBytes(), Base64.DEFAULT);
+                hndl.post(new Runnable(){
+                    @Override
+                    public void run() {
+//                        web_view.loadData(html_func, "text/html; charset=UTF-8", null);
+                        web_view.loadData(b64, null, "base64");
+                    }
+                });
+            }
+        };
+        th1.start();
+    }
+
+    private void setWebViewListener(WebView wv, int zf) {
+        wv.getSettings().setTextZoom(zf);
+//        wv.getSettings().setBuiltInZoomControls(true);
+        wv.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading (WebView view, String url) {
+                return false;
+            }
+        });
+        wv.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event){
+                if(event.getAction() == KeyEvent.ACTION_DOWN){
+                    WebView webView = (WebView) v;
+                    switch(keyCode){
+                        case KeyEvent.KEYCODE_BACK:
+                            if(webView.canGoBack()){
+                                webView.goBack();
+                                return true;
+                            }
+                            break;
+                    }
+                }
+                return false;
+            }
+        });
+    }
 
     private boolean isLegacyStorageAccessGranted() {
         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) return false;
         return true;
     }
 
-    private boolean checkLegacyStoragePermissions(final NotifyEvent p_ntfy) {
-        log.debug("Prermission WriteExternalStorage="+checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE));
-        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            NotifyEvent ntfy=new NotifyEvent(mActivity);
-            ntfy.setListener(new NotifyEventListener(){
-                @Override
-                public void positiveResponse(Context c, Object[] o) {
-                    ActivityResultLauncher<String> request_permission = mActivity.registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                        if (isGranted) {
-                            p_ntfy.notifyToListener(true, null);
-                        } else {
-                            NotifyEvent ntfy_term = new NotifyEvent(mActivity);
-                            ntfy_term.setListener(new NotifyEvent.NotifyEventListener() {
-                                @Override
-                                public void positiveResponse(Context c, Object[] o) {
-                                    finish();
-                                }
+    private class ActivityLaunchItem {
+        private String requestorId=null;
+        private int requestCode=0;
+        private CallBackListener callBackListener=null;
+        private String permission=null;
+        final static public int TYPE_ACTIVITY=0;
+        final static public int TYPE_PERMISSION=1;
+        private int type=TYPE_ACTIVITY;
+        public ActivityLaunchItem(int req_code, String req_id, CallBackListener cbl) {
+            this.requestorId=req_id;
+            callBackListener=cbl;
+            requestCode=req_code;
+            type=TYPE_ACTIVITY;
+        }
+        public ActivityLaunchItem(String permission, CallBackListener cbl) {
+            this.permission=permission;
+            type=TYPE_PERMISSION;
+            callBackListener=cbl;
+        }
+        public int getType() {return this.type;}
+        public String getRequestorId() {return this.requestorId;}
+        public int getRequestCode() {return this.requestCode;}
+        public String getPermission() {return this.permission;}
+        public CallBackListener getCallBackListener() {return callBackListener;}
+    }
 
-                                @Override
-                                public void negativeResponse(Context c, Object[] o) {}
-                            });
-                            mCommonDlg.showCommonDialog(false, "W",
-                                    mActivity.getString(R.string.msgs_main_permission_primary_storage_title),
-                                    mActivity.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
-                        }
+    private ArrayList<ActivityLaunchItem> mActivityLaunchList=new ArrayList<ActivityLaunchItem>();
 
-                    });
-                    request_permission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    public void launchActivityResult(Activity a, String req_id, Intent intent, CallBackListener cbl) {
+        int req_code=mActivityLaunchList.size()+1;
+        synchronized (mActivityLaunchList) {
+            mUtil.addDebugMsg(1, "I", "launchActivityResult req_id="+req_id+", req_code="+req_code);
+            mActivityLaunchList.add(new ActivityLaunchItem(req_code, req_id, cbl));
+        }
+        a.startActivityForResult(intent, req_code);
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mUtil.addDebugMsg(1, "I", "onActivityResult requestCode="+requestCode+", resultCode="+resultCode+", data="+data);
+        synchronized (mActivityLaunchList) {
+            ArrayList<ActivityLaunchItem> remove_list=new ArrayList<ActivityLaunchItem>();
+            for(ActivityLaunchItem item:mActivityLaunchList) {
+                if (item.getType()== ActivityLaunchItem.TYPE_ACTIVITY && item.getRequestCode()==requestCode) {
+                    mUtil.addDebugMsg(1, "I", "onActivityResult Notify to listener. requestCode="+requestCode);
+                    item.callBackListener.onCallBack(mActivity, resultCode==0, new Object[]{data});
+                    remove_list.add(item);
                 }
-                @Override
-                public void negativeResponse(Context c, Object[] o) {
-                    NotifyEvent ntfy_term=new NotifyEvent(mActivity);
-                    ntfy_term.setListener(new NotifyEventListener(){
-                        @Override
-                        public void positiveResponse(Context c, Object[] o) {
-                            finish();
-                        }
-                        @Override
-                        public void negativeResponse(Context c, Object[] o) {}
-                    });
-                    mCommonDlg.showCommonDialog(false, "W",
-                            mActivity.getString(R.string.msgs_main_permission_primary_storage_title),
-                            mActivity.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
-                }
-            });
-            mCommonDlg.showCommonDialog(false, "W",
-                    mActivity.getString(R.string.msgs_main_permission_primary_storage_title),
-                    mActivity.getString(R.string.msgs_main_permission_primary_storage_request_msg),
-                    ntfy);
-            return false;
-        } else {
-            return true;
+            }
+            mActivityLaunchList.removeAll(remove_list);
         }
     };
 
-//    private void checkInternalStoragePermission(final NotifyEvent p_ntfy) {
-//        ArrayList<SafStorage3>ssl=mGp.safMgr.getSafStorageList();
-//        boolean internal_permitted=isPrimaryStorageAccessGranted();
-//        if (!internal_permitted) {
-//            NotifyEvent ntfy_request=new NotifyEvent(mActivity);
-//            mStoragePermissionPrimaryListener = ntfy_request;
-//            ntfy_request.setListener(new NotifyEvent.NotifyEventListener() {
-//                @Override
-//                public void positiveResponse(Context context, Object[] objects) {
-//                    final NotifyEvent ntfy_response=new NotifyEvent(mActivity);
-//                    mStoragePermissionPrimaryListener = ntfy_response;
-//                    ntfy_response.setListener(new NotifyEvent.NotifyEventListener() {
-//                        @Override
-//                        public void positiveResponse(Context context, Object[] objects) {
-//                            int requestCode=(Integer)objects[0];
-//                            int resultCode=(Integer)objects[1];
-//                            Intent data=(Intent)objects[2];
-//
-//                            if (resultCode == Activity.RESULT_OK) {
-//                                if (data==null || data.getDataString()==null) {
-//                                    mCommonDlg.showCommonDialog(false, "W", "Storage access grant request was failed because null intent data was returned.", "", null);
-//                                    mUtil.addLogMsg("E", "Storage Grant write permission failed because null intent data was returned.", "");
-//                                    return;
-//                                }
-//                                mUtil.addDebugMsg(1, "I", "Intent=" + data.getData().toString());
-//                                if (!mGp.safMgr.isRootTreeUri(data.getData())) {
-//                                    mUtil.addDebugMsg(1, "I", "Selected UUID="+ SafManager3.getUuidFromUri(data.getData().toString()));
-//
-//                                    NotifyEvent ntfy_retry = new NotifyEvent(mActivity);
-//                                    ntfy_retry.setListener(new NotifyEvent.NotifyEventListener() {
-//                                        @Override
-//                                        public void positiveResponse(Context c, Object[] o) {
-//                                            mStoragePermissionPrimaryListener = ntfy_response;
-//                                            requestStoragePermissionsByUuid(SAF_FILE_PRIMARY_UUID, mStoragePermissionPrimaryRequestCode);
-//                                        }
-//                                        @Override
-//                                        public void negativeResponse(Context c, Object[] o) {
-//                                            NotifyEvent ntfy_term = new NotifyEvent(mActivity);
-//                                            ntfy_term.setListener(new NotifyEvent.NotifyEventListener() {
-//                                                @Override
-//                                                public void positiveResponse(Context c, Object[] o) {
-//                                                    finish();
-//                                                }
-//                                                @Override
-//                                                public void negativeResponse(Context c, Object[] o) {}
-//                                            });
-//                                            mCommonDlg.showCommonDialog(false, "W",
-//                                                    mActivity.getString(R.string.msgs_main_permission_primary_storage_title),
-//                                                    mActivity.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
-//                                        }
-//                                    });
-//                                    mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_main_permission_primary_storage_request_msg),
-//                                            data.getData().getPath(), ntfy_retry);
-//                                } else {
-//                                    mUtil.addDebugMsg(1, "I", "Selected UUID="+SafManager3.getUuidFromUri(data.getData().toString()));
-//                                    boolean rc=mGp.safMgr.addUuid(data.getData());
-//                                    if (!rc) {
-//                                        String saf_msg=mGp.safMgr.getLastErrorMessage();
-//                                        mCommonDlg.showCommonDialog(false, "W", "Primary UUID registration failed.", saf_msg, null);
-//                                        mUtil.addLogMsg("E", "Primary UUID registration failed.\n", saf_msg);
-//                                    }
-//                                    p_ntfy.notifyToListener(true, null);
-//                                }
-//                            } else {
-//                                NotifyEvent ntfy_term = new NotifyEvent(mActivity);
-//                                ntfy_term.setListener(new NotifyEvent.NotifyEventListener() {
-//                                    @Override
-//                                    public void positiveResponse(Context c, Object[] o) {
-//                                        finish();
-//                                    }
-//                                    @Override
-//                                    public void negativeResponse(Context c, Object[] o) {}
-//                                });
-//                                mCommonDlg.showCommonDialog(false, "W",
-//                                        mActivity.getString(R.string.msgs_main_permission_primary_storage_title),
-//                                        mActivity.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
-//                            }
-//                        }
-//                        @Override
-//                        public void negativeResponse(Context context, Object[] objects) {}
-//                    });
-//                    mStoragePermissionPrimaryListener = ntfy_response;
-//                    requestStoragePermissionsByUuid(SAF_FILE_PRIMARY_UUID, mStoragePermissionPrimaryRequestCode);
-//                }
-//
-//                @Override
-//                public void negativeResponse(Context context, Object[] objects) {
-//                    NotifyEvent ntfy_term = new NotifyEvent(mActivity);
-//                    ntfy_term.setListener(new NotifyEvent.NotifyEventListener() {
-//                        @Override
-//                        public void positiveResponse(Context c, Object[] o) {
-//                            finish();
-//                        }
-//
-//                        @Override
-//                        public void negativeResponse(Context c, Object[] o) {}
-//                    });
-//                    mCommonDlg.showCommonDialog(false, "W",
-//                            mActivity.getString(R.string.msgs_main_permission_primary_storage_title),
-//                            mActivity.getString(R.string.msgs_main_permission_primary_storage_denied_msg), ntfy_term);
-//                }
-//            });
-//            mCommonDlg.showCommonDialog(true, "W",
-//                    mActivity.getString(R.string.msgs_main_permission_primary_storage_title),
-//                    mActivity.getString(R.string.msgs_main_permission_primary_storage_request_msg),
-//                    ntfy_request);
-//        } else {
-//            p_ntfy.notifyToListener(true, null);
-//        }
-//    }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        //Do not add code
-    };
+    public void launchRequestPermission(Activity a, String permission, CallBackListener cbl) {
+        synchronized (mActivityLaunchList) {
+            mUtil.addDebugMsg(1, "I", "launchRequestPermission permission="+permission);
+            mActivityLaunchList.add(new ActivityLaunchItem(permission, cbl));
+        }
+        a.requestPermissions(new String[]{permission}, mActivityLaunchList.size());
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        //Do not add code
+        mUtil.addDebugMsg(1, "I", "onRequestPermissionsResult requestCode="+requestCode+", permission="+permissions[0]+", result="+grantResults[0]);
+        synchronized (mActivityLaunchList) {
+            ArrayList<ActivityLaunchItem> remove_list=new ArrayList<ActivityLaunchItem>();
+            for(ActivityLaunchItem item:mActivityLaunchList) {
+                if (item.getType()== ActivityLaunchItem.TYPE_PERMISSION && item.getPermission().equals(permissions[0])) {
+                    mUtil.addDebugMsg(1, "I", "onRequestPermissionsResult notify to listener. permission="+permissions[0]);
+                    item.callBackListener.onCallBack(mActivity, grantResults[0]==0, new Object[]{item.getPermission()});
+                    remove_list.add(item);
+                }
+            }
+            mActivityLaunchList.removeAll(remove_list);
+        }
     }
 
-    public void requestStoragePermissionsByUuid(String uuid, NotifyEvent ntfy) {
-        Intent intent = null;
-        StorageManager sm = (StorageManager) mActivity.getSystemService(Context.STORAGE_SERVICE);
-        ArrayList<SafManager3.StorageVolumeInfo>vol_list=SafManager3.getStorageVolumeInfo(mActivity);
-        for(SafManager3.StorageVolumeInfo svi:vol_list) {
-            if (svi.uuid.equals(uuid)) {
-                if (Build.VERSION.SDK_INT>=29) intent=svi.volume.createOpenDocumentTreeIntent();
-                else intent=svi.volume.createAccessIntent(null);
-                try {
-                    ActivityResultLauncher<Intent> laucher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+    private void requestLegacyStoragePermission(final CallBackListener cbl) {
+        ArrayList<SafStorage3>ssl=mGp.safMgr.getSafStorageList();
+        CallBackListener ok_cancel_cbl=new CallBackListener() {
+            @Override
+            public void onCallBack(Context c, boolean positive, Object[] objects) {
+                if (positive) {
+                    launchRequestPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE, new CallBackListener() {
                         @Override
-                        public void onActivityResult(ActivityResult result) {
-                            ntfy.notifyToListener(true, new Object[]{result.getResultCode(), result.getData(), uuid});
+                        public void onCallBack(Context context, boolean isGranted, Object[] objects) {
+                            if (isGranted) {
+                                cbl.onCallBack(mActivity, true, null);
+                            } else {
+                                CommonUtilities.showCommonDialog(mFragmentManager, false, "W",
+                                        mActivity.getString(R.string.msgs_main_permission_primary_storage_title),
+                                        mActivity.getString(R.string.msgs_main_permission_primary_storage_denied_msg), new CallBackListener() {
+                                            @Override
+                                            public void onCallBack(Context c, boolean positive, Object[] objects) {
+                                                if (positive) finish();
+                                            }
+                                        });
+                            }
                         }
                     });
-                    laucher.launch(intent);
-                } catch(Exception e) {
-                    String st= MiscUtil.getStackTraceString(e);
-                    mCommonDlg.showCommonDialog(false, "E", "SAF Request permission error", e.getMessage()+"\n"+st, null);
+                } else {
+                    CommonUtilities.showCommonDialog(mFragmentManager, false, "W",
+                            mActivity.getString(R.string.msgs_main_permission_primary_storage_title),
+                            mActivity.getString(R.string.msgs_main_permission_primary_storage_denied_msg), new CallBackListener() {
+                                @Override
+                                public void onCallBack(Context c, boolean positive, Object[] objects) {
+                                    mUiHandler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (positive) finish();
+                                        }
+                                    });
+                                }
+                            });
                 }
-                break;
+            }
+        };
+        CallBackListener extra_cbl=new CallBackListener() {
+            @Override
+            public void onCallBack(Context context, boolean b, Object[] objects) {
+                //Extran button listener
+                showPrivacyPolicy();
+            }
+        };
+        CommonUtilities.showCommonDialog(mFragmentManager, true, "W",
+                mActivity.getString(R.string.msgs_main_permission_primary_storage_title),
+                mActivity.getString(R.string.msgs_main_permission_primary_storage_request_msg),
+                mActivity.getString(R.string.msgs_common_dialog_ok),
+                mActivity.getString(R.string.msgs_common_dialog_cancel),
+                mActivity.getString(R.string.msgs_privacy_policy_show_privacy_policy),
+                ok_cancel_cbl, extra_cbl, false);
+    }
+
+    static public void requestSafStoragePermissionByUuid(final ActivityMain a, final CommonUtilities cu, final String uuid, final NotifyEvent ntfy) {
+        cu.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" enterd");
+        Intent intent = null;
+        StorageManager sm = (StorageManager) a.getSystemService(Context.STORAGE_SERVICE);
+        ArrayList<SafManager3.StorageVolumeInfo>vol_list=SafManager3.getStorageVolumeInfo(a);
+        for(SafManager3.StorageVolumeInfo svi:vol_list) {
+            if (svi.uuid.equals(uuid)) {
+                if (Build.VERSION.SDK_INT>=29) {
+                    if (!svi.uuid.equals(SAF_FILE_PRIMARY_UUID)) {
+                        intent=svi.volume.createOpenDocumentTreeIntent();
+                    }
+                } else {
+                    if (!svi.uuid.equals(SAF_FILE_PRIMARY_UUID)) {
+                        intent=svi.volume.createAccessIntent(null);
+                    }
+                }
+                if (intent!=null) {
+                    try {
+                        a.launchActivityResult(a, "UUID", intent, new CallBackListener() {
+                            @Override
+                            public void onCallBack(Context context, boolean positive, Object[] objects) {
+                                ntfy.notifyToListener(true, new Object[]{positive?0:-1, objects[0], uuid});
+                            }
+                        });
+                    } catch(Exception e) {
+                        String st= MiscUtil.getStackTraceString(e);
+                        CommonUtilities.showCommonDialog(a.getSupportFragmentManager(), false, "E",
+                                "UUIDの登録に失敗しました。", e.getMessage()+"\n"+st, null);
+                    }
+                    break;
+                }
             }
         }
     }
 
-    private void requestLocalStoragePermission(final NotifyEvent p_ntfy) {
+    private void requestSafStoragePermission(final NotifyEvent p_ntfy) {
         NotifyEvent ntfy=new NotifyEvent(mActivity);
         ntfy.setListener(new NotifyEvent.NotifyEventListener() {
             @Override
@@ -1383,7 +1411,7 @@ public class ActivityMain extends AppCompatActivity {
 
                         if (resultCode == Activity.RESULT_OK) {
                             if (data==null || data.getDataString()==null) {
-                                mCommonDlg.showCommonDialog(false, "W", "Storage Grant write permission failed because null intent data was returned.", "", null);
+                                CommonDialog.showCommonDialog(mFragmentManager, false, "W", "Storage Grant write permission failed because null intent data was returned.", "", null);
                                 mUtil.addLogMsg("E", "Storage Grant write permission failed because null intent data was returned.", "");
                                 return;
                             }
@@ -1397,13 +1425,13 @@ public class ActivityMain extends AppCompatActivity {
                                 ntfy_retry.setListener(new NotifyEvent.NotifyEventListener() {
                                     @Override
                                     public void positiveResponse(Context c, Object[] o) {
-                                        requestStoragePermissionsByUuid(uuid, ntfy_response);
+                                        requestSafStoragePermissionByUuid(mActivity, mUtil, uuid, ntfy_response);
                                     }
 
                                     @Override
                                     public void negativeResponse(Context c, Object[] o) {}
                                 });
-                                mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_main_external_storage_select_retry_select_msg),
+                                CommonDialog.showCommonDialog(mFragmentManager, true, "W", mActivity.getString(R.string.msgs_main_external_storage_select_retry_select_msg),
                                         data.getData().getPath(), ntfy_retry);
                             } else {
                                 mUtil.addDebugMsg(1, "I", "Selected UUID="+SafManager3.getUuidFromUri(data.getData().toString()));
@@ -1412,7 +1440,7 @@ public class ActivityMain extends AppCompatActivity {
                                 boolean rc=mGp.safMgr.addUuid(data.getData());
                                 if (!rc) {
                                     String saf_msg=mGp.safMgr.getLastErrorMessage();
-                                    mCommonDlg.showCommonDialog(false, "W", "Primary UUID registration failed.", saf_msg, null);
+                                    CommonDialog.showCommonDialog(mFragmentManager, false, "W", "Primary UUID registration failed.", saf_msg, null);
                                     mUtil.addLogMsg("E", "Primary UUID registration failed.\n", saf_msg);
                                 } else {
 //                                    mGp.safMgr.refreshSafList();
@@ -1421,7 +1449,7 @@ public class ActivityMain extends AppCompatActivity {
                                 }
                             }
                         } else {
-                            mCommonDlg.showCommonDialog(false, "W",
+                            CommonDialog.showCommonDialog(mFragmentManager, false, "W",
                                     mActivity.getString(R.string.msgs_main_external_storage_select_required_title),
                                     mActivity.getString(R.string.msgs_main_external_storage_select_deny_msg), null);
 
@@ -1434,17 +1462,158 @@ public class ActivityMain extends AppCompatActivity {
                     }
                 });
                 for(String uuid:uuid_list) {
-                    requestStoragePermissionsByUuid(uuid, ntfy_response);
+                    requestSafStoragePermissionByUuid(mActivity, mUtil, uuid, ntfy_response);
                 }
             }
 
             @Override
             public void negativeResponse(Context context, Object[] objects) {}
         });
-        StoragePermission sp=new StoragePermission(mActivity, mCommonDlg, ntfy);
+        StoragePermission sp=new StoragePermission(mActivity, getSupportFragmentManager(), ntfy);
         sp.showDialog();
 
     }
+
+    private void requestAllFileAccessPermission(CallBackListener cbl) {
+//        Enable "ALL_FILE_ACCESS"
+        NotifyEvent ntfy_all_file_access=new NotifyEvent(mActivity);
+        ntfy_all_file_access.setListener(new NotifyEvent.NotifyEventListener() {
+            @Override
+            public void positiveResponse(Context context, Object[] objects) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                launchActivityResult(mActivity, "ALL_FILE_ACCESS", intent, new CallBackListener() {
+                    @Override
+                    public void onCallBack(Context context, boolean b, Object[] objects) {
+                        if (isAllFileAccessPermissionGranted()) {
+                            if (cbl!=null) cbl.onCallBack(mActivity, true, null);
+                        } else {
+                            CommonDialog.showCommonDialog(mActivity, mActivity.getSupportFragmentManager(), false, "W",
+                                    mActivity.getString(R.string.msgs_storage_permission_all_file_access_title),
+                                    mActivity.getString(R.string.msgs_storage_permission_all_file_access_denied_message), new CallBackListener(){
+                                        @Override
+                                        public void onCallBack(Context context, boolean positive, Object[] objects) {
+                                            finish();
+                                        }
+                                    });
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void negativeResponse(Context context, Object[] objects) {
+                NotifyEvent ntfy_denied=new NotifyEvent(mActivity);
+                ntfy_denied.setListener(new NotifyEvent.NotifyEventListener() {
+                    @Override
+                    public void positiveResponse(Context context, Object[] objects) {
+                        finish();
+                    }
+                    @Override
+                    public void negativeResponse(Context context, Object[] objects) {}
+                });
+                CommonDialog.showCommonDialog(mActivity.getSupportFragmentManager(), false, "W",
+                        mActivity.getString(R.string.msgs_storage_permission_all_file_access_title),
+                        mActivity.getString(R.string.msgs_storage_permission_all_file_access_denied_message), ntfy_denied);
+            }
+        });
+        final Dialog dialog=new Dialog(mActivity, mGp.applicationTheme);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setContentView(R.layout.request_all_file_access_dlg);
+
+        TextView dlg_title=(TextView)dialog.findViewById(R.id.request_all_file_dlg_title);
+        TextView dlg_msg=(TextView)dialog.findViewById(R.id.request_all_file_dlg_msg);
+        ImageView dlg_image=(ImageView)dialog.findViewById(R.id.request_all_file_dlg_image);
+
+        Button dlg_show_privacy_btn=(Button)dialog.findViewById(R.id.request_all_file_dlg_show_privacy_policy_button);
+        dlg_show_privacy_btn.setVisibility(Button.VISIBLE);
+
+        Button dlg_ok=(Button)dialog.findViewById(R.id.request_all_file_dlg_btn_ok);
+        Button dlg_cancel=(Button)dialog.findViewById(R.id.request_all_file_dlg_btn_cancel);
+
+        dlg_title.setText(mActivity.getString(R.string.msgs_storage_permission_all_file_access_title));
+        dlg_msg.setText(mActivity.getString(R.string.msgs_storage_permission_all_file_access_request_message));
+
+        try {
+            InputStream is = mActivity.getResources().getAssets().open(mActivity.getString(R.string.msgs_storage_permission_all_file_access_image));
+            BufferedInputStream bis = new BufferedInputStream(is, 1024*1024);
+            Bitmap bm = BitmapFactory.decodeStream(bis);
+            dlg_image.setImageBitmap(bm);
+            is.close();
+            bis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        dlg_show_privacy_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showPrivacyPolicy();
+            }
+        });
+
+        dlg_ok.setText(mActivity.getString(R.string.msgs_storage_permission_all_file_access_button_text));
+        dlg_cancel.setText(mActivity.getString(R.string.msgs_common_dialog_cancel));
+
+        dlg_ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ntfy_all_file_access.notifyToListener(true, null);
+                dialog.dismiss();
+            }
+        });
+
+        dlg_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ntfy_all_file_access.notifyToListener(false, null);
+                dialog.dismiss();;
+            }
+        });
+
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                dlg_cancel.performClick();
+            }
+        });
+
+        dialog.show();
+    }
+
+    private boolean isAllFileAccessPermissionGranted() {
+        return Environment.isExternalStorageManager();
+    }
+
+    private void showPrivacyPolicy() {
+        final Dialog dialog = new Dialog(mActivity, mGp.applicationTheme);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.show_privacy_policy_dlg);
+
+        final LinearLayout ll_title=(LinearLayout) dialog.findViewById(R.id.show_privacy_policy_dlg_title_view);
+        ll_title.setBackgroundColor(mGp.themeColorList.title_background_color);
+        final TextView tv_title=(TextView)dialog.findViewById(R.id.show_privacy_policy_dlg_title);
+        tv_title.setTextColor(mGp.themeColorList.title_text_color);
+
+        final WebView web_view=(WebView)dialog.findViewById(R.id.agree_privacy_policy_dlg_webview);
+        web_view.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+        web_view.setScrollbarFadingEnabled(false);
+        int zf=(int)((float)100* GlobalParameters.getFontScaleFactorValue(mActivity));
+        setWebViewListener(web_view, zf);
+        loadHelpFile(web_view, getString(R.string.msgs_dlg_title_about_privacy_desc));
+
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+
+    }
+
+
 
     private String mPrevLanguageSetting=LANGUAGE_USE_SYSTEM_SETTING;
     private String mPrevFontSetting=FONT_SCALE_FACTOR_NORMAL;
@@ -1452,17 +1621,16 @@ public class ActivityMain extends AppCompatActivity {
     private void invokeSettingsActivity() {
         mUtil.addDebugMsg(1,"I","Invoke Settings.");
 
-        ActivityResultLauncher<Intent> laucher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        mPrevLanguageSetting=mGp.settingLanguageValue;
+        Intent intent = new Intent(mActivity, ActivitySettings.class);
+        launchActivityResult(mActivity, "Settings", intent, new CallBackListener() {
             @Override
-            public void onActivityResult(ActivityResult result) {
-                mUtil.addDebugMsg(1,"I","Return from Setting activity. Intent="+result.getData());
+            public void onCallBack(Context context, boolean b, Object[] objects) {
+                mUtil.addDebugMsg(1, "I", "Return from Setting activity.");
                 applySettingParms();
             }
         });
-        mPrevLanguageSetting=mGp.settingLanguageValue;
-        mPrevFontSetting=mGp.getFontScaleFactor(mActivity);
-        Intent intent=new Intent(mActivity, ActivitySettings.class);
-        laucher.launch(intent);
+
     };
 
     private void applySettingParms() {
@@ -1490,7 +1658,7 @@ public class ActivityMain extends AppCompatActivity {
                 @Override
                 public void negativeResponse(Context context, Object[] objects) {}
             });
-        	mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_main_theme_changed_msg), "", ntfy);
+            CommonDialog.showCommonDialog(mFragmentManager, true, "W", mActivity.getString(R.string.msgs_main_theme_changed_msg), "", ntfy);
 //        	mGp.settingExitClean=true;
         }
         refreshOptionMenu();
@@ -1534,6 +1702,25 @@ public class ActivityMain extends AppCompatActivity {
 		return enableMainUi;
 	};
 
+    public void showCopyCutItemList() {
+        String c_list="", sep="";
+        for(TreeFilelistItem tfli:mGp.copyCutList) {
+            c_list+=sep+tfli.getPath()+"/"+tfli.getName();
+            sep="\n";
+        }
+        c_list=c_list.replaceAll("//", "/");
+        String msg="";
+        if (!mGp.copyCutModeIsCut) msg=mActivity.getString(R.string.msgs_zip_cont_header_copy);
+        else msg=mActivity.getString(R.string.msgs_zip_cont_header_cut);
+        String from=mGp.copyCutFrom.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)?"Local":"ZIP";
+        String file_name="";
+        if (mGp.copyCutFrom.equals(GlobalParameters.COPY_CUT_FROM_ZIP)) {
+            file_name="("+mGp.copyCutFilePath.substring(mGp.copyCutFilePath.lastIndexOf("/")+1)+")";
+        }
+        CommonDialog.showCommonDialog(mFragmentManager, false, "I", msg+" from "+from+file_name, c_list, null);
+    }
+
+
     public void clearCopyCutItem() {
         clearCopyCutItem(true);
     }
@@ -1542,8 +1729,10 @@ public class ActivityMain extends AppCompatActivity {
         if (mLocalFileMgr!=null) mLocalFileMgr.setContextButtonPasteEnabled(false);
         if (mZipFileMgr!=null) mZipFileMgr.setContextButtonPasteEnabled(false);
         mGp.copyCutList.clear();
-        mGp.localCopyCutView.setVisibility(LinearLayout.GONE);
-        mGp.zipCopyCutView.setVisibility(LinearLayout.GONE);
+        CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemInfo, false);
+        CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemClear, false);
+        CommonDialog.setViewEnabled(mActivity, mGp.zipCopyCutItemInfo, false);
+        CommonDialog.setViewEnabled(mActivity, mGp.zipCopyCutItemClear, false);
 
         if (toast) CommonDialog.showToastShort(mActivity, mActivity.getString(R.string.msgs_zip_local_file_clear_copy_cut_list_cleared));
     }
@@ -1563,24 +1752,10 @@ public class ActivityMain extends AppCompatActivity {
         String from=mGp.copyCutFrom.equals(COPY_CUT_FROM_LOCAL)? mActivity.getString(R.string.msgs_zip_local_file_clear_copy_cut_from_local) : mActivity.getString(R.string.msgs_zip_local_file_clear_copy_cut_from_zip);
         String mode=mGp.copyCutModeIsCut?mActivity.getString(R.string.msgs_zip_cont_header_cut):mActivity.getString(R.string.msgs_zip_cont_header_copy);
 
-        mGp.localCopyCutView.setVisibility(LinearLayout.VISIBLE);
-        mGp.localCopyCutItemMode.setText(mode);
-        mGp.localCopyCutItemFrom.setText(from);
-        mGp.localCopyCutItemInfo.setText(c_list);
-        Handler hndl=new Handler();
-        hndl.post(new Runnable() {
-            @Override
-            public void run() {
-                mGp.localCopyCutItemInfo.requestLayout();
-            }
-        });
-
-
-        mGp.zipCopyCutView.setVisibility(LinearLayout.VISIBLE);
-        mGp.zipCopyCutItemMode.setText(mode);
-        mGp.zipCopyCutItemFrom.setText(from);
-        mGp.zipCopyCutItemInfo.setText(c_list);
-        mGp.zipCopyCutItemInfo.requestLayout();
+        CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemInfo, true);
+        CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemClear, true);
+        CommonDialog.setViewEnabled(mActivity, mGp.zipCopyCutItemInfo, true);
+        CommonDialog.setViewEnabled(mActivity, mGp.zipCopyCutItemClear, true);
 
         if (mLocalFileMgr!=null) {
             mLocalFileMgr.setContextButtonPasteEnabled(false);
@@ -1607,7 +1782,7 @@ public class ActivityMain extends AppCompatActivity {
 //		ll_main.setBackgroundColor(mGp.themeColorList.window_background_color_content);
 
         LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mLocalView=(LinearLayout)vi.inflate(R.layout.main_local_file,null);
+        mLocalView=(LinearLayout)vi.inflate(R.layout.main_screen_local_file,null);
 //		if (mGp.themeIsLight) mLocalView.setBackgroundColor(0xffc0c0c0);
 //		else mLocalView.setBackgroundColor(0xff303030);
 
@@ -1618,7 +1793,7 @@ public class ActivityMain extends AppCompatActivity {
         lv.setVisibility(LinearLayout.GONE);
 
 //		mLocalView.setBackgroundColor(mGp.themeColorList.window_background_color_content);
-        mZipView=(LinearLayout)vi.inflate(R.layout.main_zip_file,null);
+        mZipView=(LinearLayout)vi.inflate(R.layout.main_screen_zip_file,null);
 //		if (mGp.themeIsLight) mZipView.setBackgroundColor(0xffc0c0c0);
 //		else mZipView.setBackgroundColor(0xff303030);
 //		mZipView.setBackgroundColor(mGp.themeColorList.window_background_color_content);
@@ -1751,7 +1926,7 @@ public class ActivityMain extends AppCompatActivity {
             mUtil.addDebugMsg(1,"I", "cbNotifyMediaStatus entered, Action="+action);
             if (mLocalFileMgr!=null) {
                 boolean sc=mLocalFileMgr.refreshLocalStorageSelector();
-                if (sc) mCommonDlg.showCommonDialog(false, "W", mActivity.getString(R.string.msgs_main_local_mount_point_unmounted), "", null);
+                if (sc) CommonDialog.showCommonDialog(mFragmentManager, false, "W", mActivity.getString(R.string.msgs_main_local_mount_point_unmounted), "", null);
             }
 		}
     };

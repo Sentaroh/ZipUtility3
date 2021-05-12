@@ -35,6 +35,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.fragment.app.FragmentManager;
+
 import com.sentaroh.android.Utilities3.Dialog.CommonDialog;
 import com.sentaroh.android.Utilities3.NotifyEvent;
 import com.sentaroh.android.Utilities3.SafManager3;
@@ -49,8 +51,7 @@ import java.util.ArrayList;
 public class StoragePermission {
 
     private Activity mActivity=null;
-    private CommonDialog commonDlg=null;
-    
+
     private Dialog mDialog=null;
 
     private SafManager3 mSafMgr =null;
@@ -59,10 +60,12 @@ public class StoragePermission {
 
     private NotifyEvent mNtfyGrantRequest=null;
 
-    public StoragePermission(Activity a, CommonDialog cd, NotifyEvent ntfy_request) {
+    private FragmentManager mFragMgr=null;
+
+    public StoragePermission(Activity a, FragmentManager fm, NotifyEvent ntfy_request) {
         mActivity = a;
         mSafMgr =new SafManager3(a.getApplicationContext());
-        commonDlg = cd;
+        mFragMgr = fm;
         mNtfyGrantRequest=ntfy_request;
     }
 
@@ -99,7 +102,7 @@ public class StoragePermission {
         final ListView lv = (ListView) mDialog.findViewById(R.id.storage_permission_dlg_storage_list);
 
         if (!mSafMgr.isStoragePermissionRequired()) {
-            commonDlg.showCommonDialog(false, "W", "There was no storage requiring permissions.","",null);
+            CommonDialog.showCommonDialog(mFragMgr, false, "W", "There was no storage requiring permissions.","",null);
             return;
         }
 

@@ -22,6 +22,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -97,7 +98,6 @@ public class LocalFileManager {
     private GlobalParameters mGp = null;
 
     private FragmentManager mFragmentManager = null;
-    private CommonDialog mCommonDlg = null;
 
     private ActivityMain mActivity = null;
 
@@ -122,12 +122,11 @@ public class LocalFileManager {
     public LocalFileManager(GlobalParameters gp, ActivityMain a, FragmentManager fm, LinearLayout mv) {
         mGp = gp;
         mActivity = a;
-        mCommonDlg = new CommonDialog(a, fm);
         mUiHandler = new Handler();
 
         mFragmentManager = fm;
         mMainStoragePath=mMainFilePath = "/storage/emulated/0";//mGp.internalRootDirectory;
-        mUtil = new CommonUtilities(mActivity, "LocalFolder", gp, mCommonDlg);
+        mUtil = new CommonUtilities(mActivity, "LocalFolder", gp, fm);
 
         mMainView = mv;
         initViewWidget();
@@ -377,40 +376,43 @@ public class LocalFileManager {
         mActivityButtonDeleteView.setVisibility(ImageButton.INVISIBLE);
         mActivityButtonArchiveView.setVisibility(ImageButton.INVISIBLE);
 
-        mGp.localCopyCutView=(LinearLayout) mMainView.findViewById(R.id.local_file_copy_cut_view);
-//        mGp.localCopyCutView.setBackgroundColor(mGp.themeColorList.title_background_color);
+//        mGp.localCopyCutView=(LinearLayout) mMainView.findViewById(R.id.local_file_copy_cut_view);
         mGp.localCopyCutItemClear=(Button)mMainView.findViewById(R.id.local_file_copy_cut_clear_btn);
-        mGp.localCopyCutItemMode =(TextView)mMainView.findViewById(R.id.local_file_copy_cut_mode);
-        mGp.localCopyCutItemFrom=(TextView)mMainView.findViewById(R.id.local_file_copy_cut_from);
-        mGp.localCopyCutItemInfo=(Button)mMainView.findViewById(R.id.local_file_copy_cut_item);
+        CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemClear, false);
+//        mGp.localCopyCutItemMode =(TextView)mMainView.findViewById(R.id.local_file_copy_cut_mode);
+//        mGp.localCopyCutItemFrom=(TextView)mMainView.findViewById(R.id.local_file_copy_cut_from);
+        mGp.localCopyCutItemInfo=(Button)mMainView.findViewById(R.id.local_file_copy_cut_info_btn);
+        CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemInfo, false);
 
-        mGp.localCopyCutView.setVisibility(LinearLayout.GONE);
+//        mGp.localCopyCutView.setVisibility(LinearLayout.GONE);
 
+        mGp.localCopyCutItemClear.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                CommonDialog.showPopupMessageAsDownAnchorView(mActivity, mGp.localCopyCutItemClear,
+                        mActivity.getString(R.string.msgs_zip_button_header_clear_copy_item), 2);
+                return true;
+            }
+        });
         mGp.localCopyCutItemClear.setOnClickListener(new OnClickListener(){
             @Override
             public void onClick(View v) {
-                mActivity.clearCopyCutItem();
+                clearCopyCutItem(true);
             }
         });
 
+        mGp.localCopyCutItemInfo.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                CommonDialog.showPopupMessageAsDownAnchorView(mActivity, mGp.localCopyCutItemInfo,
+                        mActivity.getString(R.string.msgs_zip_button_header_copy_item_list), 2);
+                return true;
+            }
+        });
         mGp.localCopyCutItemInfo.setOnClickListener(new OnClickListener(){
             @Override
             public void onClick(View v) {
-                String c_list="", sep="";
-                for(TreeFilelistItem tfli:mGp.copyCutList) {
-                    c_list+=sep+tfli.getPath()+"/"+tfli.getName();
-                    sep="\n";
-                }
-                c_list=c_list.replaceAll("//", "/");
-                String msg="";
-                if (!mGp.copyCutModeIsCut) msg=mActivity.getString(R.string.msgs_zip_cont_header_copy);
-                else msg=mActivity.getString(R.string.msgs_zip_cont_header_cut);
-                String from=mGp.copyCutFrom.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)?"Local":"ZIP";
-                String file_name="";
-                if (mGp.copyCutFrom.equals(GlobalParameters.COPY_CUT_FROM_ZIP)) {
-                    file_name="("+mGp.copyCutFilePath.substring(mGp.copyCutFilePath.lastIndexOf("/")+1)+")";
-                }
-                mCommonDlg.showCommonDialog(false, "I", msg+from+file_name, c_list, null);
+                mActivity.showCopyCutItemList();
             }
         });
 
@@ -637,7 +639,7 @@ public class LocalFileManager {
             }
         }
         if (fpl.size() >= 100) {
-            mCommonDlg.showCommonDialog(false, "E",
+            CommonDialog.showCommonDialog(mFragmentManager, false, "E",
                     mActivity.getString(R.string.msgs_local_file_share_file_max_file_count_reached), "", null);
             mUtil.addDebugMsg(1,"I",mActivity.getString(R.string.msgs_local_file_share_file_max_file_count_reached));
         } else {
@@ -665,7 +667,7 @@ public class LocalFileManager {
                 try {
                     mActivity.startActivity(intent);
                 } catch (Exception e) {
-                    mCommonDlg.showCommonDialog(false, "E", "startActivity() failed at shareItem() for multiple item. message=" + e.getMessage(), "", null);
+                    CommonDialog.showCommonDialog(mFragmentManager, false, "E", "startActivity() failed at shareItem() for multiple item. message=" + e.getMessage(), "", null);
                     mUtil.addDebugMsg(1,"E","startActivity() failed at shareItem() for multiple item. message=" + e.getMessage());
                 }
             } else if (fpl.size() == 1) {
@@ -682,11 +684,11 @@ public class LocalFileManager {
                 try {
                     mActivity.startActivity(intent);
                 } catch (Exception e) {
-                    mCommonDlg.showCommonDialog(false, "E", "startActivity() failed at shareItem() for share item. message=" + e.getMessage(), "", null);
+                    CommonDialog.showCommonDialog(mFragmentManager, false, "E", "startActivity() failed at shareItem() for share item. message=" + e.getMessage(), "", null);
                     mUtil.addDebugMsg(1,"E","startActivity() failed at shareItem() for share item. message=" + e.getMessage());
                 }
             } else {
-                mCommonDlg.showCommonDialog(false, "E",
+                CommonDialog.showCommonDialog(mFragmentManager, false, "E",
                         mActivity.getString(R.string.msgs_local_file_share_file_no_file_selected), "", null);
                 mUtil.addDebugMsg(1,"E",mActivity.getString(R.string.msgs_local_file_share_file_no_file_selected));
             }
@@ -933,7 +935,7 @@ public class LocalFileManager {
                         }
                         psd.dismissAllowingStateLoss();
                         if (isCancelled(tc)) {
-                            mCommonDlg.showCommonDialog(false, "W",
+                            CommonDialog.showCommonDialog(mFragmentManager, false, "W",
                                     mActivity.getString(R.string.msgs_search_file_dlg_search_cancelled), "", null);
                         } else {
                             mAdapterSearchFileList.setDataList(s_tfl);
@@ -1089,10 +1091,11 @@ public class LocalFileManager {
                     public void negativeResponse(Context c, Object[] o) {
                     }
                 });
-                if (create_type.isChecked())
-                    mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_file_select_edit_confirm_create_file), n_path, ntfy);
-                else
-                    mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_file_select_edit_confirm_create_directory), n_path, ntfy);
+                if (create_type.isChecked()) {
+                    CommonDialog.showCommonDialog(mFragmentManager, true, "W", mActivity.getString(R.string.msgs_file_select_edit_confirm_create_file), n_path, ntfy);
+                } else {
+                    CommonDialog.showCommonDialog(mFragmentManager, true, "W", mActivity.getString(R.string.msgs_file_select_edit_confirm_create_directory), n_path, ntfy);
+                }
             }
         });
 
@@ -1201,7 +1204,7 @@ public class LocalFileManager {
                                     mUiHandler.post(new Runnable(){
                                         @Override
                                         public void run() {
-                                            mCommonDlg.showCommonDialog(false, "I",
+                                            CommonDialog.showCommonDialog(mFragmentManager, false, "I",
                                                     String.format(mActivity.getString(R.string.msgs_zip_local_file_rename_failed), new_name), e_msg, null);
                                             setUiEnabled();
                                         }
@@ -1229,7 +1232,7 @@ public class LocalFileManager {
                     public void negativeResponse(Context c, Object[] o) {
                     }
                 });
-                mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_zip_local_file_rename_confirm_title),
+                CommonDialog.showCommonDialog(mFragmentManager, true, "W", mActivity.getString(R.string.msgs_zip_local_file_rename_confirm_title),
                         current_name, ntfy);
                 dialog.dismiss();
             }
@@ -1256,6 +1259,10 @@ public class LocalFileManager {
 
     private void copyItem(CustomTreeFilelistAdapter tfa) {
         if (tfa.isItemSelected()) {
+            CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemInfo, true);
+            mGp.localCopyCutItemInfo.setText(mActivity.getString(R.string.msgs_zip_cont_header_copy));
+            mGp.zipCopyCutItemInfo.setText(mActivity.getString(R.string.msgs_zip_cont_header_copy));
+            CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemClear, true);
             mGp.copyCutModeIsCut = false;
             mGp.copyCutList.clear();
             mGp.copyCutFrom = GlobalParameters.COPY_CUT_FROM_LOCAL;
@@ -1266,33 +1273,42 @@ public class LocalFileManager {
                 if (tfl.isChecked()) {
                     mGp.copyCutList.add(tfl);
                     tfl.setChecked(false);
+                    c_list+=sep+tfl.getPath()+"/"+tfl.getName();
+                    sep=",";
                 }
             }
             tfa.notifyDataSetChanged();
             mActivity.setCopyCutItemView();
             mNotifyCheckBoxChanged.notifyToListener(false, null);
-            mUtil.addDebugMsg(1,"I","copyItem copy="+mGp.localCopyCutItemInfo.getText().toString());
+            mUtil.addDebugMsg(1,"I","copyItem copy="+c_list);
         }
     }
 
     private void cutItem(CustomTreeFilelistAdapter tfa) {
         if (tfa.isItemSelected()) {
+            CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemInfo, true);
+            mGp.localCopyCutItemInfo.setText(mActivity.getString(R.string.msgs_zip_cont_header_cut));
+            mGp.zipCopyCutItemInfo.setText(mActivity.getString(R.string.msgs_zip_cont_header_cut));
+            CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemClear, true);
             mGp.copyCutModeIsCut = true;
             mGp.copyCutList.clear();
             mGp.copyCutFrom = GlobalParameters.COPY_CUT_FROM_LOCAL;
             mGp.copyCutFilePath = mMainFilePath;
 //			mGp.copyCutCurrentDirectory=mCurrentDirectory.getOriginalText().equals("/")?"":mCurrentDirectory.getOriginalText().substring(1);
             mGp.copyCutCurrentDirectory = mCurrentDirectory.getOriginalText().equals("/") ? "" : (mCurrentDirectory.getOriginalText().length() == 0 ? "" : mCurrentDirectory.getOriginalText().toString().substring(1));
+            String c_list = "", sep = "";
             for (TreeFilelistItem tfl : tfa.getDataList()) {
                 if (tfl.isChecked()) {
                     mGp.copyCutList.add(tfl);
                     tfl.setChecked(false);
+                    c_list+=sep+tfl.getPath()+"/"+tfl.getName();
+                    sep=",";
                 }
             }
             tfa.notifyDataSetChanged();
             mActivity.setCopyCutItemView();
             mNotifyCheckBoxChanged.notifyToListener(false, null);
-            mUtil.addDebugMsg(1,"I","cutItem cut="+mGp.localCopyCutItemInfo.getText().toString());
+            mUtil.addDebugMsg(1,"I","cutItem cut="+c_list);
         }
         mActivityButtonPasteView.setVisibility(ImageButton.INVISIBLE);
     }
@@ -1380,7 +1396,7 @@ public class LocalFileManager {
             public void negativeResponse(Context c, Object[] o) {
             }
         });
-        mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_zip_local_file_move_confirm_title), w_conf_list, ntfy_confirm);
+        CommonDialog.showCommonDialog(mFragmentManager, true, "W", mActivity.getString(R.string.msgs_zip_local_file_move_confirm_title), w_conf_list, ntfy_confirm);
     }
 
     private void confirmMoveFromLocal() {
@@ -1416,7 +1432,7 @@ public class LocalFileManager {
                                 if (!isCancelled(true, tc)) {
                                     String msg = String.format(mActivity.getString(R.string.msgs_zip_local_file_move_failed), tfl.getName());
                                     mUtil.addLogMsg("I", msg);
-                                    mCommonDlg.showCommonDialog(false, "W", msg, "", null);
+                                    CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
                                     break;
                                 }
                             }
@@ -1451,7 +1467,7 @@ public class LocalFileManager {
             }
             move_list+=sep_move+tfl.getName();
         }
-        mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_zip_local_file_move_confirm_title), move_list, ntfy);
+        CommonDialog.showCommonDialog(mFragmentManager, true, "W", mActivity.getString(R.string.msgs_zip_local_file_move_confirm_title), move_list, ntfy);
     }
 
     private boolean moveCopyLocalToLocal(boolean move, ThreadCtrl tc, SafFile3 from_file, String to_path) {
@@ -1461,7 +1477,7 @@ public class LocalFileManager {
             if (isCancelled(true, tc)) {
                 String msg = String.format(mActivity.getString(R.string.msgs_zip_local_file_move_cancelled), to_path);
                 mUtil.addLogMsg("I", msg);
-                mCommonDlg.showCommonDialog(false, "W", msg, "", null);
+                CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
                 return false;
             }
             SafFile3[] fl = from_file.listFiles();
@@ -1540,7 +1556,7 @@ public class LocalFileManager {
                 out_file.deleteIfExists();
                 String msg = String.format(msg_cancelled, to_path);
                 mUtil.addLogMsg("I", msg);
-                mCommonDlg.showCommonDialog(false, "W", msg, "", null);
+                CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
                 result = false;
             } else {
                 result = true;
@@ -1619,7 +1635,7 @@ public class LocalFileManager {
                 temp_out_file.deleteIfExists();
                 String msg = String.format(msg_cancelled, to_path);
                 mUtil.addLogMsg("I", msg);
-                mCommonDlg.showCommonDialog(false, "W", msg, "", null);
+                CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
                 result = false;
             } else {
                 result = true;
@@ -1683,7 +1699,7 @@ public class LocalFileManager {
             public void negativeResponse(Context c, Object[] o) {
             }
         });
-        mCommonDlg.showCommonDialog(true, "W",
+        CommonDialog.showCommonDialog(mFragmentManager, true, "W",
                 String.format(mActivity.getString(R.string.msgs_zip_local_file_copy_confirm_title), to_dir), w_conf_list, ntfy_confirm);
     }
 
@@ -1829,7 +1845,7 @@ public class LocalFileManager {
                     } else {
                         tc_extract.setDisabled();
                         CompressionMethod cm=ZipUtil.getCompressionMethod(fh_item);
-                        mCommonDlg.showCommonDialog(false, "E", mActivity.getString(R.string.msgs_zip_extract_file_error),
+                        CommonDialog.showCommonDialog(mFragmentManager, false, "E", mActivity.getString(R.string.msgs_zip_extract_file_error),
                                 "Unsupported compression method. code="+ ZipUtil.getCompressionMethodName(fh_item), null);
                         notifyResponse(tc_extract, fh_item.getFileName());
                     }
@@ -1844,14 +1860,14 @@ public class LocalFileManager {
                     String msg = mActivity.getString(R.string.msgs_zip_delete_file_was_deleted);
                     for (FileHeader fh : extracted_fh_list) {
                         if (isCancelled(true, tc)) {
-                            mCommonDlg.showCommonDialog(false, "I",
+                            CommonDialog.showCommonDialog(mFragmentManager, false, "I",
                                     String.format(mActivity.getString(R.string.msgs_zip_delete_file_was_cancelled), fh.getFileName()), "", null);
                             break;
                         }
                         bzf.removeItem(fh);
                         putProgressMessage(String.format(msg, fh.getFileName()));
                     }
-                    clearCopyCutItemX(false);
+                    clearCopyCutItem(false);
                     if (!isCancelled(true, tc)) {
                         try {
                             CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, mActivity.getString(R.string.msgs_zip_zip_file_being_updated));
@@ -1864,7 +1880,7 @@ public class LocalFileManager {
                             e.printStackTrace();
                             String e_msg = "Exception occured";
                             mUtil.addLogMsg("E", e_msg + ", " + e.getMessage());
-                            mCommonDlg.showCommonDialog(false, "E", e_msg, e.getMessage(), null);
+                            CommonDialog.showCommonDialog(mFragmentManager, false, "E", e_msg, e.getMessage(), null);
                             out_temp.deleteIfExists();
                         }
                     }
@@ -1872,7 +1888,7 @@ public class LocalFileManager {
                     e.printStackTrace();
                     String e_msg = "Exception occured";
                     mUtil.addLogMsg("E", e_msg + ", " + e.getMessage());
-                    mCommonDlg.showCommonDialog(false, "E", e_msg, e.getMessage(), null);
+                    CommonDialog.showCommonDialog(mFragmentManager, false, "E", e_msg, e.getMessage(), null);
                 }
             }
             mUiHandler.post(new Runnable(){
@@ -1985,7 +2001,7 @@ public class LocalFileManager {
                     } else {
                         tc_extract.setDisabled();
                         CompressionMethod cm=ZipUtil.getCompressionMethod(fh_item);
-                        mCommonDlg.showCommonDialog(false, "E", mActivity.getString(R.string.msgs_zip_extract_file_error),
+                        CommonDialog.showCommonDialog(mFragmentManager, false, "E", mActivity.getString(R.string.msgs_zip_extract_file_error),
                                 "Unsupported compression method. code="+ ZipUtil.getCompressionMethodName(fh_item), null);
                         notifyResponse(tc_extract, fh_item.getFileName());
                     }
@@ -2000,14 +2016,14 @@ public class LocalFileManager {
                     String msg = mActivity.getString(R.string.msgs_zip_delete_file_was_deleted);
                     for (FileHeader fh : extracted_fh_list) {
                         if (isCancelled(true, tc)) {
-                            mCommonDlg.showCommonDialog(false, "I",
+                            CommonDialog.showCommonDialog(mFragmentManager, false, "I",
                                     String.format(mActivity.getString(R.string.msgs_zip_delete_file_was_cancelled), fh.getFileName()), "", null);
                             break;
                         }
                         bzf.removeItem(fh);
                         putProgressMessage(String.format(msg, fh.getFileName()));
                     }
-                    clearCopyCutItemX(false);
+                    clearCopyCutItem(false);
                     if (!isCancelled(true, tc)) {
                         try {
                             CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, mActivity.getString(R.string.msgs_zip_zip_file_being_updated));
@@ -2020,7 +2036,7 @@ public class LocalFileManager {
                             e.printStackTrace();
                             String e_msg = "Exception occured";
                             mUtil.addLogMsg("E", e_msg + ", " + e.getMessage());
-                            mCommonDlg.showCommonDialog(false, "E", e_msg, e.getMessage(), null);
+                            CommonDialog.showCommonDialog(mFragmentManager, false, "E", e_msg, e.getMessage(), null);
                             out_temp.deleteIfExists();
                         }
                     }
@@ -2028,7 +2044,7 @@ public class LocalFileManager {
                     e.printStackTrace();
                     String e_msg = "Exception occured";
                     mUtil.addLogMsg("E", e_msg + ", " + e.getMessage());
-                    mCommonDlg.showCommonDialog(false, "E", e_msg, e.getMessage(), null);
+                    CommonDialog.showCommonDialog(mFragmentManager, false, "E", e_msg, e.getMessage(), null);
                 }
             }
             mUiHandler.post(new Runnable(){
@@ -2058,10 +2074,12 @@ public class LocalFileManager {
         return result;
     }
 
-    private void clearCopyCutItemX(final boolean toast) {
+    private void clearCopyCutItem(final boolean toast) {
         mUiHandler.post(new Runnable(){
             @Override
             public void run() {
+                CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemInfo, false);
+                CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemClear, false);
                 mActivity.clearCopyCutItem(toast);
                 mActivityButtonPasteView.setVisibility(ImageButton.INVISIBLE);
             }
@@ -2110,7 +2128,7 @@ public class LocalFileManager {
                 }
             } else {
                 result = false;
-                mCommonDlg.showCommonDialog(false, "E", mActivity.getString(R.string.msgs_zip_extract_file_was_failed), tc.getThreadMessage(), null);
+                CommonDialog.showCommonDialog(mFragmentManager, false, "E", mActivity.getString(R.string.msgs_zip_extract_file_was_failed), tc.getThreadMessage(), null);
                 mUiHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -2136,7 +2154,7 @@ public class LocalFileManager {
         }
         if (isCancelled(true, tc)) {
             result = false;
-            mCommonDlg.showCommonDialog(false, "W", mActivity.getString(R.string.msgs_zip_extract_file_was_cancelled), "", null);
+            CommonDialog.showCommonDialog(mFragmentManager, false, "W", mActivity.getString(R.string.msgs_zip_extract_file_was_cancelled), "", null);
             mUiHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -2191,7 +2209,7 @@ public class LocalFileManager {
                                 if (!isCancelled(true, tc)) {
                                     String msg = String.format(mActivity.getString(R.string.msgs_zip_local_file_copy_failed), tfl.getName());
                                     mUtil.addLogMsg("I", msg);
-                                    mCommonDlg.showCommonDialog(false, "W", msg, tc.getThreadMessage(), null);
+                                    CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, tc.getThreadMessage(), null);
                                     break;
                                 }
                             }
@@ -2227,7 +2245,7 @@ public class LocalFileManager {
             copy_list+=copy_sep+tfl.getName();
             copy_sep=",";
         }
-        mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_zip_local_file_copy_confirm_title), copy_list, ntfy);
+        CommonDialog.showCommonDialog(mFragmentManager, true, "W", mActivity.getString(R.string.msgs_zip_local_file_copy_confirm_title), copy_list, ntfy);
     }
 
     private void showToast(Activity a, String msg) {
@@ -2429,10 +2447,10 @@ public class LocalFileManager {
 								if (!deleteLocalItem(tc, tfli.getPath()+"/"+tfli.getName())) {
 									if (isCancelled(true, tc)) {
 										String msg= String.format(mActivity.getString(R.string.msgs_zip_delete_file_was_cancelled),tfli.getName());
-										mCommonDlg.showCommonDialog(false, "W", msg, "", null);
+										CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
 									} else {
 										String msg= String.format(mActivity.getString(R.string.msgs_zip_delete_file_was_failed),tfli.getName());
-										mCommonDlg.showCommonDialog(false, "W", msg, "", null);
+										CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
 									}
 									process_abrted=true;
 									break;
@@ -2450,7 +2468,7 @@ public class LocalFileManager {
 						mUiHandler.post(new Runnable(){
 							@Override
 							public void run() {
-                                clearCopyCutItemX(false);
+                                clearCopyCutItem(false);
                                 mTreeFilelistAdapter.setAllItemUnchecked();
 								refreshFileList();
 								setUiEnabled();
@@ -2463,7 +2481,7 @@ public class LocalFileManager {
 			@Override
 			public void negativeResponse(Context c, Object[] o) {}
 		});
-		mCommonDlg.showCommonDialog(true, "W", mActivity.getString(R.string.msgs_zip_delete_confirm_delete_local),
+		CommonDialog.showCommonDialog(mFragmentManager, true, "W", mActivity.getString(R.string.msgs_zip_delete_confirm_delete_local),
 				conf_list, ntfy);
 	}
 
@@ -2791,7 +2809,7 @@ public class LocalFileManager {
                             mActivityButtonCutView.setVisibility(ImageButton.VISIBLE);
                         }
                         if (mGp.copyCutList.size()>0) {
-                            mGp.localCopyCutView.setVisibility(LinearLayout.VISIBLE);
+//                            mGp.localCopyCutView.setVisibility(LinearLayout.VISIBLE);
                             if (isCopyCutDestinationValid(f_curr_dir))
                                 mActivityButtonPasteView.setVisibility(ImageButton.VISIBLE);
                         }
@@ -3199,7 +3217,7 @@ public class LocalFileManager {
                                     getDirectorySize(lf);
                                     psd.dismissAllowingStateLoss();
                                     String msg=mActivity.getString(R.string.msgs_local_file_item_property_directory);
-                                    mCommonDlg.showCommonDialog(false, "I", mActivity.getString(R.string.msgs_main_local_file_ccmenu_property),
+                                    CommonDialog.showCommonDialog(mFragmentManager, false, "I", mActivity.getString(R.string.msgs_main_local_file_ccmenu_property),
                                             String.format(msg, tfi.getPath()+"/"+tfi.getName(), mInfoDirectoryCount, mInfoFileCount, mInfoFileSize), null);
                                 }
                             };
@@ -3424,7 +3442,7 @@ public class LocalFileManager {
 							}
 						});
 						if (out_fl.exists()) {
-							mCommonDlg.showCommonDialog(true, "W",
+							CommonDialog.showCommonDialog(mFragmentManager, true, "W",
 									String.format(mActivity.getString(R.string.msgs_zip_create_new_zip_file_already_exists),out_fl.getName()),
 									"", ntfy_create);
 						} else {
@@ -3465,7 +3483,7 @@ public class LocalFileManager {
 
 		});
 
-		mCommonDlg.showCommonDialog(true, "W",
+		CommonDialog.showCommonDialog(mFragmentManager, true, "W",
 				mActivity.getString(R.string.msgs_zip_create_new_zip_file_confirm), conf_list, ntfy_confirm);
 	}
 
@@ -3526,7 +3544,7 @@ public class LocalFileManager {
                             if (isCancelled(true, tc)) {
                                 String msg_txt= String.format(mActivity.getString(R.string.msgs_local_file_add_file_cancelled),item);
                                 mUtil.addLogMsg("W", msg);
-                                mCommonDlg.showCommonDialog(false, "W",msg_txt, "", null);
+                                CommonDialog.showCommonDialog(mFragmentManager, false, "W",msg_txt, "", null);
                                 bzf.destroy();
                                 out_sf.deleteIfExists();
 
@@ -3563,7 +3581,7 @@ public class LocalFileManager {
                     String fn=processed_file!=null?processed_file.getPath():"none";
                     String msg= String.format(mActivity.getString(R.string.msgs_local_file_add_file_failed), fn);
                     mUtil.addLogMsg("E", msg);
-                    mCommonDlg.showCommonDialog(false, "E",msg, e.getMessage()+"\n"+CommonUtilities.formatStackTraceInfo(e), null);
+                    CommonDialog.showCommonDialog(mFragmentManager, false, "E",msg, e.getMessage()+"\n"+CommonUtilities.formatStackTraceInfo(e), null);
                     disableCancelButton();
                     closeUiDialogView(100);
                 }
@@ -3639,7 +3657,7 @@ public class LocalFileManager {
                 mActivity.startActivity(intent);
                 result=true;
             } catch(ActivityNotFoundException e) {
-                mCommonDlg.showCommonDialog(false,"E",
+                CommonDialog.showCommonDialog(mFragmentManager, false,"E",
                         String.format(mActivity.getString(R.string.msgs_zip_specific_extract_file_viewer_not_found),f_name,mt),"",null);
             }
         }
@@ -3655,7 +3673,7 @@ public class LocalFileManager {
         String n_sn= mLocalStorageSelector.getSelectedItem().toString();
         String n_fp=getSafStorageByDescription(n_sn).saf_file.getPath();
         if (n_fp==null) {
-            mCommonDlg.showCommonDialog(false, "E", "New file path obtain error","fp="+fp+"\nn_sn="+n_sn+"\nn_fp="+n_fp, null);
+            CommonDialog.showCommonDialog(mFragmentManager, false, "E", "New file path obtain error","fp="+fp+"\nn_sn="+n_sn+"\nn_fp="+n_fp, null);
             if (p_ntfy!=null) p_ntfy.notifyToListener(false, null);
             return;
         }

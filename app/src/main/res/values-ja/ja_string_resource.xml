@@ -6,8 +6,8 @@
         <string name="msgs_about_dlg_change_btn">更新履歴</string>
         <string name="msgs_dlg_title_about">ZipUtility3について</string>
         <string name="msgs_dlg_title_about_func_desc">ZipUtility3_Desc_JA_Short.htm</string>
-        <string name="msgs_dlg_title_about_privacy_desc">ZipUtility3_Privacy_JA.html</string>
-        <string name="msgs_dlg_title_about_change_desc">ZipUtility3_Change_JA.html</string>
+        <string name="msgs_dlg_title_about_privacy_desc">ZipUtility3_about_JA_Privacy.md</string>
+        <string name="msgs_dlg_title_about_change_desc">ZipUtility3_Help_JA_change.md</string>
     <!-- Log -->
         <string name="msgs_log_management_title">ログ管理</string>
         <string name="msgs_log_management_enable_log_file_hint">ZipUtility3に関する質問・問題を記述してください</string>
@@ -67,6 +67,8 @@
         <string name="msgs_zip_cont_header_copy">コピー</string>
         <string name="msgs_zip_cont_header_cut">切取り</string>
         <string name="msgs_zip_cont_header_clipboard">クリップボード :</string>
+        <string name="msgs_zip_button_header_copy_item_list">コピー・カットの項目表示</string>
+        <string name="msgs_zip_button_header_clear_copy_item">コピー・カットリストの消去</string>
         <string name="msgs_zip_local_file_clear_copy_cut_item">消去</string>
         <string name="msgs_zip_local_file_clear_copy_cut_from_local">ローカル</string>
         <string name="msgs_zip_local_file_clear_copy_cut_from_zip">ZIP</string>
@@ -226,20 +228,31 @@
         <string name="msgs_menu_kill">強制終了</string>
         <string name="msgs_menu_sort">並び替え</string>
         <string name="msgs_menu_save_zip_file">名前を付けて保存</string>
-        <string name="msgs_menu_storage_permission">外部ストレージ使用許可</string>
+        <string name="msgs_menu_storage_permission">SDCARD/USBストレージ使用許可</string>
     <!-- Storage permission -->
         <string name="msgs_storage_permission_title">ストレージの許可</string>
-        <string name="msgs_main_external_storage_select_required_title">外部ストレージアクセス許可</string>
-        <string name="msgs_main_external_storage_select_required_select_msg">外部ストレージにアクセスをするために、ステップ１.「SDCARD」または「USB」をタップしてください、ステップ２.その後表示された画面で「選択」をタップしてください。\n(ステップ２で左上に「ＳＤＣＡＲＤ」または「USB」の画面が直接表示された時は「選択」をタップしてください。左上に「ＳＤＣＡＲＤ」または「USB」以外が表示されている場合は左上のメニューをタップし、ステップ１からやり直してください。)</string>
-        <string name="msgs_main_external_storage_select_retry_select_msg">外部ストレージのルートディレクトリが選択されませんでした。選択しなおしますか？</string>
-        <string name="msgs_main_external_storage_select_deny_msg">外部ストレージへのアクセス許可が拒否されました。外部ストレージへのアクセス許可がされるまでは外部ストレージにファイルを保存できません。</string>
+        <string name="msgs_main_external_storage_select_required_title">SDCARD/USBストレージアクセス許可</string>
+        <string name="msgs_main_external_storage_select_retry_select_msg">SDCARD/USBストレージのルートディレクトリが選択されませんでした。選択しなおしますか？</string>
+        <string name="msgs_main_external_storage_select_deny_msg">SDCARD/USBストレージへのアクセス許可が拒否されました。SDCARD/USBストレージへのアクセス許可がされるまではSDCARD/USBストレージにファイルを保存できません。</string>
         <string name="msgs_main_external_storage_required_select_msg_file">SMBSync_STORAGE_10.0_JA.png</string>
-        <string name="msgs_main_permission_primary_storage_title">内部ストレージ許可</string>
-        <string name="msgs_main_permission_primary_storage_request_msg">内部ストレージにデータや管理用データの読み書きを行うために内部ストレージにアクセスする許可を与えてください。</string>
-        <string name="msgs_main_permission_primary_storage_denied_msg">内部ストレージにアクセスする許可が与えられていないためアプリケーションを続行できません、アプリケーションを終了します。</string>
-        <string name="msgs_main_suppress_add_external_storage_notification_title">外部ストレージ追加の通知</string>
-        <string name="msgs_main_suppress_add_external_storage_notification_msg">新しい外部ストレージが検出されました。外部ストレージを追加しますか？</string>
+        <string name="msgs_main_permission_primary_storage_title">外部ストレージアクセス許可</string>
+        <string name="msgs_main_permission_primary_storage_request_msg">ディレクトリ―とファイルの操作(作成・削除・改名・更新)を行うために下記の手順でストレージにアクセスする許可を与えてください。\n
+1. 「了解」ボタンをタップ\n
+2. 許可画面で「許可」をタップ\n\n
+データの取り扱いと必要な権限はプライバシーポリシーを参照してください。\n\n</string>
+        <string name="msgs_main_permission_primary_storage_denied_msg">ストレージにアクセスする許可が与えられていないためアプリケーションを続行できません、アプリケーションを終了します。</string>
+        <string name="msgs_main_suppress_add_external_storage_notification_title">SDCARD/USBストレージ追加の通知</string>
+        <string name="msgs_main_suppress_add_external_storage_notification_msg">新しいSDCARD/USBストレージが検出されました。SDCARD/USBストレージを追加しますか？</string>
         <string name="msgs_main_suppress_add_external_storage_notification_suppress">この通知を次回以降表示しない （アプリ設定で再表示できます）</string>
+        <string name="msgs_storage_permission_all_file_access_title">全てのファイルへのアクセス</string>
+        <string name="msgs_storage_permission_all_file_access_image">all_file_access_desc_en.png</string>
+        <string name="msgs_storage_permission_all_file_access_request_message">ZipUtility3では貴方が指定する様々なディレクトリー/ファイルを作成・削除・改名とZIPファイルの作成・解凍を行うために「全てのファイルへのアクセス」の許可が必要です。データの取り扱いと必要な権限についてはアプリのプライバシーポリシーを確認してください。\n下記の手順で「全てのファイルへのアクセス」を許可してください。\n0.画面最下部の「次へ」をタップしてください。\n1.「全てのファイルへのアクセス」画面が表示されますので\"ZipUtility3\"をタップしてください\n2.画面右端のスイッチをオンにしてください\n3.画面右端のスイッチが青になっている事を確認する\n4.戻るキーでアプリケーション画面に戻る</string>
+        <string name="msgs_storage_permission_all_file_access_button_text">次へ</string>
+        <string name="msgs_storage_permission_all_file_access_denied_message">All File Accessが許可されるまではアプリを起動できません。許可する場合はアプリを再起動してください。</string>
+        <string name="msgs_storage_permission_all_file_access_error_message">All File Access許可画面を表示できませんでした。\nエラー=%s</string>
+    <!-- Privacy Policy confirm -->
+        <string name="msgs_privacy_policy_title">プライバシー ポリシー</string>
+        <string name="msgs_privacy_policy_show_privacy_policy">プライバシーポリシーの表示</string>
     <!-- System info -->
         <string name="msgs_menu_list_system_info">システム情報</string>
         <string name="msgs_info_storage_copy_clipboard">コピー</string>
@@ -330,6 +343,6 @@
         <string name="settings_exit_clean">settings_exit_clean</string>
         <string name="settings_misc_title">その他</string>
         <string name="settings_suppress_add_external_storage_notification">settings_suppress_add_external_storage_notification</string>
-        <string name="settings_suppress_add_external_storage_notification_summary_ena">外部ストレージ追加の通知を表示しない</string>
-        <string name="settings_suppress_add_external_storage_notification_title">外部ストレージ追加の通知</string>
+        <string name="settings_suppress_add_external_storage_notification_summary_ena">SDCARD/USBストレージ追加の通知を表示しない</string>
+        <string name="settings_suppress_add_external_storage_notification_title">SDCARD/USBストレージ追加の通知</string>
 </resources>
