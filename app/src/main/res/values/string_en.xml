@@ -6,8 +6,8 @@
         <string name="msgs_about_dlg_change_btn">Change Log</string>
         <string name="msgs_dlg_title_about">About ZipUtility3</string>
         <string name="msgs_dlg_title_about_func_desc">ZipUtility3_Desc_EN_Short.htm</string>
-        <string name="msgs_dlg_title_about_privacy_desc">ZipUtility3_Privacy_EN.html</string>
-        <string name="msgs_dlg_title_about_change_desc">ZipUtility3_Change_EN.html</string>
+        <string name="msgs_dlg_title_about_privacy_desc">ZipUtility3_about_EN_Privacy.md</string>
+        <string name="msgs_dlg_title_about_change_desc">ZipUtility3_Help_EN_change.md</string>
     <!-- Log -->
         <string name="msgs_log_management_title">Log management</string>
         <string name="msgs_log_management_enable_log_file_hint">Write a question/problem about ZipUtility3.</string>
@@ -240,6 +240,19 @@
         <string name="msgs_main_suppress_add_external_storage_notification_title">Notification of adding external storage</string>
         <string name="msgs_main_suppress_add_external_storage_notification_msg">New external storage has been detected. Add external storage?</string>
         <string name="msgs_main_suppress_add_external_storage_notification_suppress">Disable this notification (can be enabled in sync settings)</string>
+        <string name="msgs_storage_permission_all_file_access_title">All File Access</string>
+        <string name="msgs_storage_permission_all_file_access_image">all_file_access_desc_en.png</string>
+        <string name="msgs_storage_permission_all_file_access_request_message">In order for ZipUtility3 to create, delete, and rename various directories/files that you specify, and to create and extract ZIP files, you need to allow \"Access All Files\".\nPlease follow the steps below to allow \"Access All Files\".\n0.  Tap \"Next\" at the bottom of the screen.\n1.  The \"Access all files\" screen will appear. Tap \"ZipUtility3\".\n2.  Turn on the switch on the right side of the screen.\n3.  Make sure that the switch on the right side of the screen is blue.\n4.  Use the back key to return to the application screen</string>
+        <string name="msgs_storage_permission_all_file_access_button_text">Next</string>
+        <string name="msgs_storage_permission_all_file_access_denied_message">You cannot launch the app until \"All File Access\" is allowed. If you want to allow it, please start the app again.</string>
+        <string name="msgs_storage_permission_all_file_access_error_message">The \"All File Access\" permission screen could not be displayed.\nError=%s</string>
+    <!-- Privacy Policy confirm -->
+        <string name="msgs_privacy_policy_confirm_title">Agreement of the privacy policy</string>
+        <string name="msgs_privacy_policy_confirm_message">Please scroll down and read the entire privacy policy.</string>
+        <string name="msgs_privacy_policy_confirm_btn_deny">Disagree</string>
+        <string name="msgs_privacy_policy_confirm_btn_confirm">Agree to continue</string>
+        <string name="msgs_privacy_policy_confirm_deny_title">Agreement to Privacy Policy</string>
+        <string name="msgs_privacy_policy_confirm_deny_message">If you do not agree to the privacy policy, you cannot use ZipUtility3.</string>
     <!-- System info -->
         <string name="msgs_menu_list_system_info">System information</string>
         <string name="msgs_info_storage_copy_clipboard">Copy</string>

@@ -6,8 +6,8 @@
         <string name="msgs_about_dlg_change_btn">Journal des modifications</string>
         <string name="msgs_dlg_title_about">À propos de ZipUtility3</string>
         <string name="msgs_dlg_title_about_func_desc">ZipUtility3_Desc_FR_Short.htm</string>
-        <string name="msgs_dlg_title_about_privacy_desc">ZipUtility3_Privacy_FR.html</string>
-        <string name="msgs_dlg_title_about_change_desc">ZipUtility3_Change_EN.html</string>
+        <string name="msgs_dlg_title_about_privacy_desc">ZipUtility3_about_EN_Privacy.md</string>
+        <string name="msgs_dlg_title_about_change_desc">ZipUtility3_Help_EN_change.md</string>
     <!-- Log -->
         <string name="msgs_log_management_title">Gestion des journaux</string>
         <string name="msgs_log_management_enable_log_file_hint">Rédigez une question/problème sur ZipUtility3.</string>
@@ -240,6 +240,19 @@
         <string name="msgs_main_suppress_add_external_storage_notification_title">Notification de l\'ajout d\'un stockage externe</string>
         <string name="msgs_main_suppress_add_external_storage_notification_msg">Un nouveau stockage externe a été détecté. Ajouter un stockage externe ?</string>
         <string name="msgs_main_suppress_add_external_storage_notification_suppress">Désactivez cette notification (peut être activée dans les paramètres de synchronisation)</string>
+        <string name="msgs_storage_permission_all_file_access_title">All File Access</string>
+        <string name="msgs_storage_permission_all_file_access_image">all_file_access_desc_en.png</string>
+        <string name="msgs_storage_permission_all_file_access_request_message">Pour que ZipUtility3 puisse créer, supprimer et renommer les différents répertoires/fichiers que vous spécifiez, et pour créer et extraire les fichiers ZIP, vous devez autoriser \"l\'accès à tous les fichiers\".\nVeuillez suivre les étapes suivantes pour autoriser \"l\'accès à tous les fichiers\".\n0. Appuyez sur \"Suivant\" au bas de l\'écran.\n1. L\'écran \"Accès à tous les fichiers\" s\'affiche. Appuyez sur \"ZipUtility3\".\n2. Allumez l\'interrupteur sur le côté droit de l\'écran.\n3. Assurez-vous que l\'interrupteur situé sur le côté droit de l\'écran est bleu.\n4. Utilisez la touche retour pour revenir à l\'écran de l\'application.</string>
+        <string name="msgs_storage_permission_all_file_access_button_text">Next</string>
+        <string name="msgs_storage_permission_all_file_access_denied_message">Vous ne pouvez pas lancer l\'application tant que \"All File Access\" n\'est pas autorisé. Si vous souhaitez l\'autoriser, veuillez relancer l\'application.</string>
+        <string name="msgs_storage_permission_all_file_access_error_message">L\'écran d\'autorisation \"Accès à tous les fichiers\" n\'a pas pu être affiché.\nErreur=%s</string>
+    <!-- Privacy Policy confirm -->
+        <string name="msgs_privacy_policy_confirm_title">Accord de la politique de confidentialité</string>
+        <string name="msgs_privacy_policy_confirm_message">Veuillez faire défiler la page et lire l\'intégralité de la politique de confidentialité.</string>
+        <string name="msgs_privacy_policy_confirm_btn_deny">Nicht zustimmen</string>
+        <string name="msgs_privacy_policy_confirm_btn_confirm">Accepter de poursuivre</string>
+        <string name="msgs_privacy_policy_confirm_deny_title">Accord sur la politique de confidentialité</string>
+        <string name="msgs_privacy_policy_confirm_deny_message">Si vous n\'acceptez pas notre politique de confidentialité, vous ne pouvez pas utiliser ZipUtility3.</string>
     <!-- System info -->
         <string name="msgs_menu_list_system_info">Informations sur le système</string>
         <string name="msgs_info_storage_copy_clipboard">Copie</string>

@@ -88,16 +88,16 @@ public class GlobalParameters {
 //    public TextView copyCutItemType=null;
 //	public Button copyCutItemInfo=null;
 
-    public LinearLayout localCopyCutView=null;
+//    public LinearLayout localCopyCutView=null;
     public Button localCopyCutItemClear=null;
-    public TextView localCopyCutItemMode =null;
-    public TextView localCopyCutItemFrom=null;
+//    public TextView localCopyCutItemMode =null;
+//    public TextView localCopyCutItemFrom=null;
     public Button localCopyCutItemInfo=null;
 
-    public LinearLayout zipCopyCutView=null;
+//    public LinearLayout zipCopyCutView=null;
     public Button zipCopyCutItemClear=null;
-    public TextView zipCopyCutItemMode =null;
-    public TextView zipCopyCutItemFrom=null;
+//    public TextView zipCopyCutItemMode =null;
+//    public TextView zipCopyCutItemFrom=null;
     public Button zipCopyCutItemInfo=null;
 
     //	Settings parameter
@@ -137,8 +137,18 @@ public class GlobalParameters {
 
     public Handler uiHandler=null;
 
+    final static private String PRIVACY_POLICY_AGGREEMENT_KEY="privacy_policy_aggreed";
+    static public boolean isPrivacyPolicyAgreed(Context c) {
+        SharedPreferences prefs = CommonUtilities.getSharedPreference(c);
+        boolean aggree=prefs.getBoolean(PRIVACY_POLICY_AGGREEMENT_KEY, false);
+        return aggree;
+    }
+    static public void setPrivacyPolicyAgreed(Context c, boolean aggreed) {
+        SharedPreferences prefs = CommonUtilities.getSharedPreference(c);
+        prefs.edit().putBoolean(PRIVACY_POLICY_AGGREEMENT_KEY, aggreed).commit();
+    }
 
-	public GlobalParameters() {
+    public GlobalParameters() {
 //		Log.v("","constructed");
 	};
 	

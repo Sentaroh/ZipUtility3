@@ -127,7 +127,7 @@ public class LocalFileManager {
 
         mFragmentManager = fm;
         mMainStoragePath=mMainFilePath = "/storage/emulated/0";//mGp.internalRootDirectory;
-        mUtil = new CommonUtilities(mActivity, "LocalFolder", gp, mCommonDlg);
+        mUtil = new CommonUtilities(mActivity, "LocalFolder", gp, fm);
 
         mMainView = mv;
         initViewWidget();
@@ -377,19 +377,20 @@ public class LocalFileManager {
         mActivityButtonDeleteView.setVisibility(ImageButton.INVISIBLE);
         mActivityButtonArchiveView.setVisibility(ImageButton.INVISIBLE);
 
-        mGp.localCopyCutView=(LinearLayout) mMainView.findViewById(R.id.local_file_copy_cut_view);
-//        mGp.localCopyCutView.setBackgroundColor(mGp.themeColorList.title_background_color);
+//        mGp.localCopyCutView=(LinearLayout) mMainView.findViewById(R.id.local_file_copy_cut_view);
         mGp.localCopyCutItemClear=(Button)mMainView.findViewById(R.id.local_file_copy_cut_clear_btn);
-        mGp.localCopyCutItemMode =(TextView)mMainView.findViewById(R.id.local_file_copy_cut_mode);
-        mGp.localCopyCutItemFrom=(TextView)mMainView.findViewById(R.id.local_file_copy_cut_from);
-        mGp.localCopyCutItemInfo=(Button)mMainView.findViewById(R.id.local_file_copy_cut_item);
+        CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemClear, false);
+//        mGp.localCopyCutItemMode =(TextView)mMainView.findViewById(R.id.local_file_copy_cut_mode);
+//        mGp.localCopyCutItemFrom=(TextView)mMainView.findViewById(R.id.local_file_copy_cut_from);
+        mGp.localCopyCutItemInfo=(Button)mMainView.findViewById(R.id.local_file_copy_cut_info_btn);
+        CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemInfo, false);
 
-        mGp.localCopyCutView.setVisibility(LinearLayout.GONE);
+//        mGp.localCopyCutView.setVisibility(LinearLayout.GONE);
 
         mGp.localCopyCutItemClear.setOnClickListener(new OnClickListener(){
             @Override
             public void onClick(View v) {
-                mActivity.clearCopyCutItem();
+                clearCopyCutItem(true);
             }
         });
 
@@ -410,7 +411,7 @@ public class LocalFileManager {
                 if (mGp.copyCutFrom.equals(GlobalParameters.COPY_CUT_FROM_ZIP)) {
                     file_name="("+mGp.copyCutFilePath.substring(mGp.copyCutFilePath.lastIndexOf("/")+1)+")";
                 }
-                mCommonDlg.showCommonDialog(false, "I", msg+from+file_name, c_list, null);
+                mCommonDlg.showCommonDialog(false, "I", msg+" from "+from+file_name, c_list, null);
             }
         });
 
@@ -1256,6 +1257,8 @@ public class LocalFileManager {
 
     private void copyItem(CustomTreeFilelistAdapter tfa) {
         if (tfa.isItemSelected()) {
+            CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemInfo, true);
+            CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemClear, true);
             mGp.copyCutModeIsCut = false;
             mGp.copyCutList.clear();
             mGp.copyCutFrom = GlobalParameters.COPY_CUT_FROM_LOCAL;
@@ -1266,33 +1269,40 @@ public class LocalFileManager {
                 if (tfl.isChecked()) {
                     mGp.copyCutList.add(tfl);
                     tfl.setChecked(false);
+                    c_list+=sep+tfl.getPath()+"/"+tfl.getName();
+                    sep=",";
                 }
             }
             tfa.notifyDataSetChanged();
             mActivity.setCopyCutItemView();
             mNotifyCheckBoxChanged.notifyToListener(false, null);
-            mUtil.addDebugMsg(1,"I","copyItem copy="+mGp.localCopyCutItemInfo.getText().toString());
+            mUtil.addDebugMsg(1,"I","copyItem copy="+c_list);
         }
     }
 
     private void cutItem(CustomTreeFilelistAdapter tfa) {
         if (tfa.isItemSelected()) {
+            CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemInfo, true);
+            CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemClear, true);
             mGp.copyCutModeIsCut = true;
             mGp.copyCutList.clear();
             mGp.copyCutFrom = GlobalParameters.COPY_CUT_FROM_LOCAL;
             mGp.copyCutFilePath = mMainFilePath;
 //			mGp.copyCutCurrentDirectory=mCurrentDirectory.getOriginalText().equals("/")?"":mCurrentDirectory.getOriginalText().substring(1);
             mGp.copyCutCurrentDirectory = mCurrentDirectory.getOriginalText().equals("/") ? "" : (mCurrentDirectory.getOriginalText().length() == 0 ? "" : mCurrentDirectory.getOriginalText().toString().substring(1));
+            String c_list = "", sep = "";
             for (TreeFilelistItem tfl : tfa.getDataList()) {
                 if (tfl.isChecked()) {
                     mGp.copyCutList.add(tfl);
                     tfl.setChecked(false);
+                    c_list+=sep+tfl.getPath()+"/"+tfl.getName();
+                    sep=",";
                 }
             }
             tfa.notifyDataSetChanged();
             mActivity.setCopyCutItemView();
             mNotifyCheckBoxChanged.notifyToListener(false, null);
-            mUtil.addDebugMsg(1,"I","cutItem cut="+mGp.localCopyCutItemInfo.getText().toString());
+            mUtil.addDebugMsg(1,"I","cutItem cut="+c_list);
         }
         mActivityButtonPasteView.setVisibility(ImageButton.INVISIBLE);
     }
@@ -1851,7 +1861,7 @@ public class LocalFileManager {
                         bzf.removeItem(fh);
                         putProgressMessage(String.format(msg, fh.getFileName()));
                     }
-                    clearCopyCutItemX(false);
+                    clearCopyCutItem(false);
                     if (!isCancelled(true, tc)) {
                         try {
                             CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, mActivity.getString(R.string.msgs_zip_zip_file_being_updated));
@@ -2007,7 +2017,7 @@ public class LocalFileManager {
                         bzf.removeItem(fh);
                         putProgressMessage(String.format(msg, fh.getFileName()));
                     }
-                    clearCopyCutItemX(false);
+                    clearCopyCutItem(false);
                     if (!isCancelled(true, tc)) {
                         try {
                             CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, mActivity.getString(R.string.msgs_zip_zip_file_being_updated));
@@ -2058,10 +2068,12 @@ public class LocalFileManager {
         return result;
     }
 
-    private void clearCopyCutItemX(final boolean toast) {
+    private void clearCopyCutItem(final boolean toast) {
         mUiHandler.post(new Runnable(){
             @Override
             public void run() {
+                CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemInfo, false);
+                CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemClear, false);
                 mActivity.clearCopyCutItem(toast);
                 mActivityButtonPasteView.setVisibility(ImageButton.INVISIBLE);
             }
@@ -2450,7 +2462,7 @@ public class LocalFileManager {
 						mUiHandler.post(new Runnable(){
 							@Override
 							public void run() {
-                                clearCopyCutItemX(false);
+                                clearCopyCutItem(false);
                                 mTreeFilelistAdapter.setAllItemUnchecked();
 								refreshFileList();
 								setUiEnabled();
@@ -2791,7 +2803,7 @@ public class LocalFileManager {
                             mActivityButtonCutView.setVisibility(ImageButton.VISIBLE);
                         }
                         if (mGp.copyCutList.size()>0) {
-                            mGp.localCopyCutView.setVisibility(LinearLayout.VISIBLE);
+//                            mGp.localCopyCutView.setVisibility(LinearLayout.VISIBLE);
                             if (isCopyCutDestinationValid(f_curr_dir))
                                 mActivityButtonPasteView.setVisibility(ImageButton.VISIBLE);
                         }
