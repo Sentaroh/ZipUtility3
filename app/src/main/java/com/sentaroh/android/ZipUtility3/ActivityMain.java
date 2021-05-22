@@ -267,16 +267,25 @@ public class ActivityMain extends AppCompatActivity {
         if (mRestartStatus== START_STATUS_BEGINING) {
             mRestartStatus = START_STATUS_INITIALYZING;
             if (Build.VERSION.SDK_INT>=30) {
-                //Enable "ALL_FILE_ACCESS"
-                if (!isAllFileAccessPermissionGranted()) {
-                    requestAllFileAccessPermission(new CallBackListener() {
+                //Disable "ALL_FILE_ACCESS"
+//                if (!isAllFileAccessPermissionGranted()) {
+//                    requestAllFileAccessPermission(new CallBackListener() {
+//                        @Override
+//                        public void onCallBack(Context context, boolean b, Object[] objects) {
+//                            initApplication();
+//                        }
+//                    });
+//                } else {
+//                    initApplication();
+//                }
+                if (isLegacyStorageAccessGranted()) initApplication();
+                else {
+                    requestLegacyStoragePermission(new CallBackListener(){
                         @Override
-                        public void onCallBack(Context context, boolean b, Object[] objects) {
+                        public void onCallBack(Context c, boolean positive, Object[] o) {
                             initApplication();
                         }
                     });
-                } else {
-                    initApplication();
                 }
             } else {
                 if (isLegacyStorageAccessGranted()) initApplication();
@@ -1474,116 +1483,116 @@ public class ActivityMain extends AppCompatActivity {
 
     }
 
-    private void requestAllFileAccessPermission(CallBackListener cbl) {
-//        Enable "ALL_FILE_ACCESS"
-        NotifyEvent ntfy_all_file_access=new NotifyEvent(mActivity);
-        ntfy_all_file_access.setListener(new NotifyEvent.NotifyEventListener() {
-            @Override
-            public void positiveResponse(Context context, Object[] objects) {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                launchActivityResult(mActivity, "ALL_FILE_ACCESS", intent, new CallBackListener() {
-                    @Override
-                    public void onCallBack(Context context, boolean b, Object[] objects) {
-                        if (isAllFileAccessPermissionGranted()) {
-                            if (cbl!=null) cbl.onCallBack(mActivity, true, null);
-                        } else {
-                            CommonDialog.showCommonDialog(mActivity, mActivity.getSupportFragmentManager(), false, "W",
-                                    mActivity.getString(R.string.msgs_storage_permission_all_file_access_title),
-                                    mActivity.getString(R.string.msgs_storage_permission_all_file_access_denied_message), new CallBackListener(){
-                                        @Override
-                                        public void onCallBack(Context context, boolean positive, Object[] objects) {
-                                            finish();
-                                        }
-                                    });
-                        }
-                    }
-                });
-            }
-
-            @Override
-            public void negativeResponse(Context context, Object[] objects) {
-                NotifyEvent ntfy_denied=new NotifyEvent(mActivity);
-                ntfy_denied.setListener(new NotifyEvent.NotifyEventListener() {
-                    @Override
-                    public void positiveResponse(Context context, Object[] objects) {
-                        finish();
-                    }
-                    @Override
-                    public void negativeResponse(Context context, Object[] objects) {}
-                });
-                CommonDialog.showCommonDialog(mActivity.getSupportFragmentManager(), false, "W",
-                        mActivity.getString(R.string.msgs_storage_permission_all_file_access_title),
-                        mActivity.getString(R.string.msgs_storage_permission_all_file_access_denied_message), ntfy_denied);
-            }
-        });
-        final Dialog dialog=new Dialog(mActivity, mGp.applicationTheme);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setContentView(R.layout.request_all_file_access_dlg);
-
-        TextView dlg_title=(TextView)dialog.findViewById(R.id.request_all_file_dlg_title);
-        TextView dlg_msg=(TextView)dialog.findViewById(R.id.request_all_file_dlg_msg);
-        ImageView dlg_image=(ImageView)dialog.findViewById(R.id.request_all_file_dlg_image);
-
-        Button dlg_show_privacy_btn=(Button)dialog.findViewById(R.id.request_all_file_dlg_show_privacy_policy_button);
-        dlg_show_privacy_btn.setVisibility(Button.VISIBLE);
-
-        Button dlg_ok=(Button)dialog.findViewById(R.id.request_all_file_dlg_btn_ok);
-        Button dlg_cancel=(Button)dialog.findViewById(R.id.request_all_file_dlg_btn_cancel);
-
-        dlg_title.setText(mActivity.getString(R.string.msgs_storage_permission_all_file_access_title));
-        dlg_msg.setText(mActivity.getString(R.string.msgs_storage_permission_all_file_access_request_message));
-
-        try {
-            InputStream is = mActivity.getResources().getAssets().open(mActivity.getString(R.string.msgs_storage_permission_all_file_access_image));
-            BufferedInputStream bis = new BufferedInputStream(is, 1024*1024);
-            Bitmap bm = BitmapFactory.decodeStream(bis);
-            dlg_image.setImageBitmap(bm);
-            is.close();
-            bis.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        dlg_show_privacy_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showPrivacyPolicy();
-            }
-        });
-
-        dlg_ok.setText(mActivity.getString(R.string.msgs_storage_permission_all_file_access_button_text));
-        dlg_cancel.setText(mActivity.getString(R.string.msgs_common_dialog_cancel));
-
-        dlg_ok.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ntfy_all_file_access.notifyToListener(true, null);
-                dialog.dismiss();
-            }
-        });
-
-        dlg_cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ntfy_all_file_access.notifyToListener(false, null);
-                dialog.dismiss();;
-            }
-        });
-
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialogInterface) {
-                dlg_cancel.performClick();
-            }
-        });
-
-        dialog.show();
-    }
-
-    private boolean isAllFileAccessPermissionGranted() {
-        return Environment.isExternalStorageManager();
-    }
+//    private void requestAllFileAccessPermission(CallBackListener cbl) {
+////        Enable "ALL_FILE_ACCESS"
+//        NotifyEvent ntfy_all_file_access=new NotifyEvent(mActivity);
+//        ntfy_all_file_access.setListener(new NotifyEvent.NotifyEventListener() {
+//            @Override
+//            public void positiveResponse(Context context, Object[] objects) {
+//                Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+//                launchActivityResult(mActivity, "ALL_FILE_ACCESS", intent, new CallBackListener() {
+//                    @Override
+//                    public void onCallBack(Context context, boolean b, Object[] objects) {
+//                        if (isAllFileAccessPermissionGranted()) {
+//                            if (cbl!=null) cbl.onCallBack(mActivity, true, null);
+//                        } else {
+//                            CommonDialog.showCommonDialog(mActivity, mActivity.getSupportFragmentManager(), false, "W",
+//                                    mActivity.getString(R.string.msgs_storage_permission_all_file_access_title),
+//                                    mActivity.getString(R.string.msgs_storage_permission_all_file_access_denied_message), new CallBackListener(){
+//                                        @Override
+//                                        public void onCallBack(Context context, boolean positive, Object[] objects) {
+//                                            finish();
+//                                        }
+//                                    });
+//                        }
+//                    }
+//                });
+//            }
+//
+//            @Override
+//            public void negativeResponse(Context context, Object[] objects) {
+//                NotifyEvent ntfy_denied=new NotifyEvent(mActivity);
+//                ntfy_denied.setListener(new NotifyEvent.NotifyEventListener() {
+//                    @Override
+//                    public void positiveResponse(Context context, Object[] objects) {
+//                        finish();
+//                    }
+//                    @Override
+//                    public void negativeResponse(Context context, Object[] objects) {}
+//                });
+//                CommonDialog.showCommonDialog(mActivity.getSupportFragmentManager(), false, "W",
+//                        mActivity.getString(R.string.msgs_storage_permission_all_file_access_title),
+//                        mActivity.getString(R.string.msgs_storage_permission_all_file_access_denied_message), ntfy_denied);
+//            }
+//        });
+//        final Dialog dialog=new Dialog(mActivity, mGp.applicationTheme);
+//        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+//        dialog.setCanceledOnTouchOutside(false);
+//        dialog.setContentView(R.layout.request_all_file_access_dlg);
+//
+//        TextView dlg_title=(TextView)dialog.findViewById(R.id.request_all_file_dlg_title);
+//        TextView dlg_msg=(TextView)dialog.findViewById(R.id.request_all_file_dlg_msg);
+//        ImageView dlg_image=(ImageView)dialog.findViewById(R.id.request_all_file_dlg_image);
+//
+//        Button dlg_show_privacy_btn=(Button)dialog.findViewById(R.id.request_all_file_dlg_show_privacy_policy_button);
+//        dlg_show_privacy_btn.setVisibility(Button.VISIBLE);
+//
+//        Button dlg_ok=(Button)dialog.findViewById(R.id.request_all_file_dlg_btn_ok);
+//        Button dlg_cancel=(Button)dialog.findViewById(R.id.request_all_file_dlg_btn_cancel);
+//
+//        dlg_title.setText(mActivity.getString(R.string.msgs_storage_permission_all_file_access_title));
+//        dlg_msg.setText(mActivity.getString(R.string.msgs_storage_permission_all_file_access_request_message));
+//
+//        try {
+//            InputStream is = mActivity.getResources().getAssets().open(mActivity.getString(R.string.msgs_storage_permission_all_file_access_image));
+//            BufferedInputStream bis = new BufferedInputStream(is, 1024*1024);
+//            Bitmap bm = BitmapFactory.decodeStream(bis);
+//            dlg_image.setImageBitmap(bm);
+//            is.close();
+//            bis.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        dlg_show_privacy_btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                showPrivacyPolicy();
+//            }
+//        });
+//
+//        dlg_ok.setText(mActivity.getString(R.string.msgs_storage_permission_all_file_access_button_text));
+//        dlg_cancel.setText(mActivity.getString(R.string.msgs_common_dialog_cancel));
+//
+//        dlg_ok.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                ntfy_all_file_access.notifyToListener(true, null);
+//                dialog.dismiss();
+//            }
+//        });
+//
+//        dlg_cancel.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                ntfy_all_file_access.notifyToListener(false, null);
+//                dialog.dismiss();;
+//            }
+//        });
+//
+//        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+//            @Override
+//            public void onCancel(DialogInterface dialogInterface) {
+//                dlg_cancel.performClick();
+//            }
+//        });
+//
+//        dialog.show();
+//    }
+//
+//    private boolean isAllFileAccessPermissionGranted() {
+//        return Environment.isExternalStorageManager();
+//    }
 
     private void showPrivacyPolicy() {
         final Dialog dialog = new Dialog(mActivity, mGp.applicationTheme);

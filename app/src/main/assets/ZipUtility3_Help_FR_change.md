@@ -1,4 +1,4 @@
-### 2021/xx/xx 1.31  
+### 2021/05/23 1.31  
 
 - File display reordering can now be carried over from previous launch in settings.  
 - Fixed a bug where file renaming/deleting was not reflected in the media store.  
