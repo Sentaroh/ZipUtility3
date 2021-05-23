@@ -1,3 +1,6 @@
+### 2021/05/23 1.32  
+Target SDK back to 29.  
+
 ### 2021/05/23 1.31  
 
 - File display reordering can now be carried over from previous launch in settings.  
