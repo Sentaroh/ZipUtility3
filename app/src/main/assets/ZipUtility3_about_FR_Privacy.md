@@ -8,7 +8,7 @@ Le mot de passe sera éliminé et non sauvegardé lorsque le processus sera term
 
 ### 1.2.fiche d'activité de ZipUtility3  
 
-L'activation de la journalisation permet de sauvegarder les données de l'enregistrement de l'activité dans la zone de mémoire de l'application pour la vérification des résultats d'exécution de l'application et l'assistance technique. Si la journalisation est désactivée, l'enregistrement des données sera arrêté, mais les données déjà enregistrées ne seront pas supprimées.  
+Lorsque l'enregistrement est activé, les données d'activité seront stockées dans la zone de mémoire de l'application pour la vérification des résultats d'exécution de l'application et pour l'assistance technique. Si la journalisation est désactivée, l'enregistrement des données sera arrêté, mais les données déjà enregistrées ne seront pas supprimées.  
 <span style="color : red ;"><u>Les données ne seront pas envoyées à l'extérieur, sauf si l'opération "1.3.Envoi ou écriture de données en dehors de ZipUtility3" est effectuée.</u></span>.  
 
 - Informations sur le dispositif (nom du fabricant, nom du modèle, version du système d'exploitation, point de montage, répertoire spécifique à l'application, StorageAccessFramework, gestionnaire de stockage)  
@@ -34,15 +34,7 @@ En désinstallant ZipUtility3, les données sauvegardées ("1.2.Journal des acti
 
 ## 2.les autorisations requises pour exécuter l'application.  
 
-### 2.1.stockage  
-
-### 2.1.1.Android11 ou plus récent.  
-**<u>All file access</u>**  
-Utilisé pour les opérations sur les fichiers et les répertoires (création, suppression, renommage), les opérations sur les fichiers ZIP (création, suppression, renommage, mise à jour, extraction) et l'écriture des fichiers journaux.  
-
-### 2.1.2.Android 10 ou avant  
-
-#### 2.1.2.1.Photos, médias, fichiers  
+#### 2.1.Photos, médias, fichiers  
 **<u>read the contents of your USB storage</u>**  
 **<u>modify or delete the contents of your USB storage</u>**  
 Utilisé pour les opérations sur les fichiers et les répertoires (création, suppression, renommage), les opérations sur les fichiers ZIP (création, suppression, renommage, mise à jour, extraction) et l'écriture des fichiers journaux.  

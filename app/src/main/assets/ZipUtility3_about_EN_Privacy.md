@@ -8,7 +8,7 @@ The password will be discarded and not saved when the process is finished.
 
 ### 1.2.Activity record of ZipUtility3  
 
-Enabling logging will save the activity record data in the app's memory area for verification of the app's execution results and technical support. If logging is disabled, data recording will be stopped, but data already recorded will not be deleted.  
+When logging is enabled, activity data will be stored in the app's memory area for verification of the app's execution results and for technical support. If logging is disabled, data recording will be stopped, however, data already recorded will not be deleted.  
 <span style="color:red;"><u>Data will not be sent externally unless the "1.3. Sending or writing data outside of ZipUtility3" action is taken.</u></span>.  
 
 - Device information (manufacturer name, model name, OS version, mount point, app specific directory, StorageAccessFramework, Storage manager)  
@@ -34,15 +34,7 @@ By uninstalling ZipUtility3, the saved data ("1.2.ZipUtility3 Activity Log") wil
 
 ## 2.Permissions required to run the application.  
 
-### 2.1.Storage  
-
-### 2.1.1.Android 11 or later  
-**<u>All file access</u>**  
-Used for file and directory operations (create, delete, rename), ZIP file operations (create, delete, rename, update, extract) and log file writing.  
-
-### 2.1.2.Android 10 or before  
-
-### 2.1.2.1.Photos, Media and Files  
+### 2.1.Photos, Media and Files  
 **<u>read the contents of your USB storage</u>**  
 **<u>modify or delete the contents of your USB storage</u>**  
 Used for file and directory operations (create, delete, rename), ZIP file operations (create, delete, rename, update, extract) and log file writing.  
