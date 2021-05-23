@@ -211,7 +211,7 @@
         <string name="msgs_zip_specific_extract_file_viewer_not_found">表示するアプリケーションが見つかりません。 ファイル=%1$s, MIMEタイプ=%2$s</string>
         <string name="msgs_zip_specific_extract_mime_type_not_found">MIMEタイプが見つかりません、 ファイル=%s</string>
         <string name="msgs_file_list_size_calculating">計算中</string>
-        <string name="msgs_main_local_mount_point_unmounted">外部ストレージが取り外されたためローカルフォルダーは内部ストレージを表示しています。</string>
+        <string name="msgs_main_local_mount_point_unmounted">SDCARD/USBが取り外されたためローカルフォルダーは内部ストレージを表示しています。</string>
         <string name="msgs_main_local_mount_point_select_local_storage_title">ストレージの選択</string>
         <string name="msgs_main_saf_file_creation_error">SafFile creation error, File path=%s</string>
         <string name="msgs_zip_zip_select_file">ZIPファイルの選択</string>
@@ -235,7 +235,7 @@
         <string name="msgs_main_external_storage_select_retry_select_msg">SDCARD/USBストレージのルートディレクトリが選択されませんでした。選択しなおしますか？</string>
         <string name="msgs_main_external_storage_select_deny_msg">SDCARD/USBストレージへのアクセス許可が拒否されました。SDCARD/USBストレージへのアクセス許可がされるまではSDCARD/USBストレージにファイルを保存できません。</string>
         <string name="msgs_main_external_storage_required_select_msg_file">SMBSync_STORAGE_10.0_JA.png</string>
-        <string name="msgs_main_permission_primary_storage_title">外部ストレージアクセス許可</string>
+        <string name="msgs_main_permission_primary_storage_title">内部ストレージアクセス許可</string>
         <string name="msgs_main_permission_primary_storage_request_msg">ディレクトリ―とファイルの操作(作成・削除・改名・更新)を行うために下記の手順でストレージにアクセスする許可を与えてください。\n
 1. 「了解」ボタンをタップ\n
 2. 許可画面で「許可」をタップ\n\n

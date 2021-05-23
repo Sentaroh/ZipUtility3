@@ -211,7 +211,7 @@
         <string name="msgs_zip_specific_extract_file_viewer_not_found">Demande correspondante non trouvée. Nom du fichier=%1$s, Type MIME=%2$s</string>
         <string name="msgs_zip_specific_extract_mime_type_not_found">Le type MIME n\'est pas trouvé. Nom du fichier=%s</string>
         <string name="msgs_file_list_size_calculating">Calculer</string>
-        <string name="msgs_main_local_mount_point_unmounted">Le dossier local affiche le stockage interne parce que le stockage externe a été supprimé.</string>
+        <string name="msgs_main_local_mount_point_unmounted">Le dossier local montre le stockage interne car la SDCARD/USB a été retirée.</string>
         <string name="msgs_main_local_mount_point_select_local_storage_title">Sélectionnez le stockage</string>
         <string name="msgs_main_saf_file_creation_error">Erreur de création de SafFile, Chemin d\'accès au fichier=%s</string>
         <string name="msgs_zip_zip_select_file">Sélectionnez le fichier ZIP</string>
@@ -235,7 +235,7 @@
         <string name="msgs_main_external_storage_select_retry_select_msg">Le répertoire racine du stockage SDCARD/USB n\'a pas été sélectionné. Voulez-vous le sélectionner à nouveau ?</string>
         <string name="msgs_main_external_storage_select_deny_msg">L\'autorisation d\'accéder au stockage SDCARD/USB a été refusée, vous ne pouvez pas enregistrer de fichiers sur le stockage SDCARD/USB tant que vous n\'avez pas obtenu l\'autorisation d\'accéder au stockage SDCARD/USB.</string>
         <string name="msgs_main_external_storage_required_select_msg_file">SMBSync_STORAGE_10.0_EN.png</string>
-        <string name="msgs_main_permission_primary_storage_title">Autorisation d\'accès au stockage externe</string>
+        <string name="msgs_main_permission_primary_storage_title">Autorisation d\'accès au stockage interne</string>
         <string name="msgs_main_permission_primary_storage_request_msg">Afin d\'effectuer des opérations sur les répertoires et les fichiers (création, suppression, renommage, mise à jour), veuillez suivre les étapes ci-dessous pour accorder la permission d\'accéder au stockage.\n
 1. Appuyez sur le bouton \"OK\".\n
 2. Appuyez sur \"Autoriser\" sur l\'écran d\'autorisation.\n\n

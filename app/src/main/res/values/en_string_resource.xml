@@ -211,7 +211,7 @@
         <string name="msgs_zip_specific_extract_file_viewer_not_found">Corresponding application not found. File name=%1$s, MIME Type=%2$s</string>
         <string name="msgs_zip_specific_extract_mime_type_not_found">MIME type is not found. File name=%s</string>
         <string name="msgs_file_list_size_calculating">Calculating</string>
-        <string name="msgs_main_local_mount_point_unmounted">The local folder is displaying internal storage because the external storage has been removed.</string>
+        <string name="msgs_main_local_mount_point_unmounted">The local folder shows the internal storage because the SDCARD/USB was removed.</string>
         <string name="msgs_main_local_mount_point_select_local_storage_title">Select storage</string>
         <string name="msgs_main_saf_file_creation_error">SafFile creation error, File path=%s</string>
         <string name="msgs_zip_zip_select_file">Select ZIP file</string>
@@ -235,7 +235,7 @@
         <string name="msgs_main_external_storage_select_retry_select_msg">The root directory of SDCARD/USB storage was not selected. Do you want to select it again?</string>
         <string name="msgs_main_external_storage_select_deny_msg">Permission to access the SDCARD/USB storage was denied, you cannot save files to the SDCARD/USB storage until you are granted access to the SDCARD/USB storage.</string>
         <string name="msgs_main_external_storage_required_select_msg_file">SMBSync_STORAGE_10.0_EN.png</string>
-        <string name="msgs_main_permission_primary_storage_title">External Storage Access Permission</string>
+        <string name="msgs_main_permission_primary_storage_title">Internal Storage Access Permission</string>
         <string name="msgs_main_permission_primary_storage_request_msg">In order to perform directory and file operations (create, delete, rename, update), please follow the steps below to grant permission to access the storage.\n
 1. Tap the \"OK\" button.\n
 2. Tap \"Allow\" on the permission screen.\n\n
