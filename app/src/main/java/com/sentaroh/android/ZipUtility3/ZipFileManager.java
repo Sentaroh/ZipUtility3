@@ -4064,7 +4064,10 @@ public class ZipFileManager {
                     else {
                         SafFile3 out_file_sf=new SafFile3(mActivity, dest_fpath);
                         boolean rc_rename=out_file_work.renameTo(out_file_sf);
-                        if (!rc_rename && !out_file_work.exists() && out_file_sf.exists()) result=true;
+                        if (!rc_rename && !out_file_work.exists() && out_file_sf.exists()) {
+                            result=true;
+                            LocalFileManager.scanMediaFile(mGp, mUtil, out_file_sf.getPath());
+                        }
                     }
                 } else {
 				    String work_fpath=out_dir_sf.getAppDirectoryCache()+"/"+dest_file_name;//System.currentTimeMillis();
@@ -4079,6 +4082,7 @@ public class ZipFileManager {
                         out_file_sf.deleteIfExists();
                         out_file_work.moveTo(out_file_sf);
                         result=true;
+                        LocalFileManager.scanMediaFile(mGp, mUtil, out_file_sf.getPath());
                     }
                 }
 			}

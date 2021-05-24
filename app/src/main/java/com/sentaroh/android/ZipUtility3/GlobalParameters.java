@@ -30,6 +30,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.media.MediaScannerConnection;
 import android.os.Build;
 import android.os.Handler;
 import android.os.LocaleList;
@@ -74,6 +75,7 @@ public class GlobalParameters {
 	public boolean debuggable=false;
 
 	public SafManager3 safMgr=null;
+    public MediaScannerConnection mediaScanner = null;
 
 	public ArrayList<TreeFilelistItem> copyCutList=new ArrayList<TreeFilelistItem>();
 	public String copyCutFilePath="";

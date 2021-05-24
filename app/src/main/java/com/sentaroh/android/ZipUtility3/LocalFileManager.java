@@ -3591,8 +3591,9 @@ public class LocalFileManager {
 	};
 
     static public void scanMediaFile(GlobalParameters gp, CommonUtilities util, String fp) {
-        MediaScannerConnection.scanFile(gp.appContext, new String[]{fp}, null, null);
-        util.addDebugMsg(2, "I","Media scanner invoked, name=",fp);
+//        MediaScannerConnection.scanFile(gp.appContext, new String[]{fp}, null, null);
+//        util.addDebugMsg(2, "I","Media scanner invoked, name=",fp);
+        gp.mediaScanner.scanFile(fp, null);
     };
 
     private CallBackListener getZipProgressCallbackListener(final ThreadCtrl tc, final BufferedZipFile3 bzf, final String msg_txt) {

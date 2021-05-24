@@ -41,6 +41,8 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -231,7 +233,39 @@ public class ActivityMain extends AppCompatActivity {
 
         cleanupCacheFile();
 
+        prepareMediaScanner(mGp, mUtil);
     };
+
+    static public void prepareMediaScanner(GlobalParameters gp, CommonUtilities util) {
+        gp.mediaScanner = new MediaScannerConnection(gp.appContext, new MediaScannerConnection.MediaScannerConnectionClient() {
+            @Override
+            public void onMediaScannerConnected() {
+                util.addDebugMsg(1, "I", "MediaScanner connected.");
+                synchronized (gp.mediaScanner) {
+                    gp.mediaScanner.notify();
+                }
+            }
+            @Override
+            public void onScanCompleted(final String fp, final Uri uri) {
+                util.addDebugMsg(1, "I", "MediaScanner scan completed. fn=", fp, ", Uri=" + uri);
+            }
+        });
+        gp.mediaScanner.connect();
+//        if (!gp.mediaScanner.isConnected()) {
+//            synchronized (gp.mediaScanner) {
+//                try {
+//                    gp.mediaScanner.wait(1000*5);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+    }
+
+    static private void closeMediaScanner(GlobalParameters gp, CommonUtilities util) {
+        util.addDebugMsg(1, "I", "MediaScanner disconnect requested.");
+        gp.mediaScanner.disconnect();
+    }
 
     private class MyUncaughtExceptionHandler extends AppUncaughtExceptionHandler {
         @Override
@@ -489,6 +523,8 @@ public class ActivityMain extends AppCompatActivity {
 		super.onDestroy();
 		mUtil.addDebugMsg(1, "I", "onDestroy entered, startStatus="+mRestartStatus);
         // Application process is follow
+        closeMediaScanner(mGp, mUtil);
+
 		closeService();
 		if (mTerminateApplication) {
 //			mGp.settingExitClean=true;
