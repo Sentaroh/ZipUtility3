@@ -6,7 +6,7 @@ The password will be discarded and not saved when the application is closed.
 - Password to protect data in "1.4. Send or export data outside ZipUtility3"   
 The password will be discarded and not saved when the process is finished.  
 
-### 1.2.Activity record of ZipUtility3  
+### 1.2.ZipUtility3 Activity Log  
 
 When logging is enabled, activity data will be stored in the app's memory area for verification of the app's execution results and for technical support. If logging is disabled, data recording will be stopped, however, data already recorded will not be deleted.  
 <span style="color:red;"><u>Data will not be sent externally unless the "1.3. Sending or writing data outside of ZipUtility3" action is taken.</u></span>.  
@@ -25,7 +25,7 @@ The data held by ZipUtility3 cannot be sent or written out to the outside world 
 - Click the "Share" button from the log management.  
 - Click the "Send to Developer" button from the log management.  
 If you specify a password, the attached file will be password protected.  
-- Click "Export Log File" button from Log Management to export to external storage.  
+- Click "Exporting logs" button from Log Management to export to external storage.  
 
 ### 1.4.Deleting the data stored in ZipUtility3  
 
