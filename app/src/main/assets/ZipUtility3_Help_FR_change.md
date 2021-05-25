@@ -1,6 +1,9 @@
 ### 2021/05/23 1.32  
 Retour du SDK cible à 29.  
 
+### 2021/05/23 1.32  
+Retour du SDK cible à 29.  
+
 ### 2021/05/23 1.31  
 
 - File display reordering can now be carried over from previous launch in settings.  
