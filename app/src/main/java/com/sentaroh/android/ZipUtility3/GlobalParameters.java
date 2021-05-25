@@ -124,8 +124,7 @@ public class GlobalParameters {
 			"aac;avi;gif;ico;gz;jpe;jpeg;jpg;m3u;m4a;m4u;mov;movie;mp2;mp3;mpe;mpeg;mpg;mpga;ogg;png;qt;ra;ram;svg;tgz;wmv;zip;";
 
     public String settingOpenAsTextFileType=DEFAULT_OPEN_AS_TEXT_FILE_TYPE;
-    static final public String DEFAULT_OPEN_AS_TEXT_FILE_TYPE=
-            "log;";
+    static final public String DEFAULT_OPEN_AS_TEXT_FILE_TYPE="log;sh;";
 
     public boolean settingSupressAddExternalStorageNotification =false;
     public boolean isSupressAddExternalStorageNotification() {
@@ -139,16 +138,16 @@ public class GlobalParameters {
 
     public Handler uiHandler=null;
 
-    final static private String PRIVACY_POLICY_AGGREEMENT_KEY="privacy_policy_aggreed";
-    static public boolean isPrivacyPolicyAgreed(Context c) {
-        SharedPreferences prefs = CommonUtilities.getSharedPreference(c);
-        boolean aggree=prefs.getBoolean(PRIVACY_POLICY_AGGREEMENT_KEY, false);
-        return aggree;
-    }
-    static public void setPrivacyPolicyAgreed(Context c, boolean aggreed) {
-        SharedPreferences prefs = CommonUtilities.getSharedPreference(c);
-        prefs.edit().putBoolean(PRIVACY_POLICY_AGGREEMENT_KEY, aggreed).commit();
-    }
+//    final static private String PRIVACY_POLICY_AGGREEMENT_KEY="privacy_policy_aggreed";
+//    static public boolean isPrivacyPolicyAgreed(Context c) {
+//        SharedPreferences prefs = CommonUtilities.getSharedPreference(c);
+//        boolean aggree=prefs.getBoolean(PRIVACY_POLICY_AGGREEMENT_KEY, false);
+//        return aggree;
+//    }
+//    static public void setPrivacyPolicyAgreed(Context c, boolean aggreed) {
+//        SharedPreferences prefs = CommonUtilities.getSharedPreference(c);
+//        prefs.edit().putBoolean(PRIVACY_POLICY_AGGREEMENT_KEY, aggreed).commit();
+//    }
 
     public GlobalParameters() {
 //		Log.v("","constructed");
