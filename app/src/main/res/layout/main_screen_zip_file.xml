@@ -19,7 +19,7 @@
             android:orientation="vertical" >
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
+                android:layout_height="40dp" >
                 <Button
                     android:id="@+id/zip_file_copy_cut_info_btn"
                     style="?android:attr/buttonStyleSmall"
@@ -41,7 +41,6 @@
                     android:layout_weight="1"
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="2dp"
-                    android:layout_marginRight="2dp"
                     android:minHeight="36dp" />
                 <ImageButton
                     android:id="@+id/zip_file_info_close_btn"

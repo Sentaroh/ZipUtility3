@@ -96,18 +96,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
-            <EditText
-                android:id="@+id/search_file_dlg_search_key"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="5dp"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="text"
-                android:text="*" >
-
-                <requestFocus />
-            </EditText>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/search_file_dlg_search_key"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    android:layout_weight="1"
+                    android:hint="Search string"
+                    android:ems="10"
+                    android:inputType="text"
+                    android:text="*" />
+            </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
         <ListView

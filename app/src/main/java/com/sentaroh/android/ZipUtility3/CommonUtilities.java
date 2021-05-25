@@ -30,6 +30,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
 import android.net.wifi.WifiManager;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -59,6 +60,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import static com.sentaroh.android.ZipUtility3.Constants.DEFAULT_PREFS_FILENAME;
 public final class CommonUtilities {
@@ -212,8 +214,22 @@ public final class CommonUtilities {
 		}
 		return fid;
 	};
-	
-	final static public String getExecutedMethodName() {
+
+    public String getStringWithLangCode(Activity c, String lang_code, int res_id) {
+        Configuration config = new Configuration(c.getResources().getConfiguration());
+        config.setLocale(new Locale(lang_code));
+        String result = c.createConfigurationContext(config).getText(res_id).toString();
+        return result;
+    }
+
+    public String getStringWithLangCode(Activity c, String lang_code, int res_id, Object... value) {
+        String text = getStringWithLangCode(c, lang_code, res_id);
+        String result=text;
+        if (value!=null && value.length>0) result=String.format(text, value);
+        return result;
+    }
+
+    final static public String getExecutedMethodName() {
 		String name = Thread.currentThread().getStackTrace()[3].getMethodName();
 		return name;
 	}

@@ -123,22 +123,30 @@
 	                android:layout_weight="1"
 	                android:text="@string/msgs_zip_parm_zip_encrypt_method_aes256" />
 	        </RadioGroup>
-	
-	        <EditText
-	            android:id="@+id/zip_parm_dlg_enc_password"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:ems="10"
-	            android:hint="password"
-	            android:inputType="textPassword" />
-	
-	        <EditText
-	            android:id="@+id/zip_parm_dlg_enc_confirm"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:ems="10"
-	            android:hint="confirm"
-	            android:inputType="textPassword" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/zip_parm_dlg_enc_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="password"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/zip_parm_dlg_enc_confirm"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="confirm"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
 	    </LinearLayout>
         
     </LinearLayout>
