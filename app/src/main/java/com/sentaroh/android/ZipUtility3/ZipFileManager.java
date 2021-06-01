@@ -38,6 +38,7 @@ import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
+import android.text.method.PasswordTransformationMethod;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,6 +67,8 @@ import android.widget.TextView;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.sentaroh.android.Utilities3.CallBackListener;
 import com.sentaroh.android.Utilities3.ContextButton.ContextButtonUtil;
 import com.sentaroh.android.Utilities3.ContextMenu.CustomContextMenu;
@@ -91,7 +94,6 @@ import com.sentaroh.android.Utilities3.Zip.ZipUtil;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.io.inputstream.ZipInputStream;
 import net.lingala.zip4j.model.FileHeader;
-import net.lingala.zip4j.model.ZipModel;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.AesKeyStrength;
 import net.lingala.zip4j.model.enums.CompressionLevel;
@@ -139,10 +141,10 @@ public class ZipFileManager {
 	private CustomTreeFilelistAdapter mTreeFilelistAdapter=null;
 	
 	private Handler mUiHandler=null;
-	private String mCurrentFilePath="";
+	public String mCurrentFilePath="";
 	private long mCurrentFileLastModified=0;
 	private long mCurrentFileLength=0;
-	private String mMainPassword="";
+	private String mMainPassword=null;
 
 	private boolean mCurretnFileIsReadOnly =false;
 
@@ -153,28 +155,12 @@ public class ZipFileManager {
     private ImageButton mFileInfoClose;
 	private NonWordwrapTextView mCurrentDirectory;
 	private TextView mFileEmpty, mFileInfoText;
-	private LinearLayout mMainDialogView=null, mFileInfoView=null;
+	private LinearLayout mFileInfoView=null;
 	
 	private CommonUtilities mUtil=null;
 	
 	private LinearLayout mMainView=null;
-	private LinearLayout mDialogProgressSpinView=null;
-	private TextView mDialogProgressSpinMsg2=null;
-	private Button mDialogProgressSpinCancel=null;
 
-	private LinearLayout mDialogConfirmView=null;
-	private TextView mDialogConfirmMsg=null;
-    private TextView mDialogConfirmTitle = null;
-    private TextView mDialogConfirmFilePath = null;
-    private TextView mDialogConfirmFileDateTime = null;
-
-	private Button mDialogConfirmCancel=null;
-
-	private Button mDialogConfirmYes=null;
-	private Button mDialogConfirmYesAll=null;
-	private Button mDialogConfirmNo=null;
-	private Button mDialogConfirmNoAll=null;
-	
 	private LinearLayout mContextButton=null;
 
 	private ImageButton mContextButtonCopy=null;
@@ -205,7 +191,7 @@ public class ZipFileManager {
         mUtil=new CommonUtilities(mActivity, "ZipFolder", gp, fm);
 
         mEncodingDesired=mActivity.getString(R.string.msgs_zip_parm_zip_encoding_auto);
-        
+
         mMainView=mv;
         initViewWidget();
 
@@ -217,6 +203,10 @@ public class ZipFileManager {
 
         hideTreeFileListView();
 	};
+
+    public void notifyTreeFileListAdapter() {
+        if (mTreeFilelistAdapter!=null) mTreeFilelistAdapter.notifyDataSetChanged();
+    }
 
     public void reInitView() {
         ArrayList<TreeFilelistItem> fl=mTreeFilelistAdapter.getDataList();
@@ -230,6 +220,7 @@ public class ZipFileManager {
         else mTreeFilelistAdapter.setSortDescendant();
 
         mTreeFilelistAdapter.setDataList(fl);
+        mTreeFilelistAdapter.setZipArchiveFileName(mCurrentFilePath);
         mTreeFilelistView.setAdapter(mTreeFilelistAdapter);
         mTreeFilelistView.setSelectionFromTop(v_pos_fv, v_pos_top);
         mTreeFilelistAdapter.notifyDataSetChanged();
@@ -241,7 +232,7 @@ public class ZipFileManager {
 	};
 
 	private void initViewWidget() {
-        mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered");
+        mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" entered");
 		mContextButton=(LinearLayout)mMainView.findViewById(R.id.context_view_zip_file);
 		
 		mZipFileSpinner=(Spinner)mMainView.findViewById(R.id.zip_file_zip_file_spinner);
@@ -252,9 +243,6 @@ public class ZipFileManager {
 //		mZipFileSpinner.setPrompt(mActivity.getString(R.string.msgs_main_sync_profile_dlg_sync_folder_type_prompt));
 		mZipFileSpinner.setAdapter(adapter);
 		
-		mMainDialogView=(LinearLayout)mMainView.findViewById(R.id.main_dialog_view);
-		mMainDialogView.setVisibility(LinearLayout.VISIBLE);
-
         mTreeFilelistView=(ListView)mMainView.findViewById(R.id.zip_file_list);
         mFileEmpty=(TextView)mMainView.findViewById(R.id.zip_file_empty);
         mFileEmpty.setVisibility(TextView.GONE);
@@ -263,7 +251,7 @@ public class ZipFileManager {
         mFileInfoView=(LinearLayout) mMainView.findViewById(R.id.zip_file_info_view);
         mFileInfoText =(TextView)mMainView.findViewById(R.id.zip_file_info_text);
         mFileInfoClose=(ImageButton)mMainView.findViewById(R.id.zip_file_info_close_btn);
-        mFileInfoClose.setVisibility(Button.GONE);
+//        mFileInfoClose.setVisibility(Button.GONE);
 
         mFileListUp=(Button)mMainView.findViewById(R.id.zip_file_up_btn);
         if (mGp.themeIsLight) mFileListUp.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_16_go_up_dark, 0, 0, 0);
@@ -273,32 +261,15 @@ public class ZipFileManager {
         else mFileListTop.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_16_go_top_light, 0, 0, 0);
 
         mCurrentDirectory=(NonWordwrapTextView)mMainView.findViewById(R.id.zip_file_filepath);
+        mCurrentDirectory.setWordWrapEnabled(false);
 //        mCurrentDirectory.setTextColor(mGp.themeColorList.text_color_primary);
 
-
-        mDialogProgressSpinView=(LinearLayout)mMainView.findViewById(R.id.main_dialog_progress_spin_view);
-        mDialogProgressSpinView.setVisibility(LinearLayout.GONE);
-        mDialogProgressSpinMsg2=(TextView)mMainView.findViewById(R.id.main_dialog_progress_spin_syncmsg);
-        mDialogProgressSpinCancel=(Button)mMainView.findViewById(R.id.main_dialog_progress_spin_btn_cancel);
-
-        mDialogConfirmView=(LinearLayout)mMainView.findViewById(R.id.main_dialog_confirm_view);
-        mDialogConfirmView.setVisibility(LinearLayout.GONE);
-        mDialogConfirmMsg=(TextView)mMainView.findViewById(R.id.main_dialog_confirm_msg);
-        mDialogConfirmFilePath = (TextView) mMainView.findViewById(R.id.main_dialog_confirm_file_path);
-        mDialogConfirmFileDateTime = (TextView) mMainView.findViewById(R.id.main_dialog_confirm_file_date_time);
-
-        mDialogConfirmCancel=(Button)mMainView.findViewById(R.id.main_dialog_confirm_sync_cancel);
-        mDialogConfirmNo=(Button)mMainView.findViewById(R.id.copy_delete_confirm_no);
-        mDialogConfirmNoAll=(Button)mMainView.findViewById(R.id.copy_delete_confirm_noall);
-        mDialogConfirmYes=(Button)mMainView.findViewById(R.id.copy_delete_confirm_yes);
-        mDialogConfirmYesAll=(Button)mMainView.findViewById(R.id.copy_delete_confirm_yesall);
-        
     	mContextButtonCopy=(ImageButton)mMainView.findViewById(R.id.context_button_copy);
     	mContextButtonCut=(ImageButton)mMainView.findViewById(R.id.context_button_cut);
     	mContextButtonPaste=(ImageButton)mMainView.findViewById(R.id.context_button_paste);
     	mContextButtonExtract=(ImageButton)mMainView.findViewById(R.id.context_button_extract);
     	mContextButtonOpen=(ImageButton)mMainView.findViewById(R.id.context_button_open);
-    	mContextButtonNew=(ImageButton)mMainView.findViewById(R.id.context_button_clear);
+    	mContextButtonNew=(ImageButton)mMainView.findViewById(R.id.context_button_add);
     	mContextButtonDelete=(ImageButton)mMainView.findViewById(R.id.context_button_delete);
         mContextButtonSelectAll=(ImageButton)mMainView.findViewById(R.id.context_button_select_all);
         mContextButtonUnselectAll=(ImageButton)mMainView.findViewById(R.id.context_button_unselect_all);
@@ -308,7 +279,7 @@ public class ZipFileManager {
     	mContextButtonPasteView=(LinearLayout)mMainView.findViewById(R.id.context_button_paste_view);
     	mContextButtonExtractView=(LinearLayout)mMainView.findViewById(R.id.context_button_extract_view);
     	mContextButtonOpenView=(LinearLayout)mMainView.findViewById(R.id.context_button_open_view);
-    	mContextButtonNewView=(LinearLayout)mMainView.findViewById(R.id.context_button_clear_view);
+    	mContextButtonNewView=(LinearLayout)mMainView.findViewById(R.id.context_button_add_view);
     	mContextButtonDeleteView=(LinearLayout)mMainView.findViewById(R.id.context_button_delete_view);
         mContextButtonSelectAllView=(LinearLayout)mMainView.findViewById(R.id.context_button_select_all_view);
         mContextButtonUnselectAllView=(LinearLayout)mMainView.findViewById(R.id.context_button_unselect_all_view);
@@ -587,11 +558,11 @@ public class ZipFileManager {
     }
 
     private void saveZipFileViewerItem(String fp, Bundle bd) {
-		mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered, fp="+fp);
+		mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" entered, fp="+fp);
 		for(ZipFileViewerItem fvi:zipFileViewerList) {
 			if (fvi.file_path.equals(fp)) {
 				fvi.saved_data=bd;
-				mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" file viewer item saved, fp="+fp);
+				mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" file viewer item saved, fp="+fp);
 				return;
 			}
 		}
@@ -612,17 +583,17 @@ public class ZipFileManager {
 		}
 		mZipFileSpinner.setSelection(adapter.getPosition(fp));
 		adapter.notifyDataSetChanged();
-		mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" file viewer item added, pos="+adapter.getPosition(fp)+", fp="+fp);
+		mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" file viewer item added, pos="+adapter.getPosition(fp)+", fp="+fp);
 	};
 	
 	private ZipFileViewerItem getZipFileViewerItem(String fp) {
 		for(ZipFileViewerItem fvi:zipFileViewerList) {
 			if (fvi.file_path.equals(fp)) {
-				mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" found, fp="+fp);
+				mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" found, fp="+fp);
 				return fvi;
 			}
 		}
-		mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" not found, fp="+fp);
+		mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" not found, fp="+fp);
 		return null;
 	};
 
@@ -639,14 +610,14 @@ public class ZipFileManager {
                     return lhs.file_path.compareToIgnoreCase(rhs.file_path);
                 }
             });
-            mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" file viewer item added, fp="+fp);
+            mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" file viewer item added, fp="+fp);
         } else {
-            mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" file viewer item already exists, fp="+fp);
+            mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" file viewer item already exists, fp="+fp);
         }
 	};
 	
 	private void refreshZipFileSpinner(SafFile3 fp) {
-        mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered");
+        mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" entered");
         CustomSpinnerAdapter adapter=(CustomSpinnerAdapter)mZipFileSpinner.getAdapter();
 		adapter.clear();
 		for(ZipFileViewerItem zfi:zipFileViewerList) {
@@ -657,10 +628,11 @@ public class ZipFileManager {
 	};
 	
 	public void cleanZipFileManager() {
-        mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered");
+        mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" entered");
 		zipFileViewerList=null;
 		mZipFileList=null;
 		mTreeFilelistAdapter.setDataList(new ArrayList<TreeFilelistItem>());
+        mTreeFilelistAdapter.setZipArchiveFileName("");
         mUiHandler=null;
         mActivity=null;
         mFragmentManager=null;
@@ -685,17 +657,11 @@ public class ZipFileManager {
                         showDialogProgress();
                         putProgressMessage(mActivity.getString(R.string.msgs_zip_write_zip_file_writing));
                         final ThreadCtrl tc=new ThreadCtrl();
-                        mDialogProgressSpinCancel.setEnabled(true);
-                        mDialogProgressSpinCancel.setOnClickListener(new OnClickListener(){
-                            @Override
-                            public void onClick(View v) {
-                                confirmCancel(tc,mDialogProgressSpinCancel);
-                            }
-                        });
+                        mActivity.createDialogCancelListener(tc);
                         Thread th=new Thread() {
                             @Override
                             public void run() {
-                                mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered");
+                                mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" entered");
                                 SafFile3 tmp=null;
                                 try {
                                     boolean cache_available=false;
@@ -709,14 +675,14 @@ public class ZipFileManager {
                                     tmp.createNewFile();
                                     InputStream is=in_file.getInputStream();
                                     OutputStream os=tmp.getOutputStream();
-                                    copyFile(tc, in_file.length(), is, os, new CallBackListener() {
+                                    copyFile(mActivity, tc, in_file.length(), is, os, new CallBackListener() {
                                         @Override
                                         public void onCallBack(Context context, boolean positive, Object[] o) {
                                             putProgressMessage(mActivity.getString(R.string.msgs_zip_write_zip_file_writing)+" "+(int)o[0]+"%");
                                         }
                                     });
                                     if (!isCancelled(true, tc)) {
-                                        if (out_file.getPath().startsWith(SafFile3.SAF_FILE_PRIMARY_STORAGE_PREFIX)) {
+                                        if (out_file.getPath().startsWith(mGp.primaryStoragePrefix)) {
 //                                                File out_of_file=new File(out_file.getPath());
                                             if (out_file.exists()) out_file.delete();
                                             tmp.renameTo(out_file);
@@ -775,32 +741,38 @@ public class ZipFileManager {
 
     }
 
-    private void copyFile(ThreadCtrl tc, long input_file_size, InputStream is, OutputStream os, CallBackListener cbl) throws IOException {
+    public static boolean copyFile(Context c, ThreadCtrl tc, long input_file_size, InputStream is, OutputStream os, CallBackListener cbl) throws IOException {
+	    boolean result=false;
         int rc=0;
         long read_size=0;
         long tot_size=input_file_size;
         long progress=0, prev_progress=-1;
         byte[] buff=new byte[1024*1024*2];
-        cbl.onCallBack(mActivity, true, new Object[]{0});
+        cbl.onCallBack(c, true, new Object[]{0});
         while((rc=is.read(buff))>0) {
             if (isCancelled(true, tc)) {
-                break;
+                is.close();
+                os.close();
+                return false;
             }
             os.write(buff, 0, rc);
             read_size+=rc;
             progress=(read_size*100)/tot_size;
             if (prev_progress!=progress) {
                 prev_progress=progress;
-                cbl.onCallBack(mActivity, true, new Object[]{(int)progress});
+                cbl.onCallBack(c, true, new Object[]{(int)progress});
             }
         }
+        result=true;
         is.close();
         os.flush();
         os.close();
+
+        return result;
     }
 
 	public void showZipFile(boolean read_only, SafFile3 in_file) {
-        mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered");
+        mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" entered");
 		if (!isUiEnabled()) return;
 		Bundle bd=new Bundle();
 		if (in_file!=null) {
@@ -816,7 +788,7 @@ public class ZipFileManager {
 				CommonDialog.showCommonDialog(mFragmentManager, false, "W", mActivity.getString(R.string.msgs_zip_open_file_not_supported_file), "", null);
 			} else {
 				String s_fp=saveViewContents(bd);
-				mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" saved file path="+s_fp);
+				mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" saved file path="+s_fp);
 				mZipFileSpinner.setOnItemSelectedListener(null);
 				if (!s_fp.equals("")) {
 					saveZipFileViewerItem(s_fp, bd);
@@ -845,7 +817,12 @@ public class ZipFileManager {
                             hndl.post(new Runnable(){
                                 @Override
                                 public void run() {
-                                    pd.dismiss();
+                                    mUiHandler.postDelayed(new Runnable(){
+                                        @Override
+                                        public void run() {
+                                            pd.dismiss();
+                                        }
+                                    },500);
                                     if (err_msg==null) {
                                         if (!ZipUtil.isSplitArchiveFile(mActivity, in_file)) {
                                             mCurretnFileIsReadOnly=read_only;
@@ -967,7 +944,7 @@ public class ZipFileManager {
 	
 	private static final String SAVE_VIEW_CONTENT_KEY="saved_data";
 	public String saveViewContents(Bundle bd) {
-        mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered");
+        mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" entered");
 		SavedViewData sv=new SavedViewData();
 		ByteArrayOutputStream bos=new ByteArrayOutputStream();
 		ObjectOutputStream oos;
@@ -1009,7 +986,7 @@ public class ZipFileManager {
 	};
 
 	public void restoreViewContents(String fp, Bundle bd) {
-        mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered");
+        mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" entered");
 		byte[] ba=bd.getByteArray(SAVE_VIEW_CONTENT_KEY);
 		ByteArrayInputStream bis=new ByteArrayInputStream(ba);
 		SavedViewData sv=new SavedViewData();
@@ -1051,6 +1028,7 @@ public class ZipFileManager {
 			if (cdir.length()>0) target_dir=cdir.substring(1);
 			mZipFileList=sv.zfl;
 			mTreeFilelistAdapter.setDataList(sv.tfl);
+            mTreeFilelistAdapter.setZipArchiveFileName(mCurrentFilePath);
 			refreshFileListView(target_dir, fp);
 		}
 		mTreeFilelistAdapter.notifyDataSetChanged();
@@ -1063,8 +1041,11 @@ public class ZipFileManager {
 	private int mSearchListPositionX=0;
 	private int mSearchListPositionY=0;
 	private String mSearchRootDir="";
-//	private int mSearchSortKey=0;
-	public boolean isZipFileLoaded() {
+
+    private boolean mSearchListSortOrderAsc=true;
+    private int mSearchListSortKey=CustomTreeFilelistAdapter.SORT_KEY_NAME;
+
+    public boolean isZipFileLoaded() {
 		return mZipFileList!=null?true:false;
 	};
 	
@@ -1125,8 +1106,6 @@ public class ZipFileManager {
 			} else {
 				lv_search_result.setAdapter(mAdapterSearchFileList);
 				lv_search_result.setSelectionFromTop(mSearchListPositionX, mSearchListPositionY);
-				if (mAdapterSearchFileList.isSortAscendant()) ib_sort.setImageResource(R.drawable.ic_128_sort_asc_gray);
-				else ib_sort.setImageResource(R.drawable.ic_128_sort_dsc_gray);
 				long s_size=0;
 				for(TreeFilelistItem tfi:mAdapterSearchFileList.getDataList()) s_size+=tfi.getLength();
 				String msg=mActivity.getString(R.string.msgs_search_file_dlg_search_result);
@@ -1134,8 +1113,16 @@ public class ZipFileManager {
 			}
 		}
 
+        if (mSearchListSortOrderAsc) mAdapterSearchFileList.setSortAscendant();
+        else mAdapterSearchFileList.setSortDescendant();
+        if (mSearchListSortKey==CustomTreeFilelistAdapter.SORT_KEY_NAME) mAdapterSearchFileList.setSortKeyName();
+        else if (mSearchListSortKey==CustomTreeFilelistAdapter.SORT_KEY_SIZE) mAdapterSearchFileList.setSortKeySize();
+        else if (mSearchListSortKey==CustomTreeFilelistAdapter.SORT_KEY_TIME) mAdapterSearchFileList.setSortKeyTime();
+
 		CommonDialog.setDlgBoxSizeLimit(dialog, true);
 
+        if (mAdapterSearchFileList.isSortAscendant()) ib_sort.setImageResource(R.drawable.ic_128_sort_asc_gray);
+        else ib_sort.setImageResource(R.drawable.ic_128_sort_dsc_gray);
 		ib_sort.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
@@ -1153,6 +1140,13 @@ public class ZipFileManager {
 		 				mAdapterSearchFileList.notifyDataSetChanged();
 						if (mAdapterSearchFileList.isSortAscendant()) ib_sort.setImageResource(R.drawable.ic_128_sort_asc_gray);
 						else ib_sort.setImageResource(R.drawable.ic_128_sort_dsc_gray);
+
+                        if (tfa.isSortAscendant()) mSearchListSortOrderAsc=true;
+                        else mSearchListSortOrderAsc=false;
+
+                        if (tfa.getSortKey()==CustomTreeFilelistAdapter.SORT_KEY_NAME) mSearchListSortKey=CustomTreeFilelistAdapter.SORT_KEY_NAME;
+                        else if (tfa.getSortKey()==CustomTreeFilelistAdapter.SORT_KEY_SIZE) mSearchListSortKey=CustomTreeFilelistAdapter.SORT_KEY_SIZE;
+                        else if (tfa.getSortKey()==CustomTreeFilelistAdapter.SORT_KEY_TIME) mSearchListSortKey=CustomTreeFilelistAdapter.SORT_KEY_TIME;
 					}
 					@Override
 					public void negativeResponse(Context c, Object[] o) {
@@ -1361,7 +1355,7 @@ public class ZipFileManager {
 	};
 	public void refreshFileList(boolean force) {
 		if (!isUiEnabled()) return;
-        mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered, fp="+mCurrentFilePath);
+        mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" entered, fp="+mCurrentFilePath);
         if (!mCurrentFilePath.equals("")) {
             ZipFileViewerItem zfv=getZipFileViewerItem(mCurrentFilePath);
 			SafFile3 lf=new SafFile3(mActivity, mCurrentFilePath);
@@ -1409,6 +1403,7 @@ public class ZipFileManager {
                             }
                         }
                         mTreeFilelistAdapter.setDataList(n_tfl);
+                        mTreeFilelistAdapter.setZipArchiveFileName(mCurrentFilePath);
                     }
                 }
                 setContextCopyCutPasteButton(mTreeFilelistAdapter);
@@ -1420,7 +1415,7 @@ public class ZipFileManager {
 	    if (mCurrentFilePath.equals("")) return false;
 	    boolean result=false;
 		SafFile3 lf=new SafFile3(mActivity, mCurrentFilePath);
-//		mUtil.addDebugMsg(2, "I", "File exists="+lf.exists()+", savedLastMod="+mCurrentFileLastModified+", savedLength="+mCurrentFileLength+
+//		mUtil.addDebugMsg(1, "I", "File exists="+lf.exists()+", savedLastMod="+mCurrentFileLastModified+", savedLength="+mCurrentFileLength+
 //				", lastMod="+lf.lastModified()+", length="+lf.length());
         if (mCurrentFileLastModified!=lf.lastModified() || mCurrentFileLength!=lf.length()) result=true;
         mCurrentFileLastModified=lf.lastModified();
@@ -1457,14 +1452,14 @@ public class ZipFileManager {
 	};
 
 	private void refreshFileListView(String target_dir, String fp) {
-        mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered, fp="+fp);
+        mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" entered, fp="+fp);
 		if (mZipFileList!=null && mZipFileList.size()>0) {
 			mCurrentDirectory.setText("/"+target_dir);
 			mCurrentDirectory.setVisibility(TextView.VISIBLE);
 			setZipTreeFileListener();
 			mTreeFilelistView.setVisibility(ListView.VISIBLE);
 			mFileEmpty.setVisibility(TextView.GONE);
-//			mFileInfoClose.setVisibility(Button.VISIBLE);
+			mFileInfoClose.setVisibility(Button.VISIBLE);
 			mContextButton.setVisibility(ListView.VISIBLE);
 			mFileListUp.setVisibility(Button.VISIBLE);
 			mFileListTop.setVisibility(Button.VISIBLE);
@@ -1488,7 +1483,7 @@ public class ZipFileManager {
 			mTreeFilelistView.setVisibility(ListView.GONE);
 			mFileEmpty.setVisibility(TextView.VISIBLE);
 			mFileEmpty.setText(R.string.msgs_zip_zip_folder_empty);
-//            mFileInfoClose.setVisibility(Button.VISIBLE);
+            mFileInfoClose.setVisibility(Button.VISIBLE);
 			mCurrentDirectory.setVisibility(TextView.GONE);
 			mFileListUp.setVisibility(Button.GONE);
 			mFileListTop.setVisibility(Button.GONE);
@@ -1541,7 +1536,7 @@ public class ZipFileManager {
                     mCurrentFileLastModified=lf.lastModified();
                     mCurrentFileLength=lf.length();
                 }
-                mUtil.addDebugMsg(2, "I", "createFileList begin");
+                mUtil.addDebugMsg(1, "I", "createFileList begin");
                 final NotifyEvent ntfy_create_file_list=new NotifyEvent(mActivity);
                 ntfy_create_file_list.setListener(new NotifyEventListener(){
                     @Override
@@ -1552,12 +1547,13 @@ public class ZipFileManager {
                                 if (mZipFileList!=null){// && mZipFileList.size()>0) {
                                     ArrayList<TreeFilelistItem> tfl=createTreeFileList(mZipFileList, target_dir);
                                     mTreeFilelistAdapter.setDataList(tfl);
+                                    mTreeFilelistAdapter.setZipArchiveFileName(mCurrentFilePath);
                                 }
-                                mUtil.addDebugMsg(2, "I", "createFileList Tree file list adapetr created");
+                                mUtil.addDebugMsg(1, "I", "createFileList Tree file list adapetr created");
                                 refreshFileListView(target_dir, fp);
                                 setUiEnabled();
                                 if (p_ntfy!=null) p_ntfy.notifyToListener(true, null);
-                                mUtil.addDebugMsg(2, "I", "createFileList end");
+                                mUtil.addDebugMsg(1, "I", "createFileList end");
                                 pd.dismiss();
                             }
                         });
@@ -1576,14 +1572,12 @@ public class ZipFileManager {
                         });
                     }
                 });
-
                 String detect_encoding=null;
                 if (mEncodingDesired.equals(mActivity.getString(R.string.msgs_zip_parm_zip_encoding_auto))) {
                     try {
                         detect_encoding= ZipUtil.detectFileNameEncoding(mActivity, fp);
                     } catch(Exception e) {
-//                            mUtil.addDebugMsg(1, "I", "error="+e.getMessage());
-//					        e.printStackTrace();
+    			        e.printStackTrace();
                     }
                     if (detect_encoding==null) {
                         mEncodingSelected=mGp.settingZipDefaultEncoding;
@@ -1598,10 +1592,9 @@ public class ZipFileManager {
                 } catch(Exception e) {
                     CommonDialog.showCommonDialog(mFragmentManager, false, "E", "ZIP file", "ZIP file list creation error, error="+e.getMessage(), null);
                     mZipFileList=null;
-//                        mUtil.addDebugMsg(1, "I", "error="+e.getMessage());
-//                        e.printStackTrace();
+                    e.printStackTrace();
                 }
-                mUtil.addDebugMsg(2, "I", "createFileList Zip file list created");
+                mUtil.addDebugMsg(1, "I", "createFileList Zip file list created");
                 if (!isCancelled(tc)) {
                     ntfy_create_file_list.notifyToListener(true, null);
                 } else {
@@ -1875,43 +1868,44 @@ public class ZipFileManager {
 			    //NOP
 			} else if (mGp.copyCutFrom.equals(GlobalParameters.COPY_CUT_FROM_ZIP)) {
 			    enabled=false;
-//				if (!mGp.copyCutFilePath.equals(zip_file_path)) enabled=true;
-//				else {
-//					String curr_dir=fp.equals("")?"":fp;
-//					for(TreeFilelistItem s_item:mGp.copyCutList) {
-//						String sel_path="";
-//						if (s_item.isDirectory()){
-//							sel_path=s_item.getPath().equals("")?s_item.getName():s_item.getPath()+"/"+s_item.getName();
-//						} else {
-//							sel_path=s_item.getPath();
-//						}
-//						String[] item_array=sel_path.equals("")?new String[]{"/"}:sel_path.substring(1).split("/");
-//						String[] cdir_array=curr_dir.equals("/")?new String[]{""}:curr_dir.split("/");
-//						if (item_array.length>1) {
-//							if (cdir_array.length!=0){
-//								if (sel_path.equals(curr_dir)) enabled=false;
-//								if (s_item.isDirectory()) {
-//									if (sel_path.equals(curr_dir)) enabled=false;
-//									else {
-//										if (!curr_dir.equals("")) if (sel_path.startsWith(curr_dir)) enabled=false;
-//									}
-//								} else {
-//								}
-//							}
-//						} else {
-//							if (s_item.isDirectory()) {
-//								if (curr_dir.equals("")) {
-//									enabled=false;
-//								} else {
-//									if (curr_dir.startsWith(sel_path)) enabled=false;
-//								}
-//							} else {
-//								if (curr_dir.equals(sel_path)) enabled=false;
-//							}
-//						}
-//						if (!enabled) break;
-//					}
-//				}
+				if (!mGp.copyCutFilePath.equals(zip_file_path)) enabled=true;
+				else {
+					String curr_dir=fp.equals("")?"":fp;
+					for(TreeFilelistItem s_item:mGp.copyCutList) {
+						String sel_path="";
+						if (s_item.isDirectory()){
+							sel_path=s_item.getPath().equals("")?s_item.getName():s_item.getPath()+"/"+s_item.getName();
+						} else {
+							sel_path=s_item.getPath();
+						}
+						String[] item_array=sel_path.equals("")?new String[]{"/"}:sel_path.substring(1).split("/");
+						String[] cdir_array=curr_dir.equals("/")?new String[]{""}:curr_dir.split("/");
+						if (item_array.length>1) {
+							if (cdir_array.length!=0){
+								if (sel_path.equals(curr_dir)) enabled=false;
+								if (s_item.isDirectory()) {
+									if (sel_path.equals(curr_dir)) enabled=false;
+									else {
+										if (!curr_dir.equals("")) if (sel_path.startsWith(curr_dir)) enabled=false;
+									}
+								} else {
+								}
+							}
+						} else {
+							if (s_item.isDirectory()) {
+								if (curr_dir.equals("")) {
+									enabled=false;
+								} else {
+									if (curr_dir.startsWith(sel_path)) enabled=false;
+								}
+							} else {
+								if (curr_dir.equals(sel_path)) enabled=false;
+								else enabled=true;
+							}
+						}
+						if (!enabled) break;
+					}
+				}
 			}
 		} else {
 			enabled=false;
@@ -1928,166 +1922,567 @@ public class ZipFileManager {
 			cnt++;
 		}
 		if (mGp.copyCutFrom.equals(GlobalParameters.COPY_CUT_FROM_LOCAL)) {
-
-            NotifyEvent ntfy_override=new NotifyEvent(mActivity);
-            ntfy_override.setListener(new NotifyEventListener() {
-                @Override
-                public void positiveResponse(Context context, Object[] objects) {
-                    if (mGp.copyCutModeIsCut) {
-                        NotifyEvent ntfy_move=new NotifyEvent(mActivity);
-                        ntfy_move.setListener(new NotifyEventListener(){
+            if (mGp.copyCutModeIsCut) {
+                NotifyEvent ntfy_move=new NotifyEvent(mActivity);
+                ntfy_move.setListener(new NotifyEventListener(){
+                    @Override
+                    public void positiveResponse(Context c, Object[] o) {
+                        mUiHandler.post(new Runnable(){
                             @Override
-                            public void positiveResponse(Context c, Object[] o) {
-                                for(String item:add_item) {
-                                    SafFile3 lf=new SafFile3(mActivity, item);
-                                    CommonUtilities.deleteLocalFile(lf);
-                                }
-//						CommonDialog.showCommonDialog(mFragmentManager, false, "I", mActivity.getString(R.string.msgs_zip_move_file_completed), "", null);
-                                showToast(mActivity, mActivity.getString(R.string.msgs_zip_move_file_completed));
-                                mUiHandler.post(new Runnable(){
-                                    @Override
-                                    public void run() {
-                                        setUiEnabled();
-                                        refreshFileList(true);
-                                        mActivity.clearCopyCutItem(false);
-                                    }
-                                });
+                            public void run() {
+                                setUiEnabled();
                             }
-                            @Override
-                            public void negativeResponse(Context c, Object[] o) {}
                         });
-                        confirmAddItemFromLocal(add_item, mActivity.getString(R.string.msgs_zip_move_file_confirm), ntfy_move, true);
-                    } else {
-                        confirmAddItemFromLocal(add_item, mActivity.getString(R.string.msgs_zip_add_file_confirm), null, false);
                     }
-                }
-                @Override
-                public void negativeResponse(Context context, Object[] objects) {}
-            });
-            confirmLocalToZip(ntfy_override, mGp.copyCutModeIsCut);
+                    @Override
+                    public void negativeResponse(Context c, Object[] o) {}
+                });
+                prepareMoveCopyLocalToZip(add_item, ntfy_move, true);
+            } else {
+                prepareMoveCopyLocalToZip(add_item, null, false);
+            }
         } else {
-            NotifyEvent ntfy_override=new NotifyEvent(mActivity);
-            ntfy_override.setListener(new NotifyEventListener() {
-                @Override
-                public void positiveResponse(Context context, Object[] objects) {
-                    if (mGp.copyCutModeIsCut) {
-                        NotifyEvent ntfy_move=new NotifyEvent(mActivity);
-                        ntfy_move.setListener(new NotifyEventListener(){
-                            @Override
-                            public void positiveResponse(Context c, Object[] o) {
-                                mUiHandler.post(new Runnable(){
-                                    @Override
-                                    public void run() {
-                                        CustomTreeFilelistAdapter tfa=new CustomTreeFilelistAdapter(mActivity, true, false);
-                                        tfa.setDataList(mGp.copyCutList);
-                                        tfa.setAllItemChecked(true);
-                                        NotifyEvent ntfy_move_comp=new NotifyEvent(mActivity);
-                                        ntfy_move_comp.setListener(new NotifyEventListener(){
-                                            @Override
-                                            public void positiveResponse(Context c, Object[] o) {
-                                                showToast(mActivity, mActivity.getString(R.string.msgs_zip_move_file_completed));
-                                                mUiHandler.post(new Runnable(){
-                                                    @Override
-                                                    public void run() {
-                                                        deleteCopyPasteWorkFile();
-                                                        mActivity.clearCopyCutItem(false);
-                                                    }
-                                                });
-                                            }
-                                            @Override
-                                            public void negativeResponse(Context c, Object[] o) {}
-                                        });
-                                        deleteZipFileItem(mGp.copyCutFilePath, mGp.copyCutEncoding, tfa, "", ntfy_move_comp);//, false);
-                                    }
-                                });
-                            }
-                            @Override
-                            public void negativeResponse(Context c, Object[] o) {}
-                        });
-                        confirmCopyItemFromZip(add_item, ntfy_move, true);//false, ntfy_move);
-                    } else {
-                        confirmCopyItemFromZip(add_item, null, false);//true, null);
+            CustomZipFile from_zf=new CustomZipFile(mActivity, new SafFile3(mActivity, mGp.copyCutFilePath), "UTF-8");
+            CustomZipFile to_zf=new CustomZipFile(mActivity, new SafFile3(mActivity, mCurrentFilePath), "UTF-8");
+
+            ArrayList<FileHeader>sel_list=buildExtractZipItemList(from_zf, mGp.copyCutList);
+            try {
+                final ThreadCtrl tc=new ThreadCtrl();
+                ArrayList<FileHeader> to_zf_file_header=to_zf.getFileHeaders();
+                setUiDisabled();
+                showDialogProgress();
+                mActivity.createDialogCancelListener(tc);
+                Thread th=new Thread() {
+                    @Override
+                    public void run() {
+                        if (mGp.copyCutFilePath.equals(mCurrentFilePath)) {
+                            String parent_dir=mCurrentDirectory.getOriginalText().toString().substring(1);
+                            moveCopyZipToZipSameZip(tc, sel_list, from_zf, to_zf, parent_dir, mGp.copyCutModeIsCut);
+                        } else {
+                            final String from_parent_dir=add_item[0].lastIndexOf("/")>0?add_item[0].substring(0,add_item[0].lastIndexOf("/")):add_item[0];
+//                            final String from_parent_dir=from_parent_dir_temp.startsWith("/")?from_parent_dir_temp.substring(1):from_parent_dir_temp;
+                            String to_parent_dir=mCurrentDirectory.getOriginalText().toString().substring(1);
+                            moveCopyZipToZipSeparateZip(tc, sel_list, from_zf, to_zf, from_parent_dir, to_parent_dir, mGp.copyCutModeIsCut);
+                        }
                     }
-                }
-                @Override
-                public void negativeResponse(Context context, Object[] objects) {}
-            });
-            confirmZipToZip(ntfy_override, mGp.copyCutModeIsCut);
-		}
+                };
+                th.start();
+            } catch(Exception e){
+                e.printStackTrace();
+                CommonDialog.showCommonDialog(mActivity.getSupportFragmentManager(), false, "E",
+                        "Error", e.getMessage()+"\n"+MiscUtil.getStackTraceString(e), null);
+            }
+        }
 	};
 
-    private void confirmLocalToZip(NotifyEvent ntfy, boolean move) {
-        SafFile3 in_zip=new SafFile3(mActivity, mCurrentFilePath);
-        ArrayList<FileHeader>to_fh_list=null;
+    private void moveCopyZipToZipSeparateZip(final ThreadCtrl tc, ArrayList<FileHeader>sel_list, CustomZipFile from_zf,
+                                             CustomZipFile to_zf, final String from_parent_dir, final String to_parent_dir, final boolean move) {
         try {
-            to_fh_list=ZipUtil.getFileHeaders(mActivity, in_zip, mEncodingSelected);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (to_fh_list==null) return;
-        try {
-            String conf_override_list="";
-            String conf_move_copy_list="";
-            for(TreeFilelistItem tfl_item:mGp.copyCutList) {
-                if (tfl_item.isDirectory()) {
-                    String dir_name= tfl_item.getName()+"/";
-                    conf_move_copy_list+=dir_name+"\n";
-                    if (isZipItemAlreadyExists(dir_name, in_zip, mEncodingSelected)) {
-                        conf_override_list+=dir_name+"\n";
+            String msg="";
+            if (move) msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_move_started);
+            else msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_copy_started);
+            putProgressMessage(msg);
+
+            boolean result=false;
+            String to_zip_temp_path=mCurrentFilePath+".tmp";
+            BufferedZipFile3 to_bz=new BufferedZipFile3(mActivity, mCurrentFilePath, to_zip_temp_path, "UTF-8");
+            String from_zip_temp_path=mGp.copyCutFilePath+".tmp";
+            BufferedZipFile3 from_bz=new BufferedZipFile3(mActivity, mGp.copyCutFilePath, from_zip_temp_path, "UTF-8");
+
+            CallBackListener to_bz_add_cbl=getZipProgressCallbackListenerWithPath(tc, to_bz,
+                    mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_file_copying));
+            for(FileHeader edfh_item:sel_list) {
+                String from_fn=edfh_item.getFileName().replace(from_parent_dir+"/", "");
+                String to_fn_temp=to_parent_dir+"/"+from_fn;//edfh_item.getFileName();
+                String to_fn=to_fn_temp.startsWith("/")?to_fn_temp.substring(1):to_fn_temp;
+                boolean already_exists=to_zf.getFileHeader(to_fn)==null?false:true;
+                if (edfh_item.isDirectory()) {
+                    if (!already_exists) {
+                        ZipParameters zp=new ZipParameters();
+                        zp.setEntrySize(edfh_item.getUncompressedSize());
+                        zp.setLastModifiedFileTime(ZipUtil.dosToJavaTme((int)edfh_item.getLastModifiedTime()));
+                        zp.setFileNameInZip(to_fn);//edfh_item.file_header.getFileName());
+                        zp.setCompressionMethod(edfh_item.getCompressionMethod());
+                        tc.setExtraDataObject(new Object[]{edfh_item.getFileName()});
+                        to_bz.mkDir(zp);
+                        result=true;
+                    }
+                    if (move) {
+                        from_bz.removeItem(edfh_item);
+                        putProgressMessage(mActivity.getString(R.string.msgs_zip_local_file_move_moved, to_fn));
                     }
                 } else {
-                    String file_name= tfl_item.getName();
-                    conf_move_copy_list+=file_name+"\n";
-                    if (isZipItemAlreadyExists(file_name, in_zip, mEncodingSelected)) {
-                        conf_override_list+=file_name+"\n";
+                    if (already_exists && !edfh_item.isDirectory()) {
+                        msg=mActivity.getString(R.string.msgs_zip_extract_file_confirm_replace_copy);
+                        boolean replace_granted= mActivity.confirmReplace(tc, "", msg, to_fn);
+                        if (isCancelled(true, tc)) {
+                            msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_file_copy_cancelled, to_fn);
+                            CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                            mUtil.addLogMsg("W", msg);
+                            deleteBufferedZipFile(to_bz, from_bz);
+                            closeUiDialogView(500);
+                            return;
+                        }
+                        if (!replace_granted) {
+                            putProgressMessage(mActivity.getString(R.string.msgs_zip_extract_file_was_not_replaced, to_fn));
+                            mUtil.addLogMsg("I", mActivity.getString(R.string.msgs_zip_extract_file_was_not_replaced, to_fn));
+                            break;
+                        }
+                    }
+
+                    ZipParameters out_zp=new ZipParameters();
+                    InputStream is=null;
+                    if (edfh_item.isEncrypted()) {
+                        verifyAndUpdatePasword(tc, from_zf, edfh_item);
+                        from_zf.setPassword(mMainPassword);
+                        is=getZipInputStream(null, from_zf, edfh_item, mUtil);
+                        out_zp.setEncryptionMethod(edfh_item.getEncryptionMethod());
+                        out_zp.setEncryptFiles(true);
+                        out_zp.setPassword(mMainPassword);
+                    } else {
+                        is=getZipInputStream(null, from_zf, edfh_item, mUtil);
+                    }
+
+                    out_zp.setEntrySize(edfh_item.getUncompressedSize());
+                    out_zp.setLastModifiedFileTime(ZipUtil.dosToJavaTme((int)edfh_item.getLastModifiedTime()));
+                    out_zp.setFileNameInZip(to_fn);//edfh_item.file_header.getFileName());
+
+                    if (edfh_item.getCompressionMethod()==CompressionMethod.DEFLATE) {
+                        out_zp.setCompressionMethod(edfh_item.getCompressionMethod());
+                    } else if (edfh_item.getCompressionMethod()==CompressionMethod.STORE) {
+                        out_zp.setCompressionMethod(edfh_item.getCompressionMethod());
+                    }
+
+                    tc.setExtraDataObject(new Object[]{edfh_item.getFileName()});
+                    result=to_bz.addItem(is, out_zp, to_bz_add_cbl);
+                    is.close();
+
+                    if (isCancelled(true, tc)) {
+                        msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_file_move_cancelled, to_fn);
+                        CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                        mUtil.addLogMsg("W", msg);
+                        deleteBufferedZipFile(to_bz, from_bz);
+                        closeUiDialogView(500);
+                        return;
+                    }
+
+                    if (!result) {
+                        msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_file_copy_failed, to_fn);
+                        CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                        mUtil.addLogMsg("W", msg);
+                        deleteBufferedZipFile(to_bz, from_bz);
+                        closeUiDialogView(500);
+                        return;
+                    } else {
+                        if (move) {
+                            from_bz.removeItem(edfh_item);
+                            msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_file_move_completed, to_fn);
+                            putProgressMessage(msg);
+                            mUtil.addLogMsg("I", msg);
+                            mActivity.showSnackbar(mActivity, msg);
+                        } else {
+                            msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_file_copy_completed, to_fn);
+                            putProgressMessage(msg);
+                            mUtil.addLogMsg("I", msg);
+                            mActivity.showSnackbar(mActivity, msg);
+                        }
                     }
                 }
             }
-            if (!conf_override_list.equals("")) {
-                CommonDialog.showCommonDialog(mFragmentManager, true, "W", mActivity.getString(R.string.msgs_confirm_item_replace), conf_override_list, ntfy);
+
+            if (result) {
+//                closeZipToZipBufferedZipFile(tc, from_bz, to_bz, move);
+                if (move) {//Cut mode
+                    tc.setExtraDataObject(new Object[]{mCurrentFilePath});
+                    CallBackListener to_bz_cbl=getZipProgressCallbackListenerWithPath(tc, to_bz,
+                            mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_zip_output_updating));
+                    result=to_bz.close(to_bz_cbl);
+                    if (isCancelled(tc)) {
+                        deleteBufferedZipFile(to_bz, from_bz);
+                        msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_zip_output_cancelled, mCurrentFilePath);
+                        CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                        mUtil.addLogMsg("W", msg);
+                        return;
+                    } else {
+                        if (!result) {
+                            deleteBufferedZipFile(to_bz, from_bz);
+                            msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_zip_output_failed, mCurrentFilePath);
+                            CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                            mUtil.addLogMsg("W", msg);
+                            return;
+                        } else {
+                            tc.setExtraDataObject(new Object[]{mGp.copyCutFilePath});
+                            CallBackListener from_bz_close_cbl=getZipProgressCallbackListenerWithPath(tc, from_bz,
+                                    mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_zip_input_updating));
+                            result=from_bz.close(from_bz_close_cbl);
+                            if (isCancelled(tc)) {
+                                deleteBufferedZipFile(to_bz, from_bz);
+                                msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_zip_output_cancelled, mGp.copyCutFilePath);
+                                CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                                mUtil.addLogMsg("W", msg);
+                                return;
+                            } else {
+                                if (!result) {
+                                    deleteBufferedZipFile(to_bz, from_bz);
+                                    msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_zip_output_failed, mCurrentFilePath);
+                                    CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                                    mUtil.addLogMsg("W", msg);
+                                    return;
+                                } else {
+                                    SafFile3 from_zip=new SafFile3(mActivity, mGp.copyCutFilePath);
+                                    from_zip.delete();
+                                    result=from_bz.getOutputZipFile().renameTo(from_zip);
+
+                                    SafFile3 to_zip=new SafFile3(mActivity, mCurrentFilePath);
+                                    to_zip.delete();
+                                    result=to_bz.getOutputZipFile().renameTo(to_zip);
+
+                                    mActivity.showSnackbar(mActivity, mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_move_completed));
+                                }
+                            }
+                        }
+                    }
+                } else {//Copy mode
+                    tc.setExtraDataObject(new Object[]{mCurrentFilePath});
+                    CallBackListener to_bz_cbl=getZipProgressCallbackListenerWithPath(tc, to_bz, mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_zip_output_updating));
+                    result=to_bz.close(to_bz_cbl);
+                    if (isCancelled(tc)) {
+                        deleteBufferedZipFile(to_bz, from_bz);
+                        msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_zip_output_cancelled, mCurrentFilePath);
+                        CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                        mUtil.addLogMsg("W", msg);
+                        return;
+                    } else {
+                        if (!result) {
+                            deleteBufferedZipFile(to_bz, from_bz);
+                            msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_zip_output_failed, mCurrentFilePath);
+                            CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                            mUtil.addLogMsg("W", msg);
+                            return;
+                        } else {
+                            SafFile3 to_zip=new SafFile3(mActivity, mCurrentFilePath);
+                            to_zip.delete();
+                            result=to_bz.getOutputZipFile().renameTo(to_zip);
+                            if (result) {
+                                mActivity.showSnackbar(mActivity, mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_copy_completed));
+                            } else {
+                                msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_file_rename_cancelled, mCurrentFilePath);
+                                CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                                mUtil.addLogMsg("W", msg);
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                if (move) clearCopyCutItem(false);
             } else {
-                ntfy.notifyToListener(true, null);
+                clearCopyCutItem(false);
             }
+
+            mUiHandler.post(new Runnable(){
+                @Override
+                public void run() {
+                    setUiEnabled();
+                    closeUiDialogView(100);
+                }
+            });
+
         } catch(Exception e) {
-            e.getStackTrace();
+            e.printStackTrace();
+            CommonDialog.showCommonDialog(mActivity.getSupportFragmentManager(), false, "E",
+                    "Error", e.getMessage()+"\n"+MiscUtil.getStackTraceString(e), null);
         }
     }
 
-	private void confirmZipToZip(NotifyEvent ntfy, boolean move) {
-	    SafFile3 in_zip=new SafFile3(mActivity, mCurrentFilePath);
-        ArrayList<FileHeader>to_fh_list=null;
+    private void moveCopyZipToZipSameZip(final ThreadCtrl tc, ArrayList<FileHeader>sel_list, CustomZipFile from_zf,
+                                             CustomZipFile to_zf, final String parent_dir, final boolean move) {
         try {
-            to_fh_list=ZipUtil.getFileHeaders(mActivity, in_zip, mEncodingSelected);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (to_fh_list==null) return;
-        try {
-            String conf_override_list="";
-            String conf_move_copy_list="";
-            for(TreeFilelistItem tfl_item:mGp.copyCutList) {
-                if (tfl_item.isDirectory()) {
-                    String dir_name= tfl_item.getZipFileName()+"/";
-                    conf_move_copy_list+=dir_name+"\n";
-                    if (isZipItemAlreadyExists(dir_name, in_zip, mEncodingSelected)) {
-                        conf_override_list+=dir_name+"\n";
+            String msg="";
+            if (move) msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_move_started);
+            else msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_copy_started);
+            putProgressMessage(msg);
+
+            boolean result=false;
+            String to_zip_temp_path=mCurrentFilePath+".tmp";
+            BufferedZipFile3 to_bz=new BufferedZipFile3(mActivity, mCurrentFilePath, to_zip_temp_path, "UTF-8");
+
+            ArrayList<FileHeader>remove_item_list=new ArrayList<FileHeader>();
+
+            CallBackListener to_bz_add_cbl=getZipProgressCallbackListenerWithPath(tc, to_bz,
+                    mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_file_copying));
+            for(FileHeader edfh_item:sel_list) {
+//                String fn=edfh_item.getFileName().replace(parent_dir+"/", "");
+                String fn=parent_dir+"/"+edfh_item.getFileName();
+                boolean already_exists=to_zf.getFileHeader(fn)==null?false:true;
+                if (edfh_item.isDirectory()) {
+                    if (!already_exists) {
+                        ZipParameters zp=new ZipParameters();
+                        zp.setEntrySize(edfh_item.getUncompressedSize());
+                        zp.setLastModifiedFileTime(ZipUtil.dosToJavaTme((int)edfh_item.getLastModifiedTime()));
+                        zp.setFileNameInZip(fn);//edfh_item.file_header.getFileName());
+                        zp.setCompressionMethod(edfh_item.getCompressionMethod());
+                        tc.setExtraDataObject(new Object[]{fn});
+                        to_bz.mkDir(zp);
+                        result=true;
+                    }
+                    if (move) {
+                        remove_item_list.add(edfh_item);
+                        putProgressMessage(mActivity.getString(R.string.msgs_zip_local_file_move_moved, fn));
                     }
                 } else {
-                    String file_name= tfl_item.getZipFileName();
-                    conf_move_copy_list+=file_name+"\n";
-                    if (isZipItemAlreadyExists(file_name, in_zip, mEncodingSelected)) {
-                        conf_override_list+=file_name+"\n";
+                    if (already_exists && !edfh_item.isDirectory()) {
+                        msg=mActivity.getString(R.string.msgs_zip_extract_file_confirm_replace_copy);
+                        boolean replace_granted= mActivity.confirmReplace(tc, "", msg, fn);
+                        if (isCancelled(true, tc)) {
+                            msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_file_copy_cancelled, fn);
+                            CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                            mUtil.addLogMsg("W", msg);
+                            try {to_bz.destroy();} catch(Exception e){};
+                            closeUiDialogView(500);
+                            return;
+                        }
+                        if (!replace_granted) {
+                            putProgressMessage(mActivity.getString(R.string.msgs_zip_extract_file_was_not_replaced, fn));
+                            mUtil.addLogMsg("I", mActivity.getString(R.string.msgs_zip_extract_file_was_not_replaced, fn));
+                            break;
+                        }
+                    }
+
+                    ZipParameters out_zp=new ZipParameters();
+                    InputStream is=null;
+                    if (edfh_item.isEncrypted()) {
+                        verifyAndUpdatePasword(tc, from_zf, edfh_item);
+                        from_zf.setPassword(mMainPassword);
+                        is=getZipInputStream(null, from_zf, edfh_item, mUtil);
+                        out_zp.setEncryptionMethod(edfh_item.getEncryptionMethod());
+                        out_zp.setEncryptFiles(true);
+                        out_zp.setPassword(mMainPassword);
+                    } else {
+                        is=getZipInputStream(null, from_zf, edfh_item, mUtil);
+                    }
+
+                    out_zp.setEntrySize(edfh_item.getUncompressedSize());
+                    out_zp.setLastModifiedFileTime(ZipUtil.dosToJavaTme((int)edfh_item.getLastModifiedTime()));
+                    out_zp.setFileNameInZip(fn);//edfh_item.file_header.getFileName());
+
+                    if (edfh_item.getCompressionMethod()==CompressionMethod.DEFLATE) {
+                        out_zp.setCompressionMethod(edfh_item.getCompressionMethod());
+                    } else if (edfh_item.getCompressionMethod()==CompressionMethod.STORE) {
+                        out_zp.setCompressionMethod(edfh_item.getCompressionMethod());
+                    }
+
+                    remove_item_list.add(edfh_item);
+
+                    tc.setExtraDataObject(new Object[]{fn});
+                    result=to_bz.addItem(is, out_zp, to_bz_add_cbl);
+                    is.close();
+
+                    if (isCancelled(true, tc)) {
+                        msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_file_move_cancelled, fn);
+                        CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                        mUtil.addLogMsg("W", msg);
+                        try {to_bz.destroy();} catch(Exception e){};
+                        closeUiDialogView(500);
+                        return;
+                    }
+
+                    if (!result) {
+                        msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_file_copy_failed, fn);
+                        CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                        mUtil.addLogMsg("W", msg);
+                        try {to_bz.destroy();} catch(Exception e){};
+                        closeUiDialogView(500);
+                        return;
+                    } else {
+                        if (move) {
+                            msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_file_move_completed, fn);
+                            putProgressMessage(msg);
+                            mUtil.addLogMsg("I", msg);
+                            mActivity.showSnackbar(mActivity, msg);
+                        } else {
+                            msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_file_copy_completed, fn);
+                            putProgressMessage(msg);
+                            mUtil.addLogMsg("I", msg);
+                            mActivity.showSnackbar(mActivity, msg);
+                        }
                     }
                 }
             }
-            if (!conf_override_list.equals("")) {
-                CommonDialog.showCommonDialog(mFragmentManager, true, "W", mActivity.getString(R.string.msgs_confirm_item_replace), conf_override_list, ntfy);
+
+            if (result) {
+//                closeZipToZipBufferedZipFile(tc, from_bz, to_bz, move);
+                if (move) {//Cut mode
+                    for(FileHeader rem_item:remove_item_list) {
+                        to_bz.removeItem(rem_item);
+                    }
+
+                    tc.setExtraDataObject(new Object[]{mCurrentFilePath});
+                    CallBackListener to_bz_cbl=getZipProgressCallbackListenerWithPath(tc, to_bz,
+                            mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_zip_output_updating));
+                    result=to_bz.close(to_bz_cbl);
+                    if (isCancelled(tc)) {
+                        try {to_bz.destroy();} catch(Exception e){};
+                        msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_zip_output_cancelled, mCurrentFilePath);
+                        CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                        mUtil.addLogMsg("W", msg);
+                        return;
+                    } else {
+                        if (!result) {
+                            try {to_bz.destroy();} catch(Exception e){};
+                            msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_zip_output_failed, mCurrentFilePath);
+                            CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                            mUtil.addLogMsg("W", msg);
+                            return;
+                        } else {
+                            SafFile3 to_zip=new SafFile3(mActivity, mCurrentFilePath);
+                            to_zip.delete();
+                            result=to_bz.getOutputZipFile().renameTo(to_zip);
+                            if (result) {
+                                mActivity.showSnackbar(mActivity, mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_move_completed));
+                            } else {
+                                msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_file_rename_cancelled, mCurrentFilePath);
+                                CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                                mUtil.addLogMsg("W", msg);
+                                return;
+                            }
+                        }
+                    }
+                } else {//Copy mode
+                    tc.setExtraDataObject(new Object[]{mCurrentFilePath});
+                    CallBackListener to_bz_cbl=getZipProgressCallbackListenerWithPath(tc, to_bz, mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_zip_output_updating));
+                    result=to_bz.close(to_bz_cbl);
+                    if (isCancelled(tc)) {
+                        try {to_bz.destroy();} catch(Exception e){};
+                        msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_zip_output_cancelled, mCurrentFilePath);
+                        CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                        mUtil.addLogMsg("W", msg);
+                        return;
+                    } else {
+                        if (!result) {
+                            try {to_bz.destroy();} catch(Exception e){};
+                            msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_zip_output_failed, mCurrentFilePath);
+                            CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                            mUtil.addLogMsg("W", msg);
+                            return;
+                        } else {
+                            SafFile3 to_zip=new SafFile3(mActivity, mCurrentFilePath);
+                            to_zip.delete();
+                            result=to_bz.getOutputZipFile().renameTo(to_zip);
+                            if (result) {
+                                mActivity.showSnackbar(mActivity, mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_copy_completed));
+                            } else {
+                                msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_zip_file_rename_cancelled, mCurrentFilePath);
+                                CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                                mUtil.addLogMsg("W", msg);
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                if (move) clearCopyCutItem(false);
             } else {
-                ntfy.notifyToListener(true, null);
+                clearCopyCutItem(false);
             }
+
+            mUiHandler.post(new Runnable(){
+                @Override
+                public void run() {
+                    setUiEnabled();
+                    closeUiDialogView(100);
+                }
+            });
+
         } catch(Exception e) {
-            e.getStackTrace();
+            e.printStackTrace();
+            CommonDialog.showCommonDialog(mActivity.getSupportFragmentManager(), false, "E",
+                    "Error", e.getMessage()+"\n"+MiscUtil.getStackTraceString(e), null);
         }
+    }
+
+    private void verifyAndUpdatePasword(ThreadCtrl tc, CustomZipFile from_zf, FileHeader edfh_item) throws Exception {
+        final NotifyEvent ntfy_password_verify=new NotifyEvent(mActivity);
+        ntfy_password_verify.setListener(new NotifyEventListener(){
+            @Override
+            public void positiveResponse(Context c, Object[] o) {
+                mMainPassword=(String)o[0];
+                notifyResponse(tc, edfh_item.getFileName());
+            }
+            @Override
+            public void negativeResponse(Context c, Object[] o) {
+                tc.setDisabled();
+                notifyResponse(tc, edfh_item.getFileName());
+            }
+        });
+
+        if (edfh_item.isEncrypted()) {
+            if (mMainPassword!=null) {
+                from_zf.setPassword(mMainPassword);
+                if (!isCorrectZipFilePassword(from_zf, edfh_item, mMainPassword)) {
+                    mUiHandler.post(new Runnable(){
+                        @Override
+                        public void run() {
+                            getZipPasswordDlg(mActivity, mGp, mMainPassword, from_zf, edfh_item, ntfy_password_verify, true);
+                        }
+                    });
+                    waitResponse(tc, edfh_item.getFileName());
+                }
+            } else {
+                mUiHandler.post(new Runnable(){
+                    @Override
+                    public void run() {
+                        getZipPasswordDlg(mActivity, mGp, mMainPassword, from_zf, edfh_item, ntfy_password_verify, true);
+                    }
+                });
+                waitResponse(tc, edfh_item.getFileName());
+            }
+        }
+    }
+    
+    private void deleteBufferedZipFile(BufferedZipFile3 to_bz, BufferedZipFile3 from_bz) {
+	    try {to_bz.destroy();} catch(Exception e){};
+        try {from_bz.destroy();} catch(Exception e){};
+    }
+
+	public ArrayList<FileHeader> buildExtractZipItemList(CustomZipFile from_zf, ArrayList<TreeFilelistItem>tfa_list) {
+        mUtil.addDebugMsg(1, "I", "buildExtractZipItemList entered");
+        CustomTreeFilelistAdapter tfa=new CustomTreeFilelistAdapter(mActivity, true, false);
+        tfa.setDataList(tfa_list);
+
+        ArrayList<FileHeader> zf_fhl=null;
+        ArrayList<FileHeader> sel_fhl=new ArrayList<FileHeader>();
+        try {
+            zf_fhl=(ArrayList<FileHeader>) from_zf.getFileHeaders();
+            for(FileHeader fh_item:zf_fhl) {
+                for(TreeFilelistItem sel_tfli:tfa.getDataList()) {
+                    if (sel_tfli.isChecked() || !tfa.isItemSelected()) {
+                        if (sel_tfli.isDirectory()) {
+                            if (fh_item.getFileName().startsWith(sel_tfli.getZipFileName()+"/")) {
+                                sel_fhl.add(fh_item);
+                                break;
+                            }
+                        } else {
+                            if (sel_tfli.getZipFileName().equals(fh_item.getFileName())) {
+                                sel_fhl.add(fh_item);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            mUtil.addDebugMsg(1, "I", "buildExtractZipItemList exited, size="+sel_fhl.size());
+
+        } catch(Exception e) {
+            e.printStackTrace();
+            String ste_info="";
+            for(StackTraceElement element:e.getStackTrace()) ste_info+=element.toString()+"\n";
+            CommonDialog.showCommonDialog(mFragmentManager, false, "E",
+                    mActivity.getString(R.string.msgs_zip_extract_file_end_with_error), ste_info, null);
+            mUtil.addDebugMsg(1, "I", "buildExtractZipItemList exited with error"+"\n"+ste_info);
+        }
+
+        return sel_fhl;
     }
 
 	private void createNewZipFileDialog() {
@@ -2187,121 +2582,17 @@ public class ZipFileManager {
         fsdf.showDialog(false, mActivity.getSupportFragmentManager(), fsdf, ntfy);
 	};
 
-    private boolean isCancelled(boolean wait, final ThreadCtrl tc) {
-        return LocalFileManager.isCancelled(wait, tc);
+    static public boolean isCancelled(boolean wait, final ThreadCtrl tc) {
+        return ActivityMain.isCancelled(wait, tc);
     }
 
-    private boolean isCancelled(final ThreadCtrl tc) {
-        return LocalFileManager.isCancelled(tc);
+    static public void setCancelled(final ThreadCtrl tc) {
+        ActivityMain.setCancelled(tc);
     }
 
-    public void confirmCancel(final ThreadCtrl tc, final Button cancel) {
-        LocalFileManager.confirmCancel(mActivity, tc, cancel);
+    static public boolean isCancelled(final ThreadCtrl tc) {
+        return ActivityMain.isCancelled(false, tc);
     }
-
-	private void addItemDlg() {
-		NotifyEvent ntfy=new NotifyEvent(mActivity);
-		ntfy.setListener(new NotifyEventListener(){
-			@Override
-			public void positiveResponse(Context c, Object[] o) {
-				final String[] add_item=(String[])o[1];
-				confirmAddItemFromLocal(add_item, mActivity.getString(R.string.msgs_zip_add_file_confirm), null, false);
-			}
-			@Override
-			public void negativeResponse(Context c, Object[] o) {
-			}
-		});
-
-        boolean include_root=false;
-        boolean scoped_storage_mode=mGp.safMgr.isScopedStorageMode();
-        CommonFileSelector2 fsdf=
-                CommonFileSelector2.newInstance(scoped_storage_mode, true, false, CommonFileSelector2.DIALOG_SELECT_CATEGORY_FILE,
-                        true, true, SafFile3.SAF_FILE_PRIMARY_UUID, "", "", mActivity.getString(R.string.msgs_zip_add_select_add_item));
-        fsdf.showDialog(false, mActivity.getSupportFragmentManager(), fsdf, ntfy);
-
-	};
-
-	private void deleteCopyPasteWorkFile() {
-		CommonUtilities.deleteLocalFile(new SafFile3(mActivity, getCopyPasteWorkFilePath()));
-	};
-	private String getCopyPasteWorkFilePath() {
-		return mActivity.getExternalCacheDirs()[0].getPath()+"/zuw";
-	}
-
-	private void confirmCopyItemFromZip(final String[] add_item,
-                                        final NotifyEvent p_ntfy, final boolean move) {
-		String w_sel_list="", sep="";
-		for(String sel_item:add_item) {
-			w_sel_list+=sep+sel_item;
-			sep=", ";
-		}
-		final String sel_list=w_sel_list;
-
-        CustomTreeFilelistAdapter tfa=new CustomTreeFilelistAdapter(mActivity, true, false);
-        tfa.setDataList(mGp.copyCutList);
-        deleteCopyPasteWorkFile();
-
-        NotifyEvent ntfy_extract=new NotifyEvent(mActivity);
-        ntfy_extract.setListener(new NotifyEventListener(){
-            @Override
-            public void positiveResponse(Context c, Object[] o) {
-                final NotifyEvent ntfy_zip_parm=new NotifyEvent(mActivity);
-                ntfy_zip_parm.setListener(new NotifyEventListener(){
-                    @Override
-                    public void positiveResponse(Context c, final Object[] o) {
-                        CustomZipParameters zp=(CustomZipParameters)o[0];
-                        String base_dir=getCopyPasteWorkFilePath();
-                        File[] fl=new File(base_dir).listFiles();
-                        String[] t_add_item=new String[fl.length];
-                        SafFile3 in_zip=new SafFile3(mActivity, mCurrentFilePath);
-                        int cnt=0;
-                        String conf_list="";
-                        for(File item:fl) {
-                            t_add_item[cnt]=item.getPath();
-                            cnt++;
-                        }
-                        String zip_curr_dir="";
-                        if (mCurrentDirectory.getOriginalText().toString().equals("") || mCurrentDirectory.getOriginalText().toString().equals("/")) zip_curr_dir="";
-                        else zip_curr_dir=mCurrentDirectory.getOriginalText().toString().substring(1);
-                        NotifyEvent ntfy_add=new NotifyEvent(mActivity);
-                        ntfy_add.setListener(new NotifyEventListener() {
-                            @Override
-                            public void positiveResponse(Context context, Object[] objects) {
-                                if (p_ntfy!=null) p_ntfy.notifyToListener(true, objects);
-                                closeUiDialogView(500);
-                                deleteCopyPasteWorkFile();
-                            }
-
-                            @Override
-                            public void negativeResponse(Context context, Object[] objects) {
-                                if (p_ntfy!=null) p_ntfy.notifyToListener(false, objects);
-                            }
-                        });
-                        addSelectedItem(t_add_item, zp, ntfy_add, base_dir, zip_curr_dir, move);
-                    }
-                    @Override
-                    public void negativeResponse(Context c, Object[] o) {
-                        setUiEnabled();
-                        closeUiDialogView(500);
-                        deleteCopyPasteWorkFile();
-                    }
-                });
-                mUiHandler.post(new Runnable(){
-                    @Override
-                    public void run() {
-                        getZipParmDlg(mUtil, mActivity, mGp, mEncodingSelected, "", mCurrentFilePath, ntfy_zip_parm);
-                    }
-                });
-            }
-            @Override
-            public void negativeResponse(Context c, Object[] o) {
-            }
-
-        });
-        buildExtractZipItemList(mGp.copyCutFilePath, mGp.copyCutEncoding, tfa, mGp.copyCutCurrentDirectory,
-                getCopyPasteWorkFilePath(), ntfy_extract, false, false);
-
-	};
 
 	private boolean isZipItemAlreadyExists(String zip_entry_name, SafFile3 in_zip, String encoding) {
 	    boolean result=false;
@@ -2315,20 +2606,19 @@ public class ZipFileManager {
         return result;
     }
 
-	private void confirmAddItemFromLocal(final String[] add_item, String conf_msg, //final boolean comp_msg_required,
-                                         final NotifyEvent p_ntfy, boolean move) {
+	private void prepareMoveCopyLocalToZip(final String[] add_item, final NotifyEvent p_ntfy, boolean move) {
         putProgressMessage(mActivity.getString(R.string.msgs_zip_add_file_starting));
         NotifyEvent ntfy_zip_parm=new NotifyEvent(mActivity);
         ntfy_zip_parm.setListener(new NotifyEventListener(){
             @Override
             public void positiveResponse(Context c, final Object[] o) {
-                CustomZipParameters zp=(CustomZipParameters)o[0];
+                ZipParameters zp=(ZipParameters)o[0];
                 String zip_curr_dir="";
                 if (mCurrentDirectory.getOriginalText().toString().equals("") || mCurrentDirectory.getOriginalText().toString().equals("/")) zip_curr_dir="";
                 else zip_curr_dir=mCurrentDirectory.getOriginalText().toString().substring(1);
                 String parent_dir=add_item[0].lastIndexOf("/")>0?add_item[0].substring(0,add_item[0].lastIndexOf("/")):add_item[0];
-                NotifyEvent ntfy_addItem=new NotifyEvent(mActivity);
-                ntfy_addItem.setListener(new NotifyEventListener() {
+                NotifyEvent notify_move_copy_ended=new NotifyEvent(mActivity);
+                notify_move_copy_ended.setListener(new NotifyEventListener() {
                     @Override
                     public void positiveResponse(Context context, Object[] objects) {
                         if (p_ntfy!=null) {
@@ -2343,7 +2633,7 @@ public class ZipFileManager {
                         closeUiDialogView(500);
                     }
                 });
-                addSelectedItem(add_item, zp, ntfy_addItem, parent_dir, zip_curr_dir, move);//comp_msg_required, p_ntfy, parent_dir, zip_curr_dir);
+                moveCopyLocalToZip(add_item, zp, notify_move_copy_ended, parent_dir, zip_curr_dir, move);
             }
             @Override
             public void negativeResponse(Context c, Object[] o) {
@@ -2357,8 +2647,13 @@ public class ZipFileManager {
 
 	static public void getAllItemInLocalDirectory(ArrayList<SafFile3> sel_item_list, SafFile3 sf) {
 	    File lf=new File(sf.getPath());
-	    if (lf.canRead()) getFileApiAllItemInLocalDirectory(sf.getContext(), sel_item_list, lf);
-	    else getSafApiAllItemInLocalDirectory(sel_item_list, sf);
+	    if (lf.canRead()) {
+	        if (lf.isDirectory()) sel_item_list.add(sf);//for ZIP file directory entry
+	        getFileApiAllItemInLocalDirectory(sf.getContext(), sel_item_list, lf);
+        } else {
+            if (sf.isDirectory()) sel_item_list.add(sf);//for ZIP file directory entry
+	        getSafApiAllItemInLocalDirectory(sel_item_list, sf);
+        }
 	};
 
     static public void getSafApiAllItemInLocalDirectory(ArrayList<SafFile3> sel_item_list, SafFile3 lf) {
@@ -2407,31 +2702,19 @@ public class ZipFileManager {
         }, delay_time);
     }
 
-    private void disableCancelButton() {
-        mUiHandler.post(new Runnable(){
-            @Override
-            public void run() {
-                mDialogProgressSpinCancel.setEnabled(false);
-            }
-        });
-    }
-
-    private void addSelectedItem(final String[] add_item, final CustomZipParameters zp, //final boolean comp_msg_required,
-                                 final NotifyEvent p_ntfy, final String zip_base, final String zip_curr_dir, final boolean move) {
+    private void moveCopyLocalToZip(final String[] add_item, final ZipParameters zp, //final boolean comp_msg_required,
+                                    final NotifyEvent p_ntfy, final String zip_base, final String zip_curr_dir, final boolean move) {
 		setUiDisabled();
 		showDialogProgress();
 		final ThreadCtrl tc=new ThreadCtrl();
-		mDialogProgressSpinCancel.setEnabled(true);
-		mDialogProgressSpinCancel.setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View v) {
-				confirmCancel(tc,mDialogProgressSpinCancel);
-			}
-		});
+		mActivity.createDialogCancelListener(tc);
 		Thread th=new Thread(){
 			@Override
 			public void run() {
-                putProgressMessage(mActivity.getString(R.string.msgs_zip_add_file_starting));
+			    String msg="";
+			    if (move) msg=mActivity.getString(R.string.msgs_zip_file_manager_local_to_zip_move_started);
+			    else msg=mActivity.getString(R.string.msgs_zip_file_manager_local_to_zip_copy_started);
+                putProgressMessage(msg);
                 SafFile3 in_zip=new SafFile3(mActivity, mCurrentFilePath);
                 SafFile3 out_temp = new SafFile3(mActivity, mCurrentFilePath+".tmp");
                 String zip_file_name = mCurrentFilePath.substring(mCurrentFilePath.lastIndexOf("/"));
@@ -2439,126 +2722,161 @@ public class ZipFileManager {
                     out_temp.createNewFile();
                     BufferedZipFile3 bzf = new BufferedZipFile3(mActivity, in_zip, out_temp, ZipUtil.DEFAULT_ZIP_FILENAME_ENCODING);
                     bzf.setNoCompressExtentionList(mGp.settingNoCompressFileType);
-                    bzf.setPassword(zp.getPassword());
-                    mConfirmResponse=0;
+                    mActivity.clearConfirmReplaceResponse();
                     for (String item : add_item) {
-//                        mUtil.addDebugMsg(1, "I", "item="+item);
-                        if (item != null) {
-                            SafFile3 add_file = new SafFile3(mActivity, item);
-                            ZipParameters n_zp = new ZipParameters(zp);
-                            n_zp.setDefaultFolderPath(zip_base+"/");
-                            ArrayList<SafFile3> sel_list = new ArrayList<SafFile3>();
-                            if (add_file.isDirectory()) sel_list.add(add_file);
-                            getAllItemInLocalDirectory(sel_list, add_file);
-                            for (SafFile3 sel_file : sel_list) {
-//                                bzf.exists(sel_file.getPath())
-                                try {
-                                    CallBackListener cbl=new CallBackListener() {
-                                        @Override
-                                        public void onCallBack(Context c, boolean positive, Object[] o2) {
-                                            if (isCancelled(true, tc)) {
-                                                bzf.abort();
-                                            } else {
-                                                int prog=(Integer)o2[0];
-                                                putProgressMessage(mActivity.getString(R.string.msgs_zip_add_file_adding, sel_file.getPath(), prog));
-                                            }
-                                        }
-                                    };
-                                    boolean replace_granted=true;
-                                    boolean exists=bzf.exists(sel_file.getPath().replace(n_zp.getDefaultFolderPath(), ""));
-//                                    mUtil.addDebugMsg(1, "I", "exists="+exists+", fp="+sel_file.getPath());
-                                    if (exists) {
-                                        String msg=mActivity.getString(R.string.msgs_zip_extract_file_confirm_replace_copy);
-                                        replace_granted=confirmReplace(tc, "", msg, (sel_file.getPath()+"/"+sel_file.getName()).replaceAll("//","/"));
-                                    }
-                                    if (replace_granted) {
-                                        String abs_input_file_path=sel_file.getPath().replace(n_zp.getDefaultFolderPath(), "");
-                                        String file_name_in_zip=zip_curr_dir.equals("")?abs_input_file_path:zip_curr_dir+"/"+abs_input_file_path;
-                                        if (sel_file.isDirectory()) n_zp.setFileNameInZip(file_name_in_zip+"/");
-                                        else n_zp.setFileNameInZip(file_name_in_zip);
-                                        bzf.addItem(sel_file.getPath(), n_zp, cbl);
-                                        if (isCancelled(true, tc)) {
-                                            CommonDialog.showCommonDialog(mFragmentManager, false, "W", String.format(mActivity.getString(R.string.msgs_zip_add_file_cancelled), sel_file.getPath()), "", null);
-                                            try {bzf.destroy();} catch (Exception e) {}
-                                            out_temp.deleteIfExists();
-                                            closeUiDialogView(500);
-                                            return;
-                                        }
-                                        putProgressMessage(mActivity.getString(R.string.msgs_zip_add_file_added, sel_file.getPath()));
-                                    } else {
-                                        if (!isCancelled(true, tc)) {
-                                            putProgressMessage(mActivity.getString(R.string.msgs_zip_extract_file_was_not_replaced, sel_file.getPath()));
-                                            mUtil.addLogMsg("I", mActivity.getString(R.string.msgs_zip_extract_file_was_not_replaced, sel_file.getPath()));
-                                        }
-                                    }
-                                } catch (ZipException e) {
-                                    tc.setThreadMessage(e.getMessage());
-                                    mUtil.addLogMsg("I", String.format(mActivity.getString(R.string.msgs_zip_add_file_failed), sel_file.getPath()));
-                                    CommonDialog.showCommonDialog(mFragmentManager, false, "E", String.format(mActivity.getString(R.string.msgs_zip_add_file_failed), sel_file.getPath()),
-                                            tc.getThreadMessage(), null);
-                                    closeUiDialogView(500);
-                                    return;
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                        SafFile3 add_file = new SafFile3(mActivity, item);
+                        ZipParameters n_zp = new ZipParameters(zp);
+                        n_zp.setDefaultFolderPath(zip_base+"/");
+                        ArrayList<SafFile3> sel_list = new ArrayList<SafFile3>();
+                        getAllItemInLocalDirectory(sel_list, add_file);
+                        for (SafFile3 sel_file : sel_list) {
+                            try {
+                                tc.setExtraDataObject(new Object[]{sel_file.getPath()});
+                                CallBackListener cbl=null;
+                                cbl=getZipProgressCallbackListenerWithPath(tc, bzf, mActivity.getString(R.string.msgs_zip_file_manager_local_to_zip_file_copying));
+
+                                boolean replace_granted=true;
+                                String fp=sel_file.getPath().replace(n_zp.getDefaultFolderPath(), "");
+                                String abs_input_file_path=sel_file.getPath().replace(n_zp.getDefaultFolderPath(), "");
+                                String file_name_in_zip=zip_curr_dir.equals("")?abs_input_file_path:zip_curr_dir+"/"+abs_input_file_path;
+                                if (sel_file.isDirectory()) n_zp.setFileNameInZip(file_name_in_zip+"/");
+                                else n_zp.setFileNameInZip(file_name_in_zip);
+                                boolean exists=bzf.exists(n_zp.getFileNameInZip());
+                                if (exists) {
+                                    msg=mActivity.getString(R.string.msgs_zip_extract_file_confirm_replace_copy);
+                                    replace_granted= mActivity.confirmReplace(tc, "", msg, (sel_file.getPath()).replaceAll("//","/"));
                                 }
+                                if (replace_granted) {
+                                    bzf.addItem(sel_file.getPath(), n_zp, cbl);
+                                    if (isCancelled(true, tc)) {
+                                        CommonDialog.showCommonDialog(mFragmentManager, false, "W", mActivity.getString(R.string.msgs_zip_file_manager_local_to_zip_file_copy_cancelled, sel_file.getPath()), "", null);
+                                        try {bzf.destroy();} catch (Exception e) {}
+                                        closeUiDialogView(500);
+                                        return;
+                                    }
+                                    msg=mActivity.getString(R.string.msgs_zip_file_manager_local_to_zip_file_copy_completed, sel_file.getPath());
+                                    putProgressMessage(msg);
+                                    mUtil.addLogMsg("I",msg);
+
+                                } else {
+                                    if (!isCancelled(true, tc)) {
+                                        msg=mActivity.getString(R.string.msgs_zip_file_manager_local_to_zip_file_replace_rejected, sel_file.getPath());
+                                        putProgressMessage(msg);
+                                        mUtil.addLogMsg("I", msg);
+                                    } else {
+                                        if (move) msg=mActivity.getString(R.string.msgs_zip_file_manager_local_to_zip_file_move_cancelled, sel_file.getPath());
+                                        else msg=mActivity.getString(R.string.msgs_zip_file_manager_local_to_zip_file_copy_cancelled, sel_file.getPath());
+                                        CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                                        mUtil.addLogMsg("I", msg);
+                                        try {bzf.destroy();} catch (Exception e) {}
+                                        closeUiDialogView(500);
+                                        return;
+                                    }
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                tc.setThreadMessage(e.getMessage());
+                                msg=mActivity.getString(R.string.msgs_zip_file_manager_local_to_zip_file_error_occured, sel_file.getPath());
+                                mUtil.addLogMsg("I", msg);
+                                CommonDialog.showCommonDialog(mFragmentManager, false, "E", msg, tc.getThreadMessage(), null);
+                                closeUiDialogView(500);
+                                return;
                             }
                         }
                     }
                     try {
-//                        disableCancelButton();
                         CallBackListener cbl=getZipProgressCallbackListener(tc, bzf, mActivity.getString(R.string.msgs_zip_zip_file_being_updated));
                         if (bzf.isAborted() || bzf.close(cbl)) {
                             if (!bzf.isAborted()) renameBufferedZipFile(mGp, mUtil, mCurrentFilePath, out_temp.getPath(), zip_file_name);
                             else {
                                 CommonDialog.showCommonDialog(mFragmentManager, false, "W", mActivity.getString(R.string.msgs_zip_write_zip_file_canelled), "", null);
                                 try {bzf.destroy();} catch (Exception e) {}
-                                out_temp.deleteIfExists();
                                 closeUiDialogView(500);
                                 return;
                             }
                         }
 
-                        if (p_ntfy != null) p_ntfy.notifyToListener(true, new Object[]{add_item});
-                            mUtil.addLogMsg("I", mActivity.getString(R.string.msgs_zip_add_file_completed));
-                            showToast(mActivity, mActivity.getString(R.string.msgs_zip_add_file_completed));
-                            deleteCopyPasteWorkFile();
-                            closeUiDialogView(500);
-
-                            if (p_ntfy==null) {
-                                mUiHandler.postDelayed(new Runnable(){
-                                    @Override
-                                    public void run() {
-                                        refreshFileList(true);
-                                    }
-                                },500);
+                        if (move) {
+                            for(String item:add_item) {
+                                SafFile3 lf=new SafFile3(mActivity, item);
+                                deleteMovedLocalFile(lf);
                             }
-//                        }
-                    } catch (ZipException e) {
-                        tc.setThreadMessage(e.getMessage()+"\n"+MiscUtil.getStackTraceString(e));
-                        mUtil.addLogMsg("I", mActivity.getString(R.string.msgs_zip_add_file_close_failed));
-                        CommonDialog.showCommonDialog(mFragmentManager, false, "E", mActivity.getString(R.string.msgs_zip_add_file_close_failed),
-                                tc.getThreadMessage(), null);
+                            mUiHandler.postDelayed(new Runnable(){
+                                @Override
+                                public void run() {
+                                    mActivity.clearCopyCutItem(false);
+                                }
+                            },50);
+                        }
+
+                        if (p_ntfy != null) p_ntfy.notifyToListener(true, null);
+
+                        if (move) msg=mActivity.getString(R.string.msgs_zip_file_manager_local_to_zip_move_completed);
+                        else msg=mActivity.getString(R.string.msgs_zip_file_manager_local_to_zip_copy_completed);
+                        mUtil.addLogMsg("I", msg);
+
+                        mActivity.showSnackbar(mActivity, msg);
                         closeUiDialogView(500);
+
+                        mUiHandler.postDelayed(new Runnable(){
+                            @Override
+                            public void run() {
+                                refreshFileList(true);
+                            }
+                        },50);
                     } catch (Exception e) {
                         e.printStackTrace();
+                        msg=mActivity.getString(R.string.msgs_zip_file_manager_local_to_zip_update_failed);
                         tc.setThreadMessage(e.getMessage()+"\n"+MiscUtil.getStackTraceString(e));
-                        mUtil.addLogMsg("I", mActivity.getString(R.string.msgs_zip_add_file_close_failed)+"\n"+e.getMessage()+"\n"+MiscUtil.getStackTraceString(e));
-                        CommonDialog.showCommonDialog(mFragmentManager, false, "E", mActivity.getString(R.string.msgs_zip_add_file_close_failed),
-                                tc.getThreadMessage(), null);
+                        mUtil.addLogMsg("I", msg+"\n"+e.getMessage()+"\n"+MiscUtil.getStackTraceString(e));
+                        CommonDialog.showCommonDialog(mFragmentManager, false, "E", msg, tc.getThreadMessage(), null);
                         closeUiDialogView(500);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                     out_temp.deleteIfExists();
-                    mUtil.addLogMsg("E", mActivity.getString(R.string.msgs_zip_zip_file_creation_failed)+"\n"+MiscUtil.getStackTraceString(e));
-                    CommonDialog.showCommonDialog(mFragmentManager, false, "E",mActivity.getString(R.string.msgs_zip_zip_file_creation_failed), e.getMessage()+"\n"+
-                            MiscUtil.getStackTraceString(e), null);
+                    msg=mActivity.getString(R.string.msgs_zip_file_manager_local_to_zip_create_failed);
+                    mUtil.addLogMsg("E", msg+"\n"+MiscUtil.getStackTraceString(e));
+                    CommonDialog.showCommonDialog(mFragmentManager, false, "E", msg, e.getMessage()+"\n"+MiscUtil.getStackTraceString(e), null);
                     closeUiDialogView(500);
                 }
             }
 		};
 		th.start();
 	};
+
+    private boolean deleteMovedLocalFile(SafFile3 del_item) {
+        boolean result=false;
+        if (del_item.exists()) {
+            if (del_item.isDirectory()) {
+                SafFile3[] del_list=del_item.listFiles();
+                if (del_list!=null && del_list.length>0) {
+                    for(SafFile3 child_item:del_list) {
+                        result= deleteMovedLocalFile(child_item);
+                        if (!result) break;
+                    }
+                    if (result) {
+                        result=del_item.delete();
+                        String msg=mActivity.getString(R.string.msgs_zip_file_manager_local_to_zip_delete_moved_directory, del_item.getPath());
+                        putProgressMessage(msg);
+                        mUtil.addLogMsg("I", msg);
+                    }
+                } else {
+                    result=del_item.delete();
+                    String msg=mActivity.getString(R.string.msgs_zip_file_manager_local_to_zip_delete_moved_directory, del_item.getPath());
+                    putProgressMessage(msg);
+                    mUtil.addLogMsg("I", msg);
+                }
+            } else {
+                result=del_item.delete();
+                ActivityMain.scanMediaFile(mGp, mUtil, del_item.getPath());
+                String msg=mActivity.getString(R.string.msgs_zip_file_manager_local_to_zip_delete_moved_file, del_item.getPath());
+                putProgressMessage(msg);
+                mUtil.addLogMsg("I", msg);
+            }
+        }
+        return result;
+    };
 
     private CallBackListener getZipProgressCallbackListener(final ThreadCtrl tc, final BufferedZipFile3 bzf, final String msg_txt) {
         CallBackListener cbl=new CallBackListener() {
@@ -2575,13 +2893,27 @@ public class ZipFileManager {
         return cbl;
     }
 
-	static public void getZipParmDlg(CommonUtilities mUtil, Activity mActivity, final GlobalParameters mGp,
-                                     final String selected_encoding, final String pswd, final String fp, final NotifyEvent p_ntfy) {
-		int zip_comp_method=0, zip_enc_method=0;
-		final CustomZipFile zf=createZipFile(mGp.appContext, fp, selected_encoding);
-		mUtil.addDebugMsg(1, "I", "getZipParm comp_method="+zip_comp_method+", enc_method="+zip_enc_method);
+    public CallBackListener getZipProgressCallbackListenerWithPath(final ThreadCtrl tc, final BufferedZipFile3 bzf, final String msg_txt) {
+        CallBackListener cbl=new CallBackListener() {
+            @Override
+            public void onCallBack(Context c, boolean positive, Object[] o2) {
+                if (isCancelled(tc)) {
+                    bzf.abort();
+                } else {
+                    int prog=(Integer)o2[0];
+                    putProgressMessage(String.format(msg_txt, (String)tc.getExtraDataObject()[0] , prog));
+                }
+            }
+        };
+        return cbl;
+    }
 
-		final Dialog dialog = new Dialog(mActivity, mGp.applicationTheme);
+    static public void getZipParmDlg(CommonUtilities mUtil, final Activity mActivity, final GlobalParameters mGp,
+                                     final String selected_encoding, final String pswd, final String fp, final NotifyEvent p_ntfy) {
+		final CustomZipFile zf=createZipFile(mGp.appContext, fp, selected_encoding);
+		mUtil.addDebugMsg(1, "I", "getZipParm entered");
+
+		final Dialog dialog = new Dialog(mActivity);
 		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		dialog.setCanceledOnTouchOutside(false);
 		dialog.setContentView(R.layout.zip_parm_dlg);
@@ -2597,12 +2929,17 @@ public class ZipFileManager {
 
     	final TextView dlg_msg=(TextView)dialog.findViewById(R.id.zip_parm_dlg_msg);
     	dlg_msg.setVisibility(TextView.VISIBLE);
-    	final EditText dlg_pswd=(EditText)dialog.findViewById(R.id.zip_parm_dlg_enc_password);
-    	final EditText dlg_conf=(EditText)dialog.findViewById(R.id.zip_parm_dlg_enc_confirm);
+    	final TextInputLayout ll_dlg_pswd=(TextInputLayout)dialog.findViewById(R.id.zip_parm_dlg_enc_password_view);
+    	final TextInputEditText dlg_pswd=(TextInputEditText)dialog.findViewById(R.id.zip_parm_dlg_enc_password);
+        final TextInputLayout ll_dlg_conf=(TextInputLayout)dialog.findViewById(R.id.zip_parm_dlg_enc_confirm_view);
+    	final TextInputEditText dlg_conf=(TextInputEditText)dialog.findViewById(R.id.zip_parm_dlg_enc_confirm);
 
-    	final Spinner dlg_comp_level=(Spinner)dialog.findViewById(R.id.zip_parm_dlg_comp_level);
+        final RadioGroup dlg_rg_comp=(RadioGroup)dialog.findViewById(R.id.zip_parm_dlg_comp_level_rg);
+        final RadioButton dlg_rb_comp_fastest=(RadioButton)dialog.findViewById(R.id.zip_parm_dlg_comp_level_rb_fastest);
+        final RadioButton dlg_rb_comp_normal=(RadioButton)dialog.findViewById(R.id.zip_parm_dlg_comp_level_rb_normal);
+        final RadioButton dlg_rb_comp_maximum=(RadioButton)dialog.findViewById(R.id.zip_parm_dlg_comp_level_rb_maximum);
 
-    	final RadioGroup dlg_rg_enc=(RadioGroup)dialog.findViewById(R.id.zip_parm_dlg_enc_type_rg);
+        final RadioGroup dlg_rg_enc=(RadioGroup)dialog.findViewById(R.id.zip_parm_dlg_enc_type_rg);
     	final RadioButton dlg_rb_none=(RadioButton)dialog.findViewById(R.id.zip_parm_dlg_enc_type_rb_none);
     	final RadioButton dlg_rb_std=(RadioButton)dialog.findViewById(R.id.zip_parm_dlg_enc_type_rb_standard);
     	final RadioButton dlg_rb_aes128=(RadioButton)dialog.findViewById(R.id.zip_parm_dlg_enc_type_rb_aes128);
@@ -2611,25 +2948,39 @@ public class ZipFileManager {
     	final Button dlg_cancel=(Button)dialog.findViewById(R.id.zip_parm_dlg_cancel_btn);
     	final Button dlg_ok=(Button)dialog.findViewById(R.id.zip_parm_dlg_ok_btn);
 
-    	CommonDialog.setDlgBoxSizeLimit(dialog, true);
+    	CommonDialog.setDlgBoxSizeLimit(dialog, false);
 
-    	setZipCompLevelSpinner(mGp, mActivity, dlg_comp_level);
+        dlg_rg_comp.setOnCheckedChangeListener(new OnCheckedChangeListener(){
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if(checkedId==dlg_rb_comp_fastest.getId()) {
+                    ll_dlg_pswd.setVisibility(EditText.GONE);
+                    ll_dlg_conf.setVisibility(EditText.GONE);
+                } else if(checkedId==dlg_rb_comp_normal.getId()) {
+                    ll_dlg_pswd.setVisibility(EditText.VISIBLE);
+                    ll_dlg_conf.setVisibility(EditText.VISIBLE);
+                } else if(checkedId==dlg_rb_comp_maximum.getId()) {
+                    ll_dlg_pswd.setVisibility(EditText.VISIBLE);
+                    ll_dlg_conf.setVisibility(EditText.VISIBLE);
+                }
+            }
+        });
 
-    	dlg_rg_enc.setOnCheckedChangeListener(new OnCheckedChangeListener(){
+        dlg_rg_enc.setOnCheckedChangeListener(new OnCheckedChangeListener(){
 			@Override
 			public void onCheckedChanged(RadioGroup group, int checkedId) {
 				if(checkedId==dlg_rb_none.getId()) {
-		    		dlg_pswd.setVisibility(EditText.GONE);
-		    		dlg_conf.setVisibility(EditText.GONE);
+                    ll_dlg_pswd.setVisibility(EditText.GONE);
+                    ll_dlg_conf.setVisibility(EditText.GONE);
 				} else if(checkedId==dlg_rb_std.getId()) {
-		    		dlg_pswd.setVisibility(EditText.VISIBLE);
-		    		dlg_conf.setVisibility(EditText.VISIBLE);
+                    ll_dlg_pswd.setVisibility(EditText.VISIBLE);
+                    ll_dlg_conf.setVisibility(EditText.VISIBLE);
 				} else if(checkedId==dlg_rb_aes128.getId()) {
-		    		dlg_pswd.setVisibility(EditText.VISIBLE);
-		    		dlg_conf.setVisibility(EditText.VISIBLE);
+                    ll_dlg_pswd.setVisibility(EditText.VISIBLE);
+                    ll_dlg_conf.setVisibility(EditText.VISIBLE);
 				} else if(checkedId==dlg_rb_aes256.getId()) {
-		    		dlg_pswd.setVisibility(EditText.VISIBLE);
-		    		dlg_conf.setVisibility(EditText.VISIBLE);
+		    		ll_dlg_pswd.setVisibility(EditText.VISIBLE);
+                    ll_dlg_conf.setVisibility(EditText.VISIBLE);
 				}
 				checkZipParmValidation(mGp, dialog, fp, zf);
 			}
@@ -2637,12 +2988,27 @@ public class ZipFileManager {
 
 		dlg_rb_none.setEnabled(true);
 		dlg_rb_none.setChecked(true);
-		dlg_pswd.setVisibility(EditText.GONE);
-		dlg_conf.setVisibility(EditText.GONE);
+		ll_dlg_pswd.setVisibility(EditText.GONE);
+		ll_dlg_conf.setVisibility(EditText.GONE);
 
     	dlg_pswd.setText(pswd);
 
-    	checkZipParmValidation(mGp, dialog, fp, zf);
+    	ll_dlg_pswd.setPasswordVisibilityToggleEnabled(true);
+    	ll_dlg_pswd.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (dlg_pswd.getTransformationMethod()!=null) {
+                    dlg_pswd.setTransformationMethod(null);
+                    ll_dlg_conf.setVisibility(TextInputLayout.GONE);
+                } else {
+                    dlg_pswd.setTransformationMethod(new PasswordTransformationMethod());
+                    ll_dlg_conf.setVisibility(TextInputLayout.VISIBLE);
+                }
+                checkZipParmValidation(mGp, dialog, fp, zf);
+            }
+        });
+
+        checkZipParmValidation(mGp, dialog, fp, zf);
     	dlg_pswd.addTextChangedListener(new TextWatcher(){
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -2672,20 +3038,16 @@ public class ZipFileManager {
 			@Override
 			public void onClick(View v) {
 				dialog.dismiss();
-				CustomZipParameters zp=new CustomZipParameters();
-				String comp_level=dlg_comp_level.getSelectedItem().toString();
-//				int deflate_level=-1;
-				if (comp_level.equals(mGp.appContext.getString(R.string.msgs_zip_parm_zip_comp_level_fastest))) {
-					zp.setCompressionLevel(CompressionLevel.FASTEST);
-				} else if (comp_level.equals(mGp.appContext.getString(R.string.msgs_zip_parm_zip_comp_level_fast))) {
-					zp.setCompressionLevel(CompressionLevel.FAST);
-				} else if (comp_level.equals(mGp.appContext.getString(R.string.msgs_zip_parm_zip_comp_level_normal))) {
-					zp.setCompressionLevel(CompressionLevel.NORMAL);
-				} else if (comp_level.equals(mGp.appContext.getString(R.string.msgs_zip_parm_zip_comp_level_maximum))) {
-					zp.setCompressionLevel(CompressionLevel.MAXIMUM);
-//				} else if (comp_level.equals(mGp.appContext.getString(R.string.msgs_zip_parm_zip_comp_level_ultra))) {
-//					zp.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_ULTRA);
-				}
+				ZipParameters zp=new ZipParameters();
+
+                if(dlg_rb_comp_fastest.isChecked()) {
+                    zp.setCompressionLevel(CompressionLevel.FASTEST);
+                } else if(dlg_rb_comp_normal.isChecked()) {
+                    zp.setCompressionLevel(CompressionLevel.NORMAL);
+                } else if(dlg_rb_comp_maximum.isChecked()) {
+                    zp.setCompressionLevel(CompressionLevel.MAXIMUM);
+                }
+
 				String pswd=dlg_pswd.getText().toString();
 				if (dlg_rb_none.isChecked()) {
 					zp.setCompressionMethod(CompressionMethod.DEFLATE);
@@ -2723,8 +3085,10 @@ public class ZipFileManager {
 
 	private static void checkZipParmValidation(GlobalParameters mGp, Dialog dialog, String fp,
                                                CustomZipFile zf) {
-    	final EditText dlg_pswd=(EditText)dialog.findViewById(R.id.zip_parm_dlg_enc_password);
-    	final EditText dlg_conf=(EditText)dialog.findViewById(R.id.zip_parm_dlg_enc_confirm);
+        final TextInputLayout ll_dlg_pswd=(TextInputLayout)dialog.findViewById(R.id.zip_parm_dlg_enc_password_view);
+        final TextInputEditText dlg_pswd=(TextInputEditText)dialog.findViewById(R.id.zip_parm_dlg_enc_password);
+        final TextInputLayout ll_dlg_conf=(TextInputLayout)dialog.findViewById(R.id.zip_parm_dlg_enc_confirm_view);
+        final TextInputEditText dlg_conf=(TextInputEditText)dialog.findViewById(R.id.zip_parm_dlg_enc_confirm);
     	final TextView dlg_msg=(TextView)dialog.findViewById(R.id.zip_parm_dlg_msg);
 
 //    	final Spinner dlg_comp_level=(Spinner)dialog.findViewById(R.id.zip_parm_dlg_comp_level);
@@ -2739,37 +3103,31 @@ public class ZipFileManager {
 			dlg_msg.setText("");
 			dlg_ok.setEnabled(true);;
     	} else {
-			if (dlg_pswd.getText().length()>0) {
-				if (dlg_pswd.getText().toString().equals(dlg_conf.getText().toString())) {
-					dlg_msg.setText("");
-					dlg_ok.setEnabled(true);;
-				} else {
-					dlg_msg.setText(mGp.appContext.getString(R.string.msgs_zip_parm_confirm_pswd_unmatched));
-					dlg_ok.setEnabled(false);;
-				}
-				dlg_conf.setEnabled(true);
-			} else {
-				dlg_ok.setEnabled(false);;
-				dlg_msg.setText(mGp.appContext.getString(R.string.msgs_zip_parm_pswd_not_specified));
-				dlg_conf.setEnabled(false);
-			}
+    	    if (ll_dlg_conf.getVisibility()==TextInputLayout.VISIBLE) {
+                if (dlg_pswd.getText().length()>0) {
+                    if (dlg_pswd.getText().toString().equals(dlg_conf.getText().toString())) {
+                        dlg_msg.setText("");
+                        dlg_ok.setEnabled(true);;
+                    } else {
+                        dlg_msg.setText(mGp.appContext.getString(R.string.msgs_zip_parm_confirm_pswd_unmatched));
+                        dlg_ok.setEnabled(false);;
+                    }
+                    dlg_conf.setEnabled(true);
+                } else {
+                    dlg_ok.setEnabled(false);;
+                    dlg_msg.setText(mGp.appContext.getString(R.string.msgs_zip_parm_pswd_not_specified));
+                    dlg_conf.setEnabled(false);
+                }
+            } else {
+                if (dlg_pswd.getText().length()>0) {
+                    dlg_msg.setText("");
+                    dlg_ok.setEnabled(true);
+                } else {
+                    dlg_ok.setEnabled(false);
+                    dlg_msg.setText(mGp.appContext.getString(R.string.msgs_zip_parm_pswd_not_specified));
+                }
+            }
     	}
-	};
-
-	private static void setZipCompLevelSpinner(GlobalParameters mGp, Activity mActivity, Spinner spinner) {
-		CommonUtilities.setSpinnerBackground(mActivity, spinner, mGp.themeIsLight);
-		final CustomSpinnerAdapter adapter=
-				new CustomSpinnerAdapter(mActivity, android.R.layout.simple_spinner_item);
-		adapter.setSpinner(spinner);
-		adapter.add(mGp.appContext.getString(R.string.msgs_zip_parm_zip_comp_level_fastest));
-		adapter.add(mGp.appContext.getString(R.string.msgs_zip_parm_zip_comp_level_fast));
-		adapter.add(mGp.appContext.getString(R.string.msgs_zip_parm_zip_comp_level_normal));
-		adapter.add(mGp.appContext.getString(R.string.msgs_zip_parm_zip_comp_level_maximum));
-		adapter.setDropDownViewResource(android.R.layout.select_dialog_singlechoice);
-		spinner.setPrompt(mGp.appContext.getString(R.string.msgs_zip_parm_zip_comp_level_promopt));
-		spinner.setAdapter(adapter);
-
-		spinner.setSelection(2);
 	};
 
 	private void extractDlg(final CustomTreeFilelistAdapter tfa) {
@@ -2777,36 +3135,9 @@ public class ZipFileManager {
 		ntfy.setListener(new NotifyEventListener(){
 			@Override
 			public void positiveResponse(Context c, Object[] o) {
-//				final String dest_path=((String)o[0]).endsWith("/")?((String)o[0]).substring(0,((String)o[0]).length()-1):((String)o[0]);
                 final String dest_path=((String)o[1]);
-				String w_conf_list="", w_override_list="";
-				String sep="";
-				for (TreeFilelistItem item:tfa.getDataList()) {
-					if (item.isChecked() || !tfa.isItemSelected()) {
-						 w_conf_list+=sep+item.getZipFileName();
-						 SafFile3 sf=new SafFile3(mActivity, dest_path+"/"+item.getName());
-						 if (sf.exists()) w_override_list+=sep+item.getName();
-						sep="\n";
-					}
-				}
-				NotifyEvent ntfy_confirm=new NotifyEvent(mActivity);
-				ntfy_confirm.setListener(new NotifyEventListener(){
-					@Override
-					public void positiveResponse(Context c, Object[] o) {
-						String t_cd=mCurrentDirectory.getOriginalText().equals("/")?"":mCurrentDirectory.getOriginalText().toString().substring(1);
-						buildExtractZipItemList(mCurrentFilePath, mEncodingSelected,
-								tfa, t_cd, dest_path, null, true, true);
-					}
-					@Override
-					public void negativeResponse(Context c, Object[] o) {
-					}
-				});
-				if (!w_override_list.equals("")) {
-				    CommonDialog.showCommonDialog(mFragmentManager, true, "W",
-                            String.format(mActivity.getString(R.string.msgs_confirm_item_replace),dest_path), w_override_list, ntfy_confirm);
-                } else {
-				    ntfy_confirm.notifyToListener(true, null);
-                }
+                String t_cd=mCurrentDirectory.getOriginalText().equals("/")?"":mCurrentDirectory.getOriginalText().toString().substring(1);
+                prepareMoveCopyZipToLocal(mCurrentFilePath, mEncodingSelected, tfa.getDataList(), t_cd, dest_path, null);
 			}
 			@Override
 			public void negativeResponse(Context c, Object[] o) {
@@ -2821,373 +3152,196 @@ public class ZipFileManager {
         fsdf.showDialog(false, mActivity.getSupportFragmentManager(), fsdf, ntfy);
 	};
 
-	private void buildExtractZipItemList(final String zip_file_path, final String zip_file_encoding,
-                                         final CustomTreeFilelistAdapter tfa, final String zip_curr_dir,
-                                         final String dest_path, final NotifyEvent p_ntfy,
-                                         final boolean comp_msg_required, final boolean scan_media) {
-		mConfirmResponse=0;
+	public void prepareMoveCopyZipToLocal(String zip_path, String encoding, ArrayList<TreeFilelistItem>tfa_list, String zip_curr_dir, String dest_dir, NotifyEvent p_ntfy) {
+        CustomZipFile from_zf=new CustomZipFile(mActivity, new SafFile3(mActivity, zip_path), encoding);
 
-		setUiDisabled();
-		showDialogProgress();
-		final ThreadCtrl tc=new ThreadCtrl();
-		mDialogProgressSpinCancel.setEnabled(true);
-		mDialogProgressSpinCancel.setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View v) {
-				confirmCancel(tc,mDialogProgressSpinCancel);
-			}
-		});
-		Thread th=new Thread(){
-			@Override
-			public void run() {
-				mUtil.addDebugMsg(1, "I", "buildExtractZipItemList started");
-				putProgressMessage(mActivity.getString(R.string.msgs_zip_extract_file_started));
+        ArrayList<FileHeader>sel_list=buildExtractZipItemList(from_zf, tfa_list);
+        final ThreadCtrl tc=new ThreadCtrl();
+        setUiDisabled();
+        showDialogProgress();
+        mActivity.createDialogCancelListener(tc);
+        Thread th=new Thread() {
+            @Override
+            public void run() {
+                SafFile3 sf=new SafFile3(mActivity, dest_dir);
+                moveCopyZipToLocal(tc, sel_list, from_zf, sf, mGp.copyCutModeIsCut, p_ntfy);
+            }
+        };
+        th.start();
 
-				final CustomZipFile zf=createZipFile(mActivity, zip_file_path, zip_file_encoding);
-				ArrayList<FileHeader> zf_fhl=null;
-				try {
-                    zf_fhl=(ArrayList<FileHeader>) zf.getFileHeaders();
-                    ArrayList<FileHeader> sel_fhl=new ArrayList<FileHeader>();
-                    for(FileHeader fh_item:zf_fhl) {
-                        for(TreeFilelistItem sel_tfli:tfa.getDataList()) {
-                            if (sel_tfli.isChecked() || !tfa.isItemSelected()) {
-                                if (sel_tfli.isDirectory()) {
-                                    if (fh_item.getFileName().startsWith(sel_tfli.getZipFileName()+"/")) {
-                                        sel_fhl.add(fh_item);
-                                        break;
-                                    }
-                                } else {
-                                    if (sel_tfli.getZipFileName().equals(fh_item.getFileName())) {
-                                        sel_fhl.add(fh_item);
-                                        break;
-                                    }
-                                }
-                            }
+    }
+
+    public void moveCopyZipToLocal(final ThreadCtrl tc, ArrayList<FileHeader>sel_list, CustomZipFile from_zf,
+                                   final SafFile3 to_dir, final boolean move, final NotifyEvent p_ntfy) {
+        try {
+            String msg="";
+            if (move) msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_move_started);
+            else msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_copy_started);
+            putProgressMessage(msg);
+
+            boolean result=false;
+            String from_zip_temp_path=from_zf.getSafFile().getPath()+".tmp";
+            BufferedZipFile3 from_bz=new BufferedZipFile3(mActivity, from_zf.getSafFile().getPath(), from_zip_temp_path, "UTF-8");
+
+            boolean zip_item_deleted=false;
+            CallBackListener to_bz_add_cbl=getZipProgressCallbackListenerWithPath(tc, from_bz, mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_copying));
+            for(FileHeader edfh_item:sel_list) {
+                if (!edfh_item.isDirectory()) {
+                    String fn=edfh_item.getFileName();
+                    String to_file_temp_path=to_dir.getAppDirectoryCache()+"/"+System.currentTimeMillis();
+                    String to_file_dest_path=to_dir.getPath()+"/"+fn;
+                    File to_file_temp=new File(to_file_temp_path);
+                    SafFile3 to_file_dest=new SafFile3(mActivity, to_file_dest_path);
+                    boolean already_exists=to_file_dest.exists();
+                    if (already_exists) {
+                        msg=mActivity.getString(R.string.msgs_zip_extract_file_confirm_replace_copy);
+                        boolean replace_granted= mActivity.confirmReplace(tc, "", msg, fn);
+                        if (isCancelled(true, tc)) {
+                            msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_copy_cancelled, fn);
+                            CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                            mUtil.addLogMsg("W", msg);
+                            try {from_bz.destroy();} catch (Exception e){};
+                            closeUiDialogView(500);
+                            return;
+                        }
+                        if (!replace_granted) {
+                            putProgressMessage(mActivity.getString(R.string.msgs_zip_extract_file_was_not_replaced, fn));
+                            mUtil.addLogMsg("I", mActivity.getString(R.string.msgs_zip_extract_file_was_not_replaced, fn));
+                            break;
                         }
                     }
-                    ArrayList<FileHeader> ext_fhl=new ArrayList<FileHeader>();
-                    extractSelectedZipItem(tc, dest_path, zf, zip_curr_dir, sel_fhl, ext_fhl, p_ntfy);
 
-                    mUiHandler.post(new Runnable(){
+                    if (edfh_item.isEncrypted()) {
+                        verifyAndUpdatePasword(tc, from_zf, edfh_item);
+                        from_zf.setPassword(mMainPassword);
+                    }
+                    InputStream is=getZipInputStream(null, from_zf, edfh_item, mUtil);
+
+                    FileOutputStream fos=new FileOutputStream(to_file_temp);
+                    result=copyFile(mActivity, tc, edfh_item.getUncompressedSize(), is, fos, new CallBackListener() {
                         @Override
-                        public void run() {
-                            mTreeFilelistAdapter.setAllItemUnchecked();
-                            mTreeFilelistAdapter.notifyDataSetChanged();
+                        public void onCallBack(Context context, boolean positive, Object[] o) {
+                            int prog=(int)o[0];
+                            putProgressMessage(mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_copying, edfh_item.getFileName(), prog));
                         }
                     });
 
-                    mUtil.addDebugMsg(1, "I", "buildExtractZipItemList exited");
-                } catch(Exception e) {
-				    e.printStackTrace();
-                    String ste_info="";
-                    for(StackTraceElement element:e.getStackTrace()) ste_info+=element.toString()+"\n";
-                    CommonDialog.showCommonDialog(mFragmentManager, false, "E",
-                            mActivity.getString(R.string.msgs_zip_extract_file_end_with_error), ste_info, null);
-                    mUtil.addDebugMsg(1, "I", "buildExtractZipItemList exited with error"+"\n"+ste_info);
-                }
-			}
-		};
-		th.setName("buildExtractZipItemList");
-		th.setPriority(Thread.MIN_PRIORITY);
-		th.start();
-	};
+                    if (isCancelled(true, tc)) {
+                        msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_move_cancelled, fn);
+                        CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                        mUtil.addLogMsg("W", msg);
+                        try {from_bz.destroy();} catch (Exception e){};
+                        closeUiDialogView(500);
+                        return;
+                    }
 
-	public boolean extractSelectedZipItem(final ThreadCtrl tc, final String dest_path, final CustomZipFile zf, final String zip_curr_dir,
-                                           final ArrayList<FileHeader> selected_fh_list, final ArrayList<FileHeader> extracted_fh_list,
-                                           final NotifyEvent p_ntfy) {
-
-		mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName()+" entered, size="+selected_fh_list.size()+
-                ", dest_path="+dest_path+", zip_curr_patt="+zip_curr_dir);
-        ThreadCtrl tc_extract=new ThreadCtrl();
-		try {
-		    mConfirmResponse=0;
-			while(selected_fh_list.size()>0 && tc_extract.isEnabled()) {
-				final FileHeader fh_item=selected_fh_list.get(0);
-				selected_fh_list.remove(0);
-				extracted_fh_list.add(fh_item);
-				if (fh_item.isDirectory()) {
-                    String fp=dest_path+"/"+fh_item.getFileName().replace(zip_curr_dir,"");
-                    SafFile3 sf=new SafFile3(mActivity, fp);
-                    if (!sf.exists()) sf.mkdirs();
-				} else {
-					final NotifyEvent ntfy_extract=new NotifyEvent(mActivity);
-					ntfy_extract.setListener(new NotifyEventListener(){
-						@Override
-						public void positiveResponse(Context c, Object[] o) {
-						    if (o!=null && o[0]!=null) mMainPassword=(String)o[0];
-							boolean rc=extractSingleZipItem(tc, dest_path, zf, zip_curr_dir, fh_item, p_ntfy);
-							if (!rc) {
-							    tc_extract.setDisabled();
-                                mUiHandler.post(new Runnable(){
-                                    @Override
-                                    public void run() {
-                                        setUiEnabled();
-                                        hideDialog();
-                                        notifyResponse(tc_extract, fh_item.getFileName());
-                                    }
-                                });
-                                if (p_ntfy!=null) p_ntfy.notifyToListener(false, null);
+                    if (!result) {
+                        msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_copy_failed, fn);
+                        CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                        mUtil.addLogMsg("W", msg);
+                        try {from_bz.destroy();} catch (Exception e){};
+                        closeUiDialogView(500);
+                        return;
+                    } else {
+                        SafFile3 temp=new SafFile3(mActivity, to_file_temp_path);
+                        to_file_dest.deleteIfExists();
+                        boolean rename_result=temp.renameTo(to_file_dest);
+                        if (rename_result) {
+                            ActivityMain.scanMediaFile(mGp, mUtil, to_file_dest_path);
+                            if (move) {
+                                from_bz.removeItem(edfh_item);
+                                msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_file_move_completed, fn);
+                                putProgressMessage(msg);
+                                mUtil.addLogMsg("I", msg);
+                                zip_item_deleted=true;
                             } else {
-                                mUiHandler.post(new Runnable(){
-                                    @Override
-                                    public void run() {
-                                        notifyResponse(tc_extract, fh_item.getFileName());
-                                    }
-                                });
-                            }
-						}
-						@Override
-						public void negativeResponse(Context c, Object[] o) {
-                            tc_extract.setDisabled();
-							mUiHandler.post(new Runnable(){
-								@Override
-								public void run() {
-									setUiEnabled();
-									hideDialog();
-                                    notifyResponse(tc_extract, fh_item.getFileName());
-								}
-							});
-							if (p_ntfy!=null) p_ntfy.notifyToListener(false, null);
-						}
-					});
-
-                    if (ZipUtil.isSupportedCompressionMethod(fh_item)) {
-                        if (fh_item.isEncrypted()) {
-                            if (!mMainPassword.isEmpty()) {
-                                zf.setPassword(mMainPassword);
-                                if (!isCorrectZipFilePassword(zf, fh_item, mMainPassword)) {
-                                    mUiHandler.post(new Runnable(){
-                                        @Override
-                                        public void run() {
-                                            getZipPasswordDlg(mActivity, mGp, mMainPassword, zf, fh_item, ntfy_extract, true);
-                                        }
-                                    });
-                                    waitResponse(tc_extract, fh_item.getFileName());
-                                } else {
-                                    ntfy_extract.notifyToListener(true, null);
-                                }
-                            } else {
-                                mUiHandler.post(new Runnable(){
-                                    @Override
-                                    public void run() {
-                                        getZipPasswordDlg(mActivity, mGp, mMainPassword, zf, fh_item, ntfy_extract, true);
-                                    }
-                                });
-                                waitResponse(tc_extract, fh_item.getFileName());
+                                msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_file_copy_completed, fn);
+                                putProgressMessage(msg);
+                                mUtil.addLogMsg("I", msg);
                             }
                         } else {
-                            ntfy_extract.notifyToListener(true, null);
+                            msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_file_rename_failed, fn);
+                            putProgressMessage(msg);
+                            mUtil.addLogMsg("I", msg);
+                            try {from_bz.destroy();} catch (Exception e){};
+                            closeUiDialogView(500);
+                            return;
                         }
-                    } else {
-                        tc_extract.setDisabled();
-                        CompressionMethod cm=ZipUtil.getCompressionMethod(fh_item);
-                        CommonDialog.showCommonDialog(mFragmentManager, false, "E", mActivity.getString(R.string.msgs_zip_extract_file_error),
-                                "Unsupported compression method. code="+ ZipUtil.getCompressionMethodName(fh_item), null);
-                        notifyResponse(tc_extract, fh_item.getFileName());
                     }
-				}
-			}
-			if (p_ntfy!=null) {
-			    if (!isCancelled(tc)) p_ntfy.notifyToListener(true, null);
-            } else {
-                mUiHandler.post(new Runnable(){
-                    @Override
-                    public void run() {
-                        setUiEnabled();
-                        hideDialog();
-                    }
-                });
+                }
             }
+
+            if (result) {
+                if (move) {
+                    tc.setExtraDataObject(new Object[]{mGp.copyCutFilePath});
+                    CallBackListener from_bz_close_cbl=getZipProgressCallbackListenerWithPath(tc, from_bz, mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_zip_input_zip_updating));
+                    result=from_bz.close(from_bz_close_cbl);
+                    if (isCancelled(tc)) {
+                        try {from_bz.destroy();} catch (Exception e){};
+                        msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_zip_update_cancelled, mGp.copyCutFilePath);
+                        CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                        mUtil.addLogMsg("W", msg);
+                        return;
+                    } else {
+                        if (!result) {
+                            try {from_bz.destroy();} catch (Exception e){};
+                            msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_zip_update_failed, mCurrentFilePath);
+                            CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                            mUtil.addLogMsg("W", msg);
+                            return;
+                        } else {
+                            SafFile3 from_zip=new SafFile3(mActivity, mGp.copyCutFilePath);
+                            from_zip.delete();
+                            result=from_bz.getOutputZipFile().renameTo(from_zip);
+                            if (result) {
+                                msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_move_completed);
+                                mActivity.showSnackbar(mActivity, msg);
+                            } else {
+                                msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_file_rename_failed, mGp.copyCutFilePath);
+                                CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                                mUtil.addLogMsg("W", msg);
+                                return;
+                            }
+                        }
+                    }
+                    clearCopyCutItem(false);
+                } else {
+                    msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_copy_completed);
+                    mActivity.showSnackbar(mActivity, msg);
+                }
+            }
+
+            mUiHandler.post(new Runnable(){
+                @Override
+                public void run() {
+                    p_ntfy.notifyToListener(true, null);
+                    setUiEnabled();
+                    closeUiDialogView(100);
+                }
+            });
+
         } catch(Exception e) {
-            mUtil.addLogMsg("I", e.getMessage());
-            CommonUtilities.printStackTraceElement(mUtil, e.getStackTrace());
-            return false;
-		}
-		return true;
-	};
+            e.printStackTrace();
+            CommonDialog.showCommonDialog(mActivity.getSupportFragmentManager(), false, "E",
+                    "Error", e.getMessage()+"\n"+MiscUtil.getStackTraceString(e), null);
+        }
+    }
 
 	public void waitResponse(Object o, String id) throws InterruptedException {
 	    synchronized (o) {
-            mUtil.addDebugMsg(2, "I", "wait issued, id="+id);
+            mUtil.addDebugMsg(1, "I", "wait issued, id="+id);
 	        o.wait();
         }
     }
 
     public void notifyResponse(Object o, String id) {
         synchronized (o) {
-            mUtil.addDebugMsg(2, "I", "notify issued, id="+id);
+            mUtil.addDebugMsg(1, "I", "notify issued, id="+id);
             o.notify();
         }
     }
 
-    private boolean extractSingleZipItem(final ThreadCtrl tc, final String dest_path, final CustomZipFile zf, final String zip_curr_dir,
-                                         FileHeader fh_item, final NotifyEvent p_ntfy) {
-		String dir="", fn=fh_item.getFileName();
-		boolean result=true;
-		if (fh_item.getFileName().lastIndexOf("/")>0) {
-			dir=fh_item.getFileName().substring(0,fh_item.getFileName().lastIndexOf("/")).replace(zip_curr_dir,"");
-			fn=fh_item.getFileName().substring(fh_item.getFileName().lastIndexOf("/")+1);
-		}
-		String dest_dir=dest_path+"/"+dir;
-        final String w_path=dest_dir.endsWith("/")?dest_dir+fn:dest_dir+"/"+fn;
-        File lf=new File(w_path);
-        boolean replace_granted=true;
-        String msg=mActivity.getString(R.string.msgs_zip_extract_file_confirm_replace_copy);
-        if (!lf.isDirectory() && lf.exists()) replace_granted=confirmReplace(tc, "", msg, (dest_path+"/"+fn).replaceAll("//","/"));
-        if (replace_granted) {
-            if (copyZipItemToFile(tc, zf, fh_item, fh_item.getFileName(), dest_path+"/"+dir, fn)) {
-                if (!isCancelled(true, tc)) {
-                    putProgressMessage(String.format(mActivity.getString(R.string.msgs_zip_extract_file_was_extracted), fh_item.getFileName()));
-                    mUtil.addLogMsg("I", String.format(mActivity.getString(R.string.msgs_zip_extract_file_was_extracted), fh_item.getFileName()));
-                } else {
-                    result=false;
-                    mUiHandler.post(new Runnable(){
-                        @Override
-                        public void run() {
-                            setUiEnabled();
-                            hideDialog();
-                        }
-                    });
-                    if (p_ntfy!=null) p_ntfy.notifyToListener(false, null);
-                }
-            } else {
-                result=false;
-                if (!isCancelled(true, tc))
-                    CommonDialog.showCommonDialog(mFragmentManager, false, "E", mActivity.getString(R.string.msgs_zip_extract_file_was_failed), tc.getThreadMessage(), null);
-                mUiHandler.post(new Runnable(){
-                    @Override
-                    public void run() {
-                        setUiEnabled();
-                        hideDialog();
-                    }
-                });
-                if (p_ntfy!=null) p_ntfy.notifyToListener(false, null);
-            }
-        } else {
-            //Reject replace request
-            if (!isCancelled(true, tc)) {
-                putProgressMessage(mActivity.getString(R.string.msgs_zip_extract_file_was_not_replaced)+dest_path+"/"+dir+"/"+fn);
-                mUtil.addLogMsg("I", mActivity.getString(R.string.msgs_zip_extract_file_was_not_replaced)+dest_path+"/"+dir+"/"+fn);
-            }
-        }
-        if (isCancelled(true, tc)) {
-            result=false;
-            CommonDialog.showCommonDialog(mFragmentManager, false, "W", mActivity.getString(R.string.msgs_zip_extract_file_was_cancelled), "", null);
-            mUiHandler.post(new Runnable(){
-                @Override
-                public void run() {
-                    setUiEnabled();
-                    hideDialog();
-                }
-            });
-            if (p_ntfy!=null) p_ntfy.notifyToListener(false, null);
-        }
-		return result;
-	};
-
-    static final private int CONFIRM_RESPONSE_CANCEL=-99;
-	static final private int CONFIRM_RESPONSE_YES=1;
-	static final private int CONFIRM_RESPONSE_YESALL=2;
-	static final private int CONFIRM_RESPONSE_NO=-1;
-	static final private int CONFIRM_RESPONSE_NOALL=-2;
-	private int mConfirmResponse=0;
-    private boolean confirmReplaceX(final ThreadCtrl tc, final String dest_dir, final String dest_name) {
-        return true;
-    }
-    private boolean confirmReplace(final ThreadCtrl tc, final String title, final String message, final String dest_path) {
-//		final String w_path=dest_dir.endsWith("/")?dest_dir+dest_name:dest_dir+"/"+dest_name;
-		boolean result=false;
-		mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" entered, response="+mConfirmResponse);
-        if (mConfirmResponse!=CONFIRM_RESPONSE_YESALL && mConfirmResponse!=CONFIRM_RESPONSE_NOALL) {
-            mUiHandler.post(new Runnable(){
-                @Override
-                public void run() {
-                    mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" show confirm");
-                    mDialogProgressSpinView.setVisibility(LinearLayout.GONE);
-                    mDialogConfirmView.setVisibility(LinearLayout.VISIBLE);
-                    mDialogConfirmCancel.setOnClickListener(new OnClickListener(){
-                        @Override
-                        public void onClick(View v) {
-                            mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
-                            mDialogConfirmView.setVisibility(LinearLayout.GONE);
-                            mConfirmResponse=CONFIRM_RESPONSE_CANCEL;
-                            tc.setDisabled();
-                            synchronized(tc) {tc.notify();}
-                        }
-                    });
-
-                    mDialogConfirmYes.setOnClickListener(new OnClickListener(){
-                        @Override
-                        public void onClick(View v) {
-                            mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
-                            mDialogConfirmView.setVisibility(LinearLayout.GONE);
-                            mConfirmResponse=CONFIRM_RESPONSE_YES;
-                            synchronized(tc) {tc.notify();}
-                        }
-                    });
-                    mDialogConfirmYesAll.setOnClickListener(new OnClickListener(){
-                        @Override
-                        public void onClick(View v) {
-                            mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
-                            mDialogConfirmView.setVisibility(LinearLayout.GONE);
-                            mConfirmResponse=CONFIRM_RESPONSE_YESALL;
-                            synchronized(tc) {tc.notify();}
-                        }
-                    });
-                    mDialogConfirmNo.setOnClickListener(new OnClickListener(){
-                        @Override
-                        public void onClick(View v) {
-                            mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
-                            mDialogConfirmView.setVisibility(LinearLayout.GONE);
-                            mConfirmResponse=CONFIRM_RESPONSE_NO;
-                            synchronized(tc) {tc.notify();}
-                        }
-                    });
-                    mDialogConfirmNoAll.setOnClickListener(new OnClickListener(){
-                        @Override
-                        public void onClick(View v) {
-                            mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
-                            mDialogConfirmView.setVisibility(LinearLayout.GONE);
-                            mConfirmResponse=CONFIRM_RESPONSE_NOALL;
-                            synchronized(tc) {tc.notify();}
-                        }
-                    });
-                    mDialogConfirmMsg.setText(message);
-                    mDialogConfirmMsg.requestLayout();
-                    mDialogConfirmFilePath.setText(dest_path);
-                    mDialogConfirmFilePath.requestLayout();
-                }
-            });
-
-            synchronized(tc) {
-                try {
-                    tc.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (mConfirmResponse==CONFIRM_RESPONSE_CANCEL) {
-            } else if (mConfirmResponse==CONFIRM_RESPONSE_YES) {
-                result=true;
-            } else if (mConfirmResponse==CONFIRM_RESPONSE_YESALL) {
-                result=true;
-            } else if (mConfirmResponse==CONFIRM_RESPONSE_NO) {
-            } else if (mConfirmResponse==CONFIRM_RESPONSE_NOALL) {
-            }
-            mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" result="+result+", response="+mConfirmResponse);
-            return result;
-        } else {
-            if (mConfirmResponse==CONFIRM_RESPONSE_YESALL) {
-                result=true;
-            }
-            mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName()+" result="+result+", response="+mConfirmResponse);
-            return result;
-        }
-//		return result;
-	};
-
-	static public void getZipPasswordDlg(Activity mActivity, GlobalParameters mGp, String mMainPassword,
+    static public void getZipPasswordDlg(Activity mActivity, GlobalParameters mGp, String mMainPassword,
                                          final CustomZipFile zf, final FileHeader fh, final NotifyEvent p_ntfy,
                                          final boolean thread_resp) {
 		final Dialog dialog = new Dialog(mActivity, mGp.applicationTheme);
@@ -3213,7 +3367,8 @@ public class ZipFileManager {
     		dlg_filename.setText("");
     	}
 
-    	final EditText dlg_pswd=(EditText)dialog.findViewById(R.id.password_prompt_dlg_itemname);
+    	final TextInputLayout ll_dlg_pswd=(TextInputLayout)dialog.findViewById(R.id.password_prompt_dlg_itemname_view);
+    	final TextInputEditText dlg_pswd=(TextInputEditText)dialog.findViewById(R.id.password_prompt_dlg_itemname);
 
     	final Button dlg_cancel=(Button)dialog.findViewById(R.id.password_prompt_dlg_cancel_btn);
     	final Button dlg_ok=(Button)dialog.findViewById(R.id.password_prompt_dlg_ok_btn);
@@ -3223,10 +3378,35 @@ public class ZipFileManager {
 
     	CommonDialog.setDlgBoxSizeLimit(dialog, true);
 
-    	dlg_pswd.setText(mMainPassword);
-        dlg_pswd.setEnabled(true);
-    	verifyZipPassword(mActivity, zf, fh, mMainPassword, dlg_ok, dlg_msg);
-    	dlg_pswd.addTextChangedListener(new TextWatcher(){
+        if (mMainPassword!=null) {
+            dlg_pswd.setText(mMainPassword);
+            if (isCorrectZipFilePassword(zf, fh, dlg_pswd.getText().toString())) {
+                CommonDialog.setViewEnabled(mActivity, dlg_ok, true);
+                dlg_msg.setText("");
+            } else {
+                CommonDialog.setViewEnabled(mActivity, dlg_ok, false);
+                dlg_msg.setText(R.string.msgs_zip_extract_zip_password_wrong);
+            }
+        } else {
+            CommonDialog.setViewEnabled(mActivity, dlg_ok, false);
+            dlg_msg.setText(R.string.msgs_zip_extract_zip_password_not_specified);
+        }
+
+        ThreadCtrl tc=new ThreadCtrl();
+        ll_dlg_pswd.setEndIconOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tc.setDisabled();
+                if (dlg_pswd.getTransformationMethod()!=null) {
+                    dlg_pswd.setTransformationMethod(null);
+                } else {
+                    dlg_pswd.setTransformationMethod(new PasswordTransformationMethod());
+                }
+                tc.setEnabled();
+            }
+        });
+
+        dlg_pswd.addTextChangedListener(new TextWatcher(){
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 			}
@@ -3235,12 +3415,14 @@ public class ZipFileManager {
 			}
 			@Override
 			public void afterTextChanged(Editable s) {
-			    if (s.toString().length()>0) {
-//			        verifyZipPassword(mActivity, zf, fh, s.toString(), dlg_ok, dlg_msg);
-                    CommonDialog.setViewEnabled(mActivity, dlg_ok, true);
-                    dlg_msg.setText("");
-                } else {
-			        CommonDialog.setViewEnabled(mActivity, dlg_ok, false);
+			    if (tc.isEnabled()) {
+                    if (s.toString().length()>0) {
+                        CommonDialog.setViewEnabled(mActivity, dlg_ok, true);
+                        dlg_msg.setText("");
+                    } else {
+                        CommonDialog.setViewEnabled(mActivity, dlg_ok, false);
+                        dlg_msg.setText(R.string.msgs_zip_extract_zip_password_not_specified);
+                    }
                 }
 			}
     	});
@@ -3287,22 +3469,7 @@ public class ZipFileManager {
     	dialog.show();
 	};
 
-	private static void verifyZipPassword(final Activity a, final CustomZipFile zf, final FileHeader fh, String pswd, Button dlg_ok, TextView dlg_msg) {
-		if (pswd.length()>0) {
-			if (isCorrectZipFilePassword(zf, fh, pswd)) {
-			    CommonDialog.setViewEnabled(a, dlg_ok, true);
-				dlg_msg.setText("");
-			} else {
-                CommonDialog.setViewEnabled(a, dlg_ok, false);
-				dlg_msg.setText(R.string.msgs_zip_extract_zip_password_wrong);
-			}
-		} else {
-            CommonDialog.setViewEnabled(a, dlg_ok, false);
-			dlg_msg.setText(R.string.msgs_zip_extract_zip_password_not_specified);
-		}
-	}
-
-	public ArrayList<ZipFileViewerItem> getZipFileViewerList() {
+    public ArrayList<ZipFileViewerItem> getZipFileViewerList() {
 	    return zipFileViewerList;
     }
 
@@ -3324,7 +3491,7 @@ public class ZipFileManager {
 				byte[] buff=new byte[512];
 				int rc=is.read(buff);
 				result=true;
-//				is.close();
+				is.close();
 			}
 		} catch (ZipException e) {
 //			e.printStackTrace();
@@ -3348,11 +3515,15 @@ public class ZipFileManager {
 					for (TreeFilelistItem tfli:tfa.getDataList()) {
 						if (tfli.isChecked()) {
 							if (tfli.isDirectory()) {
+							    String n1=fh.getFileName();
+                                String n2=tfli.getZipFileName();
 								if (fh.getFileName().startsWith(tfli.getZipFileName()+"/")) {
 									sel_fh.add(fh);
 									break;
-								}
+                                }
 							} else {
+                                String n1=fh.getFileName();
+                                String n2=tfli.getZipFileName();
 								if (fh.getFileName().equals(tfli.getZipFileName())) {
 									sel_fh.add(fh);
 									break;
@@ -3396,13 +3567,7 @@ public class ZipFileManager {
 		setUiDisabled();
 		showDialogProgress();
 		final ThreadCtrl tc=new ThreadCtrl();
-		mDialogProgressSpinCancel.setEnabled(true);
-		mDialogProgressSpinCancel.setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View v) {
-				confirmCancel(tc,mDialogProgressSpinCancel);
-			}
-		});
+		mActivity.createDialogCancelListener(tc);
 		Thread th=new Thread(){
 			@Override
 			public void run() {
@@ -3420,10 +3585,7 @@ public class ZipFileManager {
                         if (isCancelled(true, tc)) {
                             CommonDialog.showCommonDialog(mFragmentManager, false, "I",
                                     String.format(mActivity.getString(R.string.msgs_zip_delete_file_was_cancelled),fh.getFileName()), "", null);
-                            try {
-                                bzf.destroy();
-                                out_temp.deleteIfExists();
-                            } catch(ZipException e) {}
+                            try {bzf.destroy();} catch(ZipException e) {}
                             break;
                         } else {
                             bzf.removeItem(fh);
@@ -3436,7 +3598,7 @@ public class ZipFileManager {
                         if (bzf.isAborted() || bzf.close(cbl)) {
                             if (!bzf.isAborted()) {
                                 renameBufferedZipFile(mGp, mUtil, zip_file_path, out_temp.getPath(), zip_file_name);
-                                showToast(mActivity, mActivity.getString(R.string.msgs_zip_delete_file_completed));
+                                mActivity.showSnackbar(mActivity, mActivity.getString(R.string.msgs_zip_delete_file_completed));
                             }
                             else {
                                 CommonDialog.showCommonDialog(mFragmentManager, false, "W", mActivity.getString(R.string.msgs_zip_write_zip_file_canelled), "", null);
@@ -3483,70 +3645,40 @@ public class ZipFileManager {
     }
 
     private void putProgressMessage(final String msg) {
-        putProgressMessage(mDialogProgressSpinMsg2, msg);
-    }
-
-    private void putProgressMessage(final TextView tv, final String msg) {
-        mUiHandler.post(new Runnable(){
-            @Override
-            public void run() {
-                tv.setText(msg);
-                tv.requestLayout();
-            }
-        });
+        mActivity.putProgressMessage(msg);
     }
 
     final private void refreshOptionMenu() {
 		mActivity.invalidateOptionsMenu();
 	};
 
-	private void setUiEnabled() {
-		mActivity.setUiEnabled();
-		hideDialog();
-		mZipFileSpinner.setEnabled(true);
-		refreshOptionMenu();
-	};
+    private void setUiEnabled() {
+        mActivity.setUiEnabled();
+        mTreeFilelistAdapter.setCheckBoxEnabled(isUiEnabled());
+        mTreeFilelistAdapter.notifyDataSetChanged();
+        hideDialog();
+        refreshOptionMenu();
+//		Thread.dumpStack();
+    }
 
-	private void setUiDisabled() {
-		mActivity.setUiDisabled();
-		mZipFileSpinner.setEnabled(false);
-		refreshOptionMenu();
-	};
+    private void setUiDisabled() {
+        mActivity.setUiDisabled();
+        mTreeFilelistAdapter.setCheckBoxEnabled(false);
+        mTreeFilelistAdapter.notifyDataSetChanged();
+        refreshOptionMenu();
+//		Thread.dumpStack();
+    }
 
 	private boolean isUiEnabled() {
 		return mActivity.isUiEnabled();
 	};
 
 	public void showDialogProgress() {
-		mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
-        mMainDialogView.bringToFront();
-        mMainDialogView.setBackgroundColor(mGp.themeColorList.text_background_color);
+	    mActivity.showDialogProgress();
     };
 
     private void hideDialog() {
-		mDialogProgressSpinView.setVisibility(LinearLayout.GONE);
-		mDialogConfirmView.setVisibility(LinearLayout.GONE);
-	};
-
-	private void openSppecificDirectory(String dir_name, String file_name) {
-		ArrayList<TreeFilelistItem> tfl=createTreeFileList(mZipFileList, dir_name);
-		mTreeFilelistAdapter.setDataList(tfl);
-		mCurrentDirectory.setText("/"+dir_name);
-		int sel_pos=0;
-		if (tfl.size()>0) {
-			if (!file_name.equals("")) {
-				for(int i=0;i<tfl.size();i++) {
-					TreeFilelistItem tfli=tfl.get(i);
-					if (tfli.getName().equals(file_name)) {
-						sel_pos=i;
-//						tfli.setChecked(true);
-						break;
-					}
-				}
-			}
-			mTreeFilelistView.setSelection(sel_pos);
-		}
-		setTopUpButtonEnabled(true);
+        mActivity.hideDialog();
 	};
 
 	public void setContextButtonPasteEnabled(boolean enabled) {
@@ -3622,6 +3754,7 @@ public class ZipFileManager {
 					String dir=tfi.getPath().equals("")?tfi.getName():tfi.getPath()+"/"+tfi.getName();
 					ArrayList<TreeFilelistItem> tfl=createTreeFileList(mZipFileList, dir);
 					mTreeFilelistAdapter.setDataList(tfl);
+                    mTreeFilelistAdapter.setZipArchiveFileName(mCurrentFilePath);
 					mCurrentDirectory.setText("/"+dir);
 					if (tfl.size()>0) {
 						mTreeFilelistView.setSelection(0);
@@ -3656,13 +3789,16 @@ public class ZipFileManager {
 			@Override
 			public void onClick(View v) {
 				if (!isUiEnabled()) return;
+                FileManagerDirectoryListItem dli=mDirectoryList.get(0);
 				CommonUtilities.clearDirectoryItem(mDirectoryList, mZipFileSpinner.getSelectedItem().toString()+"/");
 				String dir="";
 				ArrayList<TreeFilelistItem> tfl=createTreeFileList(mZipFileList, dir);
 				mTreeFilelistAdapter.setDataList(tfl);
+                mTreeFilelistAdapter.setZipArchiveFileName(mCurrentFilePath);
 				mCurrentDirectory.setText("/");
 				setTopUpButtonEnabled(false);
-				mTreeFilelistView.setSelectionFromTop(0, 0);
+                mTreeFilelistView.setSelectionFromTop(dli.pos_x, dli.pos_y);
+//				mTreeFilelistView.setSelectionFromTop(0, 0);
 				setContextCopyCutPasteButton(mTreeFilelistAdapter);
 			}
         });
@@ -3682,6 +3818,7 @@ public class ZipFileManager {
 							CommonUtilities.getDirectoryItem(mDirectoryList, mZipFileSpinner.getSelectedItem().toString()+"/"+n_dir);
 					ArrayList<TreeFilelistItem> tfl=createTreeFileList(mZipFileList, n_dir);
 					mTreeFilelistAdapter.setDataList(tfl);
+                    mTreeFilelistAdapter.setZipArchiveFileName(mCurrentFilePath);
 					mCurrentDirectory.setText("/"+n_dir);
 
 					if (n_dir.equals("")) {
@@ -3699,6 +3836,7 @@ public class ZipFileManager {
 //					Log.v("","s1");
 					ArrayList<TreeFilelistItem> tfl=createTreeFileList(mZipFileList, "");
 					mTreeFilelistAdapter.setDataList(tfl);
+                    mTreeFilelistAdapter.setZipArchiveFileName(mCurrentFilePath);
 					mCurrentDirectory.setText("/");
 					setTopUpButtonEnabled(false);
 
@@ -3874,6 +4012,7 @@ public class ZipFileManager {
 					String dir=tfi.getPath().equals("")?tfi.getName():tfi.getPath()+"/"+tfi.getName();
 					ArrayList<TreeFilelistItem> tfl=createTreeFileList(mZipFileList, dir);
 					mTreeFilelistAdapter.setDataList(tfl);
+                    mTreeFilelistAdapter.setZipArchiveFileName(mCurrentFilePath);
 					mCurrentDirectory.setText("/"+dir);
 					if (tfl.size()>0) mTreeFilelistView.setSelection(0);
 					setTopUpButtonEnabled(true);
@@ -3957,7 +4096,7 @@ public class ZipFileManager {
             InputStream wis = (InputStream) zf.getInputStream(fh);
             byte[] buff=new byte[100];
             int rc=wis.read(buff);
-            cu.addDebugMsg(2,"I","BZIP2 Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
+            cu.addDebugMsg(1,"I","BZIP2 Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
             wis.close();
         }
 
@@ -3971,7 +4110,7 @@ public class ZipFileManager {
             InputStream wis = (InputStream) zf.getInputStream(fh);
             byte[] buff=new byte[100];
             int rc=wis.read(buff);
-            cu.addDebugMsg(2,"I","DEFLATE64 Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
+            cu.addDebugMsg(1,"I","DEFLATE64 Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
             wis.close();
         }
 
@@ -3985,7 +4124,7 @@ public class ZipFileManager {
             InputStream wis = (InputStream) zf.getInputStream(fh);
             byte[] buff=new byte[100];
             int rc=wis.read(buff);
-            cu.addDebugMsg(2,"I","LZMA Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
+            cu.addDebugMsg(1,"I","LZMA Compressed data (100 bytes from the beginning):\n"+StringUtil.getDumpFormatHexString(buff, 0, rc));
             wis.close();
         }
 
@@ -4006,7 +4145,7 @@ public class ZipFileManager {
         rc=bis.read(buff, 0, 4);
         int dict_size = getIntFromLittleEndian(buff, 0, rc);
         if (cu.getSettingLogLevel()>=2)
-            cu.addDebugMsg(2,"I", "lzma_ver=0x"+StringUtil.getHexString(lzma_ver, 0, 2)+", lzma_prop_size="+lzma_prop_size+
+            cu.addDebugMsg(1,"I", "lzma_ver=0x"+StringUtil.getHexString(lzma_ver, 0, 2)+", lzma_prop_size="+lzma_prop_size+
                     ", propCode="+String.format("0x%h", props)+", uncomp_size="+fh.getUncompressedSize()+", dict_size="+dict_size);
 
         return new LZMAInputStream(bis, fh.getUncompressedSize(), props, dict_size);
@@ -4033,11 +4172,6 @@ public class ZipFileManager {
 
     public boolean copyZipItemToFile(ThreadCtrl tc, CustomZipFile zf, FileHeader fh, String zip_file_name,
                                      String dest_path, String dest_file_name) {
-	    return copyZipItemToFile(tc, zf, fh, zip_file_name, dest_path, dest_file_name, mDialogProgressSpinMsg2);
-    }
-
-    public boolean copyZipItemToFile(ThreadCtrl tc, CustomZipFile zf, FileHeader fh, String zip_file_name,
-                                     String dest_path, String dest_file_name, TextView msg_view) {
 		boolean result=false;
 		long b_time=System.currentTimeMillis();
 		try {
@@ -4059,14 +4193,14 @@ public class ZipFileManager {
                     out_file_work.deleteIfExists();
                     out_file_work.createNewFile();
                     OutputStream os=out_file_work.getOutputStream();
-                    copyFile(tc, fh.getUncompressedSize(), is, os, cbl);
+                    copyFile(mActivity, tc, fh.getUncompressedSize(), is, os, cbl);
                     if (isCancelled(true, tc)) out_file_work.deleteIfExists();
                     else {
                         SafFile3 out_file_sf=new SafFile3(mActivity, dest_fpath);
                         boolean rc_rename=out_file_work.renameTo(out_file_sf);
                         if (!rc_rename && !out_file_work.exists() && out_file_sf.exists()) {
                             result=true;
-                            LocalFileManager.scanMediaFile(mGp, mUtil, out_file_sf.getPath());
+                            ActivityMain.scanMediaFile(mGp, mUtil, out_file_sf.getPath());
                         }
                     }
                 } else {
@@ -4074,7 +4208,7 @@ public class ZipFileManager {
                     SafFile3 out_file_work=new SafFile3(mActivity, work_fpath);
                     File out_os_file=new File(work_fpath);
                     OutputStream os=new FileOutputStream(out_os_file);
-                    copyFile(tc, fh.getUncompressedSize(), is, os, cbl);
+                    copyFile(mActivity, tc, fh.getUncompressedSize(), is, os, cbl);
                     if (isCancelled(true, tc)) out_file_work.deleteIfExists();
                     else {
                         SafFile3 out_file_sf=new SafFile3(mActivity, dest_fpath);
@@ -4082,7 +4216,7 @@ public class ZipFileManager {
                         out_file_sf.deleteIfExists();
                         out_file_work.moveTo(out_file_sf);
                         result=true;
-                        LocalFileManager.scanMediaFile(mGp, mUtil, out_file_sf.getPath());
+                        ActivityMain.scanMediaFile(mGp, mUtil, out_file_sf.getPath());
                     }
                 }
 			}
@@ -4127,13 +4261,7 @@ public class ZipFileManager {
                         mMainPassword=pswd;
                     }
                     final ThreadCtrl tc=new ThreadCtrl();
-                    mDialogProgressSpinCancel.setEnabled(true);
-                    mDialogProgressSpinCancel.setOnClickListener(new OnClickListener(){
-                        @Override
-                        public void onClick(View v) {
-                            confirmCancel(tc,mDialogProgressSpinCancel);
-                        }
-                    });
+                    mActivity.createDialogCancelListener(tc);
                     setUiDisabled();
                     showDialogProgress();
                     Thread th=new Thread(){
@@ -4144,11 +4272,11 @@ public class ZipFileManager {
                             boolean extract_rc=true;
                             if (ef.exists()) {
                                 if (ef.lastModified()!=tfli.getLastModified() || ef.length()!=tfli.getLength()) {
-                                    extract_rc=copyZipItemToFile(tc, zf, fh, e_name, work_dir, f_name);
+                                    extract_rc= copyZipItemToFile(tc, zf, fh, e_name, work_dir, f_name);
                                     ef.setLastModified(tfli.getLastModified());
                                 }
                             } else {
-                                extract_rc=copyZipItemToFile(tc, zf, fh, e_name, work_dir, f_name);
+                                extract_rc= copyZipItemToFile(tc, zf, fh, e_name, work_dir, f_name);
                                 ef.setLastModified(tfli.getLastModified());
                             }
                             final boolean rc=extract_rc;
@@ -4206,21 +4334,7 @@ public class ZipFileManager {
             mUtil.addLogMsg("I", e.getMessage());
             CommonUtilities.printStackTraceElement(mUtil, e.getStackTrace());
         }
-//		if (mt != null) {
-//		} else {
-//			CommonDialog.showCommonDialog(mFragmentManager, false,"E",
-//					String.format(mActivity.getString(R.string.msgs_zip_specific_extract_mime_type_not_found),f_name),"",null);
-//		}
 
 	};
-
-    private void showToast(Activity a, String msg) {
-        mUiHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                CommonDialog.showToastLong(a, msg);
-            }
-        });
-    }
 
 }

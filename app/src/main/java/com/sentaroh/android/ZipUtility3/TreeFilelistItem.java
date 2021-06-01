@@ -86,10 +86,6 @@ public class TreeFilelistItem
     public static final int ENCRYPTION_METHOD_ZIP= ZipFileListItem.ENCRPTION_METHOD_ZIP;
     private int zipFileEncryptionMethod=0;
 
-	private String sortKeyName="";
-	private String sortKeySize="";
-	private String sortKeyTime="";
-
 	public void dump(String id) {
 		String did=(id+"            ").substring(0,12);
 		Log.v("TreeFileListItem",did+"FileName="+fileName+", filePath="+filePath);
@@ -162,39 +158,39 @@ public class TreeFilelistItem
         fileLastModDate=dt[0];
         fileLastModTime=dt[1];
         if (isDirectory) {
-			createSortKey("D");
+//			createSortKey("D");
 		} else {
 			fileExt=fileName.lastIndexOf(".")>0?fileName.substring(fileName.lastIndexOf(".")+1).toLowerCase():"";
 			if (!fileExt.equals("") || fileExt.length()<=5) {
 				String mt= MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExt);
 				mimeType=(mt==null)?"":mt;
 			}
-			createSortKey("F");
+//			createSortKey("F");
 		}
 	};
 
 	public void setLength(long fl) {
 	    fileLength=fl;
         fileSize= MiscUtil.convertFileSize(fileLength);
-        if (isDirectory) {
-            createSortKey("D");
-        } else {
-            createSortKey("F");
-        }
+//        if (isDirectory) {
+//            createSortKey("D");
+//        } else {
+//            createSortKey("F");
+//        }
     }
 
-	private void createSortKey(String type) {
-		StringBuilder sb=new StringBuilder(256);
-		sortKeyName=sb.append(type).append(fileName).toString();
-		sb.setLength(0);
-		String tfl=sb.append("000000000").append(String.valueOf(fileLength)).toString();
-		sb.setLength(0);
-		sortKeySize=sb.append(tfl.substring(tfl.length()-10)).append(type).append(fileName).toString();
-		sb.setLength(0);
-		tfl=sb.append("0000000000000000000").append(String.valueOf(lastModdate)).toString();
-		sb.setLength(0);
-		sortKeyTime=sb.append(tfl.substring(tfl.length()-20)).append(type).append(fileName).toString();
-	};
+//	private void createSortKey(String type) {
+//		StringBuilder sb=new StringBuilder(512);
+//		sortKeyName=sb.append(type).append(fileName).toString();
+//		sb.setLength(0);
+//		String tfl=sb.append("000000000").append(String.valueOf(fileLength)).toString();
+//		sb.setLength(0);
+//		sortKeySize=sb.append(tfl.substring(tfl.length()-10)).append(type).append(fileName).toString();
+//		sb.setLength(0);
+//		tfl=sb.append("0000000000000000000").append(String.valueOf(lastModdate)).toString();
+//		sb.setLength(0);
+//		sortKeyTime=sb.append(tfl.substring(tfl.length()-20)).append(type).append(fileName).toString();
+//	};
 	
 	public String getName(){return fileName;}
 	public long getLength(){return fileLength;}
@@ -285,19 +281,10 @@ public class TreeFilelistItem
 	public String getFileExtention() {return fileExt;}
 //	public void setFileExtention(String p) {fileExt=p;}
 
-	public String getSortKeyName() {return sortKeyName;}
-//	public void setSortKeyName(String p) {sortKeyName=p;}
-
-	public String getSortKeySize() {return sortKeySize;}
-//	public void setSortKeySize(String p) {sortKeySize=p;}
-
-	public String getSortKeyTime() {return sortKeyTime;}
-//	public void setSortKeyTime(String p) {sortKeyTime=p;}
-
 	@Override
 	public int compareTo(TreeFilelistItem o) {
 		if(this.fileName != null) {
-			return sortKeyName.compareToIgnoreCase(o.getSortKeyName());
+			return getName().compareToIgnoreCase(o.getName());
 		} else 
 			throw new IllegalArgumentException();
 	}

@@ -21,6 +21,7 @@
         <string name="msgs_main_about_title">ZipUtility3について</string>
         <string name="msgs_main_confirm_cancel">キャンセルしてよろしいでしょうか？</string>
         <string name="msgs_main_theme_changed_msg">テーマ、言語またはフォントサイズを変更した場合はアプリケーションを再起動するまで反映されません。\n今すぐにアプリを再起動しますか？</string>
+        <string name="msgs_main_snackbar_action_hide">隠す</string>
         <string name="msgs_main_select_file">ZIPファイルの選択</string>
         <string name="msgs_main_invalid_zip_file_specified">指定されたファイルは、ZIPファイルではありません。</string>
         <string name="msgs_main_tab_name_local">ローカルフォルダー</string>
@@ -34,7 +35,6 @@
         <string name="msgs_main_local_file_ccmenu_open_directory">ディレクトリーを開く</string>
         <string name="msgs_main_local_file_ccmenu_extract">展開</string>
         <string name="msgs_main_local_file_ccmenu_delete">削除</string>
-        <string name="deleted_msgs_main_local_file_ccmenu_scan_media_store">スキャン メディア ファイル</string>
         <string name="msgs_main_local_file_ccmenu_compress">圧縮</string>
         <string name="msgs_main_local_file_ccmenu_copy">クリップボードにコピー</string>
         <string name="msgs_main_local_file_ccmenu_cut">クリップボードに切取り</string>
@@ -147,7 +147,8 @@
         <string name="msgs_zip_parm_dlg_title">ZIPパラメーターの指定</string>
         <string name="msgs_zip_parm_pswd_not_specified">パスワードを指定してください。</string>
         <string name="msgs_zip_parm_confirm_pswd_unmatched">パスワードと確認用パスワードが一致しません。</string>
-        <string name="msgs_zip_parm_zip_comp_level_promopt">圧縮レベルの選択</string>
+        <string name="msgs_zip_parm_password_hint">パスワード</string>
+        <string name="msgs_zip_parm_confirm_password_hint">確認パスワード</string>
         <string name="msgs_zip_parm_zip_comp_level_fastest">FASTEST</string>
         <string name="msgs_zip_parm_zip_comp_level_fast">FAST</string>
         <string name="msgs_zip_parm_zip_comp_level_normal">NORMAL</string>
@@ -195,6 +196,49 @@
         <string name="msgs_local_file_add_file_cancelled">%sの圧縮が中止されました。</string>
         <string name="msgs_local_file_add_file_begin">圧縮を開始しています。</string>
         <string name="msgs_local_file_add_file_completed">圧縮が完了しました。</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_move_started">ファイルの移動を開始しました。</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_copy_started">ファイルのコピーを開始しました。</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_file_copying">%1$sをコピーしています。%2$s%%完了。</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_file_copy_cancelled">%sのコピーがキャンセルされました。</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_file_copy_failed">%sのコピーが失敗しました。</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_file_move_cancelled">%sの移動がキャンセルされました。</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_file_rename_cancelled">%sの改名が失敗しました。</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_zip_output_cancelled">%sの更新がキャンセルされました。</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_zip_output_failed">%sの更新が失敗しました。</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_copy_completed">コピーが終了しました。</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_file_copy_completed">ファイルをコピーしました。ファイル=%s</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_file_move_completed">ファイルを移動しました。ファイル=%s</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_move_completed">移動が終了しました。</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_zip_output_updating">出力ZIPファイルの更新中, File=%1$s %2$s%%</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_zip_input_updating">切取り元のZIPファイルを更新中, File=%1$s %2$s%%</string>
+        <string name="msgs_zip_file_manager_local_to_zip_move_started">ファイルの移動を開始しました。</string>
+        <string name="msgs_zip_file_manager_local_to_zip_copy_started">ファイルのコピーを開始しました。</string>
+        <string name="msgs_zip_file_manager_local_to_zip_file_copying">ファイルをコピーしています。ファイル=%1$s, %2$s%% 完了</string>
+        <string name="msgs_zip_file_manager_local_to_zip_file_copy_completed">%sをコピーしました。</string>
+        <string name="msgs_zip_file_manager_local_to_zip_file_replace_rejected">%sの上書きが拒否されました。</string>
+        <string name="msgs_zip_file_manager_local_to_zip_file_move_cancelled">移動がキャンセルされました。ファイル=%s</string>
+        <string name="msgs_zip_file_manager_local_to_zip_file_copy_cancelled">コピーがキャンセルされました。ファイル=%s</string>
+        <string name="msgs_zip_file_manager_local_to_zip_file_error_occured">エラーが発生しました。ファイル=%s</string>
+        <string name="msgs_zip_file_manager_local_to_zip_move_completed">移動が終了しました。</string>
+        <string name="msgs_zip_file_manager_local_to_zip_copy_completed">コピーが終了しました。</string>
+        <string name="msgs_zip_file_manager_local_to_zip_update_failed">ZIPファイルの更新に失敗しました。</string>
+        <string name="msgs_zip_file_manager_local_to_zip_create_failed">BufferedZipFile3の作成に失敗しました。</string>
+        <string name="msgs_zip_file_manager_local_to_zip_delete_moved_directory">移動したディレクトリーを削除しています。ディレクトリー=%s</string>
+        <string name="msgs_zip_file_manager_local_to_zip_delete_moved_file">移動したファイルを削除しています。ファイル=%s</string>
+        <string name="msgs_zip_file_manager_zip_to_local_move_started">ファイルの移動を開始しました。</string>
+        <string name="msgs_zip_file_manager_zip_to_local_copy_started">ファイルのコピーを開始しました。</string>
+        <string name="msgs_zip_file_manager_zip_to_local_copy_cancelled">%sのコピーがキャンセルされました。</string>
+        <string name="msgs_zip_file_manager_zip_to_local_copying">%1$sをコピーしています。%2$s%%完了。</string>
+        <string name="msgs_zip_file_manager_zip_to_local_move_cancelled">%sの移動がキャンセルされました。</string>
+        <string name="msgs_zip_file_manager_zip_to_local_copy_failed">%sのコピーが失敗しました。</string>
+        <string name="msgs_zip_file_manager_zip_to_local_file_move_completed">ファイルを移動しました。ファイル=%s</string>
+        <string name="msgs_zip_file_manager_zip_to_local_file_copy_completed">ファイルをコピーしました。ファイル=%s</string>
+        <string name="msgs_zip_file_manager_zip_to_local_zip_update_cancelled">%sの更新がキャンセルされました。</string>
+        <string name="msgs_zip_file_manager_zip_to_local_zip_update_failed">%sの更新が失敗しました。</string>
+        <string name="msgs_zip_file_manager_zip_to_local_move_completed">移動が終了しました。</string>
+        <string name="msgs_zip_file_manager_zip_to_local_file_rename_failed">%sの改名が失敗しました。</string>
+        <string name="msgs_zip_file_manager_zip_to_local_copy_completed">コピーが終了しました。</string>
+        <string name="msgs_zip_file_manager_zip_to_local_zip_input_zip_updating">切取り元のZIPファイルを更新中, File=%1$s %2$s%%</string>
         <string name="msgs_local_file_share_file_max_file_count_reached">共有できるファイルの数は100までです。</string>
         <string name="msgs_local_file_share_file_no_file_selected">共有するファイルが選択されていません。</string>
         <string name="msgs_local_file_ignore_android_directory">Androidディレクトリーはカット/削除/改名はできません。</string>

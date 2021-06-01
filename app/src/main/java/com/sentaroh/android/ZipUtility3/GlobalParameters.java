@@ -32,6 +32,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.media.MediaScannerConnection;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.LocaleList;
 import android.os.PowerManager;
@@ -73,6 +74,8 @@ public class GlobalParameters {
 	public Context appContext=null;
 	
 	public boolean debuggable=false;
+
+	public String primaryStoragePrefix="";
 
 	public SafManager3 safMgr=null;
     public MediaScannerConnection mediaScanner = null;
@@ -158,6 +161,8 @@ public class GlobalParameters {
         appContext=c;
         uiHandler=new Handler();
         debuggable=isDebuggable();
+
+        primaryStoragePrefix= Environment.getExternalStorageDirectory().getPath();
 
         final LogUtil slf4j_lu = new LogUtil(appContext, "SLF4J");
         Slf4jLogWriter slf4j_lw=new Slf4jLogWriter(slf4j_lu);
@@ -271,6 +276,8 @@ public class GlobalParameters {
     public void saveLocalSortParameter(Context c, CustomTreeFilelistAdapter ctfa) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
         SharedPreferences.Editor edit=prefs.edit();
+        localSortOrderAsc=ctfa.isSortAscendant();
+        localSortKey=ctfa.getSortKey();
         edit.putBoolean(SORT_PARM_LOCAL_ASC_KEY, ctfa.isSortAscendant());
         edit.putInt(SORT_PARM_LOCAL_SORT_KEY, ctfa.getSortKey());
         edit.commit();
@@ -279,6 +286,8 @@ public class GlobalParameters {
     public void saveZipSortParameter(Context c, CustomTreeFilelistAdapter ctfa) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
         SharedPreferences.Editor edit=prefs.edit();
+        zipSortOrderAsc=ctfa.isSortAscendant();
+        zipSortKey=ctfa.getSortKey();
         edit.putBoolean(SORT_PARM_ZIP_ASC_KEY, ctfa.isSortAscendant());
         edit.putInt(SORT_PARM_ZIP_SORT_KEY, ctfa.getSortKey());
         edit.commit();

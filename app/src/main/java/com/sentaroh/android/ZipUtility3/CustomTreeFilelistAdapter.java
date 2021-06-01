@@ -77,6 +77,8 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
 	
 	public void setCheckBoxEnabled(boolean p) {mCheckBoxEnabled=p;}
 	public boolean isCheckBoxEnabled() {return mCheckBoxEnabled;}
+
+	private GlobalParameters mGp=null;
 	
 	public CustomTreeFilelistAdapter(Activity c) {
 		mActivity = c;
@@ -105,9 +107,13 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
 	};
 
 	private void initTextColor() {
-		mThemeColorList=ThemeUtil.getThemeColorList(mActivity);
+	    mGp=GlobalWorkArea.getGlobalParameters(mActivity);
+		mThemeColorList=mGp.themeColorList;
 	}
-	
+
+	private String mZipArchiveFileName="";
+	public void setZipArchiveFileName(String archive_name) {mZipArchiveFileName=archive_name;}
+
 	@Override
 	public int getCount() {return mDataItems.size();}
 
@@ -257,6 +263,7 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
     }
 
     public void setSortKey(int key_value) {
+	    Thread.dumpStack();
         mSortKey=key_value;
     }
 
@@ -299,55 +306,92 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
 //
 //    };
 
-    static private void sortByName(ArrayList<TreeFilelistItem> list, final boolean orderAsc) {
+    public static void sortByName(ArrayList<TreeFilelistItem> data_list, final boolean orderAsc) {
+        ArrayList<TreeFilelistItem>dir_list=new ArrayList<TreeFilelistItem>();
+        ArrayList<TreeFilelistItem>file_list=new ArrayList<TreeFilelistItem>();
+        for(TreeFilelistItem item:data_list) {
+            if (item.isDirectory()) dir_list.add(item);
+            else file_list.add(item);
+        }
+		if (orderAsc) {
+			Collections.sort(dir_list, new Comparator<TreeFilelistItem>(){
+				@Override
+				public int compare(TreeFilelistItem lhs, TreeFilelistItem rhs) {
+                    return lhs.getName().compareToIgnoreCase(rhs.getName());
+				}
+			});
+            Collections.sort(file_list, new Comparator<TreeFilelistItem>(){
+                @Override
+                public int compare(TreeFilelistItem lhs, TreeFilelistItem rhs) {
+                    return lhs.getName().compareToIgnoreCase(rhs.getName());
+                }
+            });
+		} else {
+            Collections.sort(dir_list, new Comparator<TreeFilelistItem>(){
+                @Override
+                public int compare(TreeFilelistItem lhs, TreeFilelistItem rhs) {
+                    return rhs.getName().compareToIgnoreCase(lhs.getName());
+                }
+            });
+            Collections.sort(file_list, new Comparator<TreeFilelistItem>(){
+                @Override
+                public int compare(TreeFilelistItem lhs, TreeFilelistItem rhs) {
+                    return rhs.getName().compareToIgnoreCase(lhs.getName());
+                }
+            });
+		}
+        data_list.clear();
+        data_list.addAll(dir_list);
+        data_list.addAll(file_list);
+	};
+
+	public static void sortBySize(ArrayList<TreeFilelistItem> list, final boolean orderAsc) {
 		if (orderAsc) {
 			Collections.sort(list, new Comparator<TreeFilelistItem>(){
 				@Override
 				public int compare(TreeFilelistItem lhs, TreeFilelistItem rhs) {
-					return lhs.getSortKeyName().compareToIgnoreCase(rhs.getSortKeyName());
+				    long diff=lhs.getLength()-rhs.getLength();
+				    if (diff==0) return 0;
+				    else if (diff>0) return 1;
+				    else return -1;
+//					return lhs.getSortKeySize().compareToIgnoreCase(rhs.getSortKeySize());
 				}
 			});
 		} else {
 			Collections.sort(list, new Comparator<TreeFilelistItem>(){
 				@Override
 				public int compare(TreeFilelistItem lhs, TreeFilelistItem rhs) {
-					return rhs.getSortKeyName().compareToIgnoreCase(lhs.getSortKeyName());
+                    long diff=rhs.getLength()-lhs.getLength();
+                    if (diff==0) return 0;
+                    else if (diff>0) return 1;
+                    else return -1;
+//					return rhs.getSortKeySize().compareToIgnoreCase(lhs.getSortKeySize());
 				}
 			});
 		}
 	};
 
-	static private void sortBySize(ArrayList<TreeFilelistItem> list, final boolean orderAsc) {
+	public static void sortByTime(ArrayList<TreeFilelistItem> list, final boolean orderAsc) {
 		if (orderAsc) {
 			Collections.sort(list, new Comparator<TreeFilelistItem>(){
 				@Override
 				public int compare(TreeFilelistItem lhs, TreeFilelistItem rhs) {
-					return lhs.getSortKeySize().compareToIgnoreCase(rhs.getSortKeySize());
+                    long diff=lhs.getLastModified()-rhs.getLastModified();
+                    if (diff==0) return 0;
+                    else if (diff>0) return 1;
+                    else return -1;
+//					return lhs.getSortKeyTime().compareToIgnoreCase(rhs.getSortKeyTime());
 				}
 			});
 		} else {
 			Collections.sort(list, new Comparator<TreeFilelistItem>(){
 				@Override
 				public int compare(TreeFilelistItem lhs, TreeFilelistItem rhs) {
-					return rhs.getSortKeySize().compareToIgnoreCase(lhs.getSortKeySize());
-				}
-			});
-		}
-	};
-
-	static private void sortByTime(ArrayList<TreeFilelistItem> list, final boolean orderAsc) {
-		if (orderAsc) {
-			Collections.sort(list, new Comparator<TreeFilelistItem>(){
-				@Override
-				public int compare(TreeFilelistItem lhs, TreeFilelistItem rhs) {
-					return lhs.getSortKeyTime().compareToIgnoreCase(rhs.getSortKeyTime());
-				}
-			});
-		} else {
-			Collections.sort(list, new Comparator<TreeFilelistItem>(){
-				@Override
-				public int compare(TreeFilelistItem lhs, TreeFilelistItem rhs) {
-					return rhs.getSortKeyTime().compareToIgnoreCase(lhs.getSortKeyTime());
+                    long diff=rhs.getLastModified()-lhs.getLastModified();
+                    if (diff==0) return 0;
+                    else if (diff>0) return 1;
+                    else return -1;
+//					return rhs.getSortKeyTime().compareToIgnoreCase(lhs.getSortKeyTime());
 				}
 			});
 		}
@@ -373,7 +417,12 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
             return false;
         }
 	}
-	
+
+	final public static int TEXT_COLOR_CUT_LIGHT=Color.RED;
+    final public static int TEXT_COLOR_CUT_NORMAL=Color.RED;
+    final public static int TEXT_COLOR_COPY_LIGHT=0xdd0000ff;
+    final public static int TEXT_COLOR_COPY_NORMAL=0xdd00ff00;
+
 	private Drawable mDefaultBgColor=null;
 	private ColorStateList mDefaultTextColor=null;
 	@Override
@@ -456,6 +505,7 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
         		}
 
                 holder.tv_spacer.setWidth(o.getListLevel()*30);
+                holder.tv_name.setTextColor(mDefaultTextColor);
                 holder.tv_name.setText(o.getName());
                 holder.tv_size.setVisibility(TextView.VISIBLE);
                 holder.tv_count.setVisibility(TextView.VISIBLE);
@@ -531,6 +581,63 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
                     holder.tv_moddate.setTextColor(disabled_color);//Color.GRAY);
                     holder.tv_modtime.setTextColor(disabled_color);//Color.GRAY);
                 }
+                if (mGp.copyCutList.size()>0) {
+                    if (mZipArchiveFileName.equals("")) {
+                        for(TreeFilelistItem item:mGp.copyCutList) {
+                            if (item.isDirectory()) {
+                                if ((o.getPath()+"/"+o.getName()+"/").startsWith(item.getPath()+"/"+item.getName()+"/")) {
+                                    if (mGp.themeIsLight) {
+                                        if (mGp.copyCutModeIsCut) holder.tv_name.setTextColor(TEXT_COLOR_CUT_LIGHT);
+                                        else holder.tv_name.setTextColor(TEXT_COLOR_COPY_LIGHT);//Color.CYAN);
+                                    } else {
+                                        if (mGp.copyCutModeIsCut) holder.tv_name.setTextColor(TEXT_COLOR_CUT_LIGHT);
+                                        else holder.tv_name.setTextColor(TEXT_COLOR_COPY_NORMAL);//Color.GREEN);
+                                    }
+                                }
+                            } else {
+                                if ((o.getPath()+"/"+o.getName()).equals(item.getPath()+"/"+item.getName())) {
+                                    if (mGp.themeIsLight) {
+                                        if (mGp.copyCutModeIsCut) holder.tv_name.setTextColor(TEXT_COLOR_CUT_LIGHT);
+                                        else holder.tv_name.setTextColor(TEXT_COLOR_COPY_LIGHT);//Color.CYAN);
+                                    } else {
+                                        if (mGp.copyCutModeIsCut) holder.tv_name.setTextColor(TEXT_COLOR_CUT_LIGHT);
+                                        else holder.tv_name.setTextColor(TEXT_COLOR_COPY_NORMAL);//Color.GREEN);
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        if (mZipArchiveFileName.equals(mGp.copyCutFilePath)) {
+                            String o_fp="";
+                            if (o.isDirectory()) o_fp=o.getPath().equals("")?o.getName()+"/":o.getPath()+"/"+o.getName()+"/";
+                            else o_fp=o.getPath().equals("")?o.getName():o.getPath()+"/"+o.getName();
+                            for(TreeFilelistItem item:mGp.copyCutList) {
+                                if (item.isDirectory()) {
+                                    String item_fp=item.getPath().equals("")?item.getName()+"/":item.getPath()+"/"+item.getName()+"/";
+                                    if (o_fp.startsWith(item_fp)) {
+                                        if (mGp.themeIsLight) {
+                                            if (mGp.copyCutModeIsCut) holder.tv_name.setTextColor(Color.RED);
+                                            else holder.tv_name.setTextColor(0xdd0000ff);//Color.CYAN);
+                                        } else {
+                                            if (mGp.copyCutModeIsCut) holder.tv_name.setTextColor(Color.RED);
+                                            else holder.tv_name.setTextColor(0xdd00ff00);//Color.GREEN);
+                                        }
+                                    }
+                                } else {
+                                    if ((o.getPath()+"/"+o.getName()).equals(item.getPath()+"/"+item.getName())) {
+                                        if (mGp.themeIsLight) {
+                                            if (mGp.copyCutModeIsCut) holder.tv_name.setTextColor(Color.RED);
+                                            else holder.tv_name.setTextColor(0xdd0000ff);//Color.CYAN);
+                                        } else {
+                                            if (mGp.copyCutModeIsCut) holder.tv_name.setTextColor(Color.RED);
+                                            else holder.tv_name.setTextColor(0xdd00ff00);//Color.GREEN);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 if(o.isDirectory()) {
                     holder.tv_comp_info.setText("");
                     if (o.getLength()!=-1) holder.tv_count.setVisibility(TextView.VISIBLE);
@@ -583,6 +690,12 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
             	if (o.isChecked()) {
             		if (ThemeUtil.isLightThemeUsed(mActivity)) holder.ll_view.setBackgroundColor(Color.CYAN);
             		else holder.ll_view.setBackgroundColor(Color.GRAY);
+                    holder.tv_name.setTextColor(mDefaultTextColor);//normal_text_color);
+                    holder.tv_size.setTextColor(mDefaultTextColor);//normal_text_color);
+                    holder.tv_count.setTextColor(mDefaultTextColor);//Color.GRAY);
+                    holder.tv_comp_info.setTextColor(mDefaultTextColor);//Color.GRAY);
+                    holder.tv_moddate.setTextColor(mDefaultTextColor);//normal_text_color);
+                    holder.tv_modtime.setTextColor(mDefaultTextColor);//normal_text_color);
             	} else {
             		holder.ll_view.setBackgroundDrawable(mDefaultBgColor);
             	}

@@ -118,29 +118,43 @@ public class AdapterSearchFileList extends BaseAdapter {
 		mDataItems=p;
 		sort();
 	}
-	
-	public void sort() {
-		Collections.sort(mDataItems, new Comparator<TreeFilelistItem>(){
-			@Override
-			public int compare(TreeFilelistItem lhs, TreeFilelistItem rhs) {
-				String l_key="", r_key="";
-				if (mSortKey==SORT_KEY_NAME) {
-//					l_key=lhs.getName();
-//					r_key=rhs.getName();
-					l_key=lhs.getSortKeyName();
-					r_key=rhs.getSortKeyName();
-				} else if (mSortKey==SORT_KEY_TIME) {
-					l_key=lhs.getSortKeyTime();
-					r_key=rhs.getSortKeyTime();
-				} else if (mSortKey==SORT_KEY_SIZE) {
-					l_key=lhs.getSortKeySize();
-					r_key=rhs.getSortKeySize();
-				}
-				if (mSortAscendant) return l_key.compareToIgnoreCase(r_key);
-				else return r_key.compareToIgnoreCase(l_key);
-			}
-		});
-	};
+
+    public void sort() {
+        synchronized (mDataItems) {
+            if (mSortKey==SORT_KEY_NAME) {
+                CustomTreeFilelistAdapter.sortByName(mDataItems,mSortAscendant);
+            } else if (mSortKey==SORT_KEY_TIME) {
+                CustomTreeFilelistAdapter.sortByTime(mDataItems,mSortAscendant);
+            } else if (mSortKey==SORT_KEY_SIZE) {
+                CustomTreeFilelistAdapter.sortBySize(mDataItems,mSortAscendant);
+            }
+        }
+
+    };
+
+//    public void sort() {
+//
+//		Collections.sort(mDataItems, new Comparator<TreeFilelistItem>(){
+//			@Override
+//			public int compare(TreeFilelistItem lhs, TreeFilelistItem rhs) {
+//				String l_key="", r_key="";
+//				if (mSortKey==SORT_KEY_NAME) {
+////					l_key=lhs.getName();
+////					r_key=rhs.getName();
+//					l_key=lhs.getSortKeyName();
+//					r_key=rhs.getSortKeyName();
+//				} else if (mSortKey==SORT_KEY_TIME) {
+//					l_key=lhs.getSortKeyTime();
+//					r_key=rhs.getSortKeyTime();
+//				} else if (mSortKey==SORT_KEY_SIZE) {
+//					l_key=lhs.getSortKeySize();
+//					r_key=rhs.getSortKeySize();
+//				}
+//				if (mSortAscendant) return l_key.compareToIgnoreCase(r_key);
+//				else return r_key.compareToIgnoreCase(l_key);
+//			}
+//		});
+//	};
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {

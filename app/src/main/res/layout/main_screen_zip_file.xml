@@ -10,8 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include layout="@layout/main_dialog"/>
-
         <LinearLayout
             android:id="@+id/zip_file_view"
             android:layout_width="match_parent"
@@ -26,7 +24,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:text="@string/msgs_zip_cont_header_copy" />
+                    android:text="...." />
                 <Button
                     android:id="@+id/zip_file_copy_cut_clear_btn"
                     style="?android:attr/buttonStyleSmall"
@@ -44,16 +42,16 @@
                     android:minHeight="36dp" />
                 <ImageButton
                     android:id="@+id/zip_file_info_close_btn"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginRight="2dp"
+                    android:layout_marginRight="0dp"
                     android:src="@drawable/ic_32_close_black"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:insetRight="0dp"
                     android:insetLeft="0dp"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     android:text="@string/msgs_zip_zip_file_info_close_button"
                     android:textAppearance="?android:attr/textAppearanceSmall"/>
 
@@ -96,7 +94,7 @@
                     android:layout_weight="1"
                     android:gravity="center_vertical"
                     android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
                 <Button
                     android:id="@+id/zip_file_up_btn"

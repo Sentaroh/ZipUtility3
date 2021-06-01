@@ -28,6 +28,7 @@
             android:layout_weight="1"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
+            android:minLines="3"
             android:text=""
             android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>

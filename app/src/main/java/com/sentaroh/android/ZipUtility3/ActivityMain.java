@@ -41,6 +41,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -78,11 +79,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
 import com.sentaroh.android.Utilities3.AppUncaughtExceptionHandler;
 import com.sentaroh.android.Utilities3.CallBackListener;
 import com.sentaroh.android.Utilities3.Dialog.CommonDialog;
+import com.sentaroh.android.Utilities3.Dialog.MessageDialogFragment;
 import com.sentaroh.android.Utilities3.MiscUtil;
 import com.sentaroh.android.Utilities3.NotifyEvent;
 import com.sentaroh.android.Utilities3.NotifyEvent.NotifyEventListener;
@@ -381,9 +384,9 @@ public class ActivityMain extends AppCompatActivity {
                 }
                 mGp.activityIsDestroyed=false;
             }
+
             @Override
-            public void negativeResponse(Context c, Object[] o) {
-            }
+            public void negativeResponse(Context c, Object[] o) {}
 
         });
         openService(ntfy);
@@ -586,7 +589,16 @@ public class ActivityMain extends AppCompatActivity {
     }
 
     private void cleanupCacheFile() {
-        File[] fl=mActivity.getExternalCacheDirs();
+        long b_time=System.currentTimeMillis();
+
+        //Delete internal storage cache
+        File[] fl=mActivity.getCacheDir().listFiles();
+        for(File del_item:fl) {
+            deleteCacheFile(del_item);
+        }
+
+        //Delete external storage cache
+        fl=mActivity.getExternalCacheDirs();
         if (fl!=null && fl.length>0) {
             for(File cf:fl) {
                 if (cf!=null) {
@@ -601,11 +613,12 @@ public class ActivityMain extends AppCompatActivity {
                 }
             }
         } else {
-            fl=mActivity.getExternalCacheDirs();
+            mUtil.addDebugMsg(1, "E", "cleanupCacheFile cache directory not found.");
         }
+        mUtil.addDebugMsg(1, "I", "cleanupCacheFile elapsed="+(System.currentTimeMillis()-b_time));
     }
 
-    public boolean deleteCacheFile(File del_item) {
+    private boolean deleteCacheFile(File del_item) {
         boolean result=true;
         if (del_item.isDirectory()) {
             File[] child_list=del_item.listFiles();
@@ -617,9 +630,13 @@ public class ActivityMain extends AppCompatActivity {
                     }
                 }
             }
-            if (result) result=del_item.delete();
+            if (result) {
+                result=del_item.delete();
+                mUtil.addDebugMsg(2, "I", "cache directory deleted, dir="+ del_item.getPath());
+            }
         } else {
             result=del_item.delete();
+            mUtil.addDebugMsg(2, "I", "cache file deleted, file="+ del_item.getPath());
         }
         return result;
     }
@@ -1715,6 +1732,7 @@ public class ActivityMain extends AppCompatActivity {
 		enableMainUi=true;
 		mTabLayout.setEnabled(enableMainUi);
 		mMainViewPager.setSwipeEnabled(enableMainUi);
+		clearConfirmReplaceResponse();
 		refreshOptionMenu();
 		
 		try {
@@ -1747,13 +1765,233 @@ public class ActivityMain extends AppCompatActivity {
 		return enableMainUi;
 	};
 
+    static public void scanMediaFile(GlobalParameters gp, CommonUtilities util, String fp) {
+        gp.mediaScanner.scanFile(fp, null);
+    };
+
+    public void showSnackbar(Activity a, String msg) {
+        final Snackbar sb=Snackbar.make(mMainView, msg, Snackbar.LENGTH_LONG);
+        sb.setTextColor(mGp.themeColorList.title_text_color);
+        a.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                sb.setAction(a.getString(R.string.msgs_main_snackbar_action_hide), new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        sb.dismiss();
+                    }
+                });
+                sb.show();
+                sb.getView().setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        sb.dismiss();
+                    }
+                });
+
+            }
+        });
+    }
+
+    public void closeUiDialogView(int delay_time) {
+        setUiEnabled();
+    }
+
+    public void putProgressMessage(final String msg) {
+        putProgressMessage(mDialogProgressSpinMsg2, msg);
+    }
+
+    public void putProgressMessage(final TextView tv, final String msg) {
+        mUiHandler.post(new Runnable(){
+            @Override
+            public void run() {
+                tv.setText(msg);
+                tv.requestLayout();
+            }
+        });
+    }
+
+    public void showDialogProgress() {
+        mMainDialogView.setVisibility(LinearLayout.VISIBLE);
+        mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
+        mMainDialogView.bringToFront();
+        mMainDialogView.setBackgroundColor(mGp.themeColorList.text_background_color);
+    }
+
+    public void hideDialog() {
+        mMainDialogView.setVisibility(LinearLayout.GONE);
+        mDialogProgressSpinView.setVisibility(LinearLayout.GONE);
+        mDialogConfirmView.setVisibility(LinearLayout.GONE);
+    }
+
+    public void createDialogCancelListener(final ThreadCtrl tc) {
+        mDialogProgressSpinCancel.setEnabled(true);
+        mDialogProgressSpinCancel.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                confirmCancel(tc, mDialogProgressSpinCancel);
+            }
+        });
+    }
+
+    static public void setCancelled(final ThreadCtrl tc) {
+        tc.setDisabled();
+    }
+
+    static public boolean isCancelled(boolean wait, final ThreadCtrl tc) {
+        if (wait) tc.writeLockWait();
+        return isCancelled(tc);
+    }
+
+    static public boolean isCancelled(final ThreadCtrl tc) {
+        if (!tc.isEnabled()) {
+            return true;
+        }
+        return false;
+    }
+    static public void confirmCancel(ActivityMain a, final ThreadCtrl tc, final Button cancel) {
+        NotifyEvent ntfy = new NotifyEvent(a);
+        ntfy.setListener(new NotifyEventListener() {
+            @Override
+            public void positiveResponse(Context c, Object[] o) {
+                tc.setDisabled();
+                cancel.setEnabled(false);
+                tc.releaseWriteLock();
+            }
+
+            @Override
+            public void negativeResponse(Context c, Object[] o) {
+                tc.releaseWriteLock();
+            }
+        });
+        MessageDialogFragment cdf =MessageDialogFragment.newInstance(true, "W", a.getString(R.string.msgs_main_confirm_cancel), "");
+        cdf.showDialog(a.getSupportFragmentManager(),cdf,ntfy);
+
+        tc.acuireWriteLock();
+    }
+
+    public void confirmCancel(final ThreadCtrl tc, final Button cancel) {
+        confirmCancel(mActivity, tc, cancel);
+    }
+
+    static final private int CONFIRM_RESPONSE_CANCEL = -99;
+    static final private int CONFIRM_RESPONSE_YES = 1;
+    static final private int CONFIRM_RESPONSE_YESALL = 2;
+    static final private int CONFIRM_RESPONSE_NO = -1;
+    static final private int CONFIRM_RESPONSE_NOALL = -2;
+    private int mConfirmResponse = 0;
+
+    public void clearConfirmReplaceResponse() {
+        mConfirmResponse = 0;
+    }
+
+    public boolean confirmReplace(final ThreadCtrl tc, final String title, final String message, final String dest_path) {
+//        Thread.dumpStack();
+        if (mConfirmResponse != CONFIRM_RESPONSE_YESALL && mConfirmResponse != CONFIRM_RESPONSE_NOALL) {
+            mUiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mDialogProgressSpinView.setVisibility(LinearLayout.GONE);
+                    mDialogConfirmView.setVisibility(LinearLayout.VISIBLE);
+                    mDialogConfirmCancel.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
+                            mDialogConfirmView.setVisibility(LinearLayout.GONE);
+                            mConfirmResponse = CONFIRM_RESPONSE_CANCEL;
+                            tc.setDisabled();
+                            synchronized (tc) {
+                                tc.notify();
+                            }
+                        }
+                    });
+
+                    mDialogConfirmYes.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
+                            mDialogConfirmView.setVisibility(LinearLayout.GONE);
+                            mConfirmResponse = CONFIRM_RESPONSE_YES;
+                            synchronized (tc) {
+                                tc.notify();
+                            }
+                        }
+                    });
+                    mDialogConfirmYesAll.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
+                            mDialogConfirmView.setVisibility(LinearLayout.GONE);
+                            mConfirmResponse = CONFIRM_RESPONSE_YESALL;
+                            synchronized (tc) {
+                                tc.notify();
+                            }
+                        }
+                    });
+                    mDialogConfirmNo.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
+                            mDialogConfirmView.setVisibility(LinearLayout.GONE);
+                            mConfirmResponse = CONFIRM_RESPONSE_NO;
+                            synchronized (tc) {
+                                tc.notify();
+                            }
+                        }
+                    });
+                    mDialogConfirmNoAll.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mDialogProgressSpinView.setVisibility(LinearLayout.VISIBLE);
+                            mDialogConfirmView.setVisibility(LinearLayout.GONE);
+                            mConfirmResponse = CONFIRM_RESPONSE_NOALL;
+                            synchronized (tc) {
+                                tc.notify();
+                            }
+                        }
+                    });
+                    mDialogConfirmMsg.setText(message);
+                    mDialogConfirmMsg.requestLayout();
+                    mDialogConfirmFilePath.setText(dest_path);
+                    mDialogConfirmFilePath.requestLayout();
+                }
+            });
+
+            synchronized (tc) {
+                try {
+                    tc.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            boolean result = false;
+            if (mConfirmResponse == CONFIRM_RESPONSE_CANCEL) {
+            } else if (mConfirmResponse == CONFIRM_RESPONSE_YES) {
+                result = true;
+            } else if (mConfirmResponse == CONFIRM_RESPONSE_YESALL) {
+                result = true;
+            } else if (mConfirmResponse == CONFIRM_RESPONSE_NO) {
+            } else if (mConfirmResponse == CONFIRM_RESPONSE_NOALL) {
+            }
+            return result;
+        } else {
+            boolean result = false;
+            if (mConfirmResponse == CONFIRM_RESPONSE_YESALL) {
+                result = true;
+            }
+            return result;
+        }
+    }
+
+
     public void showCopyCutItemList() {
         String c_list="", sep="";
         for(TreeFilelistItem tfli:mGp.copyCutList) {
             c_list+=sep+tfli.getPath()+"/"+tfli.getName();
             sep="\n";
         }
-        c_list=c_list.replaceAll("//", "/");
+        c_list="\n"+c_list.replaceAll("//", "/")+"\n";
         String msg="";
         if (!mGp.copyCutModeIsCut) msg=mActivity.getString(R.string.msgs_zip_cont_header_copy);
         else msg=mActivity.getString(R.string.msgs_zip_cont_header_cut);
@@ -1774,10 +2012,17 @@ public class ActivityMain extends AppCompatActivity {
         if (mLocalFileMgr!=null) mLocalFileMgr.setContextButtonPasteEnabled(false);
         if (mZipFileMgr!=null) mZipFileMgr.setContextButtonPasteEnabled(false);
         mGp.copyCutList.clear();
+        mGp.localCopyCutItemInfo.setText("....");
+        mGp.localCopyCutItemInfo.setTextColor(Color.GRAY);
+        mGp.zipCopyCutItemInfo.setText("....");
+        mGp.zipCopyCutItemInfo.setTextColor(Color.GRAY);
         CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemInfo, false);
         CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemClear, false);
         CommonDialog.setViewEnabled(mActivity, mGp.zipCopyCutItemInfo, false);
         CommonDialog.setViewEnabled(mActivity, mGp.zipCopyCutItemClear, false);
+
+        getLocalFileManager().notifyTreeFileListAdapter();
+        getZipFileManager().notifyTreeFileListAdapter();
 
         if (toast) CommonDialog.showToastShort(mActivity, mActivity.getString(R.string.msgs_zip_local_file_clear_copy_cut_list_cleared));
     }
@@ -1797,6 +2042,28 @@ public class ActivityMain extends AppCompatActivity {
         String from=mGp.copyCutFrom.equals(COPY_CUT_FROM_LOCAL)? mActivity.getString(R.string.msgs_zip_local_file_clear_copy_cut_from_local) : mActivity.getString(R.string.msgs_zip_local_file_clear_copy_cut_from_zip);
         String mode=mGp.copyCutModeIsCut?mActivity.getString(R.string.msgs_zip_cont_header_cut):mActivity.getString(R.string.msgs_zip_cont_header_copy);
 
+        if (mGp.copyCutModeIsCut) {
+            mGp.localCopyCutItemInfo.setText(mActivity.getString(R.string.msgs_zip_cont_header_cut));
+            mGp.zipCopyCutItemInfo.setText(mActivity.getString(R.string.msgs_zip_cont_header_cut));
+            if (mGp.themeIsLight) {
+                mGp.localCopyCutItemInfo.setTextColor(CustomTreeFilelistAdapter.TEXT_COLOR_CUT_LIGHT);
+                mGp.zipCopyCutItemInfo.setTextColor(CustomTreeFilelistAdapter.TEXT_COLOR_CUT_LIGHT);
+            } else {
+                mGp.localCopyCutItemInfo.setTextColor(CustomTreeFilelistAdapter.TEXT_COLOR_CUT_NORMAL);
+                mGp.zipCopyCutItemInfo.setTextColor(CustomTreeFilelistAdapter.TEXT_COLOR_CUT_NORMAL);
+            }
+        } else {
+            mGp.localCopyCutItemInfo.setText(mActivity.getString(R.string.msgs_zip_cont_header_copy));
+            mGp.zipCopyCutItemInfo.setText(mActivity.getString(R.string.msgs_zip_cont_header_copy));
+            if (mGp.themeIsLight) {
+                mGp.localCopyCutItemInfo.setTextColor(CustomTreeFilelistAdapter.TEXT_COLOR_COPY_LIGHT);
+                mGp.zipCopyCutItemInfo.setTextColor(CustomTreeFilelistAdapter.TEXT_COLOR_COPY_LIGHT);
+            } else {
+                mGp.localCopyCutItemInfo.setTextColor(CustomTreeFilelistAdapter.TEXT_COLOR_COPY_NORMAL);
+                mGp.zipCopyCutItemInfo.setTextColor(CustomTreeFilelistAdapter.TEXT_COLOR_COPY_NORMAL);
+            }
+        }
+
         CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemInfo, true);
         CommonDialog.setViewEnabled(mActivity, mGp.localCopyCutItemClear, true);
         CommonDialog.setViewEnabled(mActivity, mGp.zipCopyCutItemInfo, true);
@@ -1813,6 +2080,7 @@ public class ActivityMain extends AppCompatActivity {
 
     private LinearLayout mLocalView;
 	private LinearLayout mZipView;
+    private LinearLayout mMainView;
 
 	private CustomViewPager mMainViewPager;
 
@@ -1823,7 +2091,7 @@ public class ActivityMain extends AppCompatActivity {
         mTabLayout.addTab(mActivity.getString(R.string.msgs_main_tab_name_local));
         mTabLayout.addTab(mActivity.getString(R.string.msgs_main_tab_name_zip));
 
-        LinearLayout ll_main=(LinearLayout)findViewById(R.id.main_screen_view);
+        mMainView=(LinearLayout)findViewById(R.id.main_screen_view);
 //		ll_main.setBackgroundColor(mGp.themeColorList.window_background_color_content);
 
         LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -1831,8 +2099,8 @@ public class ActivityMain extends AppCompatActivity {
 //		if (mGp.themeIsLight) mLocalView.setBackgroundColor(0xffc0c0c0);
 //		else mLocalView.setBackgroundColor(0xff303030);
 
-        LinearLayout dv=(LinearLayout)mLocalView.findViewById(R.id.main_dialog_view);
-        dv.setVisibility(LinearLayout.GONE);
+        mMainDialogView=(LinearLayout)mMainView.findViewById(R.id.main_dialog_view);
+        mMainDialogView.setVisibility(LinearLayout.GONE);
 
         LinearLayout lv=(LinearLayout)mLocalView.findViewById(R.id.local_file_view);
         lv.setVisibility(LinearLayout.GONE);
@@ -1904,9 +2172,47 @@ public class ActivityMain extends AppCompatActivity {
 
         });
 
+        mDialogProgressSpinView = (LinearLayout) mMainView.findViewById(R.id.main_dialog_progress_spin_view);
+        mDialogProgressSpinView.setVisibility(LinearLayout.GONE);
+        mDialogProgressSpinMsg2 = (TextView) mMainView.findViewById(R.id.main_dialog_progress_spin_syncmsg);
+        mDialogProgressSpinCancel = (Button) mMainView.findViewById(R.id.main_dialog_progress_spin_btn_cancel);
+
+        mDialogConfirmView = (LinearLayout) mMainView.findViewById(R.id.main_dialog_confirm_view);
+        mDialogConfirmView.setVisibility(LinearLayout.GONE);
+        mDialogConfirmTitle = (TextView) mMainView.findViewById(R.id.main_dialog_confirm_title);
+        mDialogConfirmMsg = (TextView) mMainView.findViewById(R.id.main_dialog_confirm_msg);
+        mDialogConfirmFilePath = (TextView) mMainView.findViewById(R.id.main_dialog_confirm_file_path);
+        mDialogConfirmFileDateTime = (TextView) mMainView.findViewById(R.id.main_dialog_confirm_file_date_time);
+        mDialogConfirmCancel = (Button) mMainView.findViewById(R.id.main_dialog_confirm_sync_cancel);
+        mDialogConfirmNo = (Button) mMainView.findViewById(R.id.copy_delete_confirm_no);
+        mDialogConfirmNoAll = (Button) mMainView.findViewById(R.id.copy_delete_confirm_noall);
+        mDialogConfirmYes = (Button) mMainView.findViewById(R.id.copy_delete_confirm_yes);
+        mDialogConfirmYesAll = (Button) mMainView.findViewById(R.id.copy_delete_confirm_yesall);
+
+
     };
 
-	private ISvcClient mSvcClient=null;
+
+    private LinearLayout mMainDialogView=null;
+
+	private LinearLayout mDialogProgressSpinView=null;
+	private TextView mDialogProgressSpinMsg2=null;
+	private Button mDialogProgressSpinCancel=null;
+
+	private LinearLayout mDialogConfirmView=null;
+	private TextView mDialogConfirmMsg=null;
+    private TextView mDialogConfirmTitle = null;
+    private TextView mDialogConfirmFilePath = null;
+    private TextView mDialogConfirmFileDateTime = null;
+
+	private Button mDialogConfirmCancel=null;
+
+	private Button mDialogConfirmYes=null;
+	private Button mDialogConfirmYesAll=null;
+	private Button mDialogConfirmNo=null;
+	private Button mDialogConfirmNoAll=null;
+
+    private ISvcClient mSvcClient=null;
 	private ServiceConnection mSvcConnection=null;
 
 	private void openService(final NotifyEvent p_ntfy) {

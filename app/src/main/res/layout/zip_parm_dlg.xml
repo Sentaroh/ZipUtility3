@@ -4,6 +4,8 @@
     android:id="@+id/zip_parm_dlg_view"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:padding="3dp"
+    android:background="@drawable/dialog_box_outline"
     android:orientation="vertical"
     tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry" >
 
@@ -38,114 +40,135 @@
 
     <include layout="@layout/divider_line1" />
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical" >
-	    <LinearLayout
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content" 
-	        android:layout_marginLeft="5dp"
-	        android:layout_marginRight="5dp"
-	        >
-	
-	        <TextView
-	            android:id="@+id/textView1"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_gravity="center"
-	            android:gravity="center"
-	            android:text="@string/msgs_zip_parm_zip_comp_level_title"
-	            android:textAppearance="?android:attr/textAppearanceMedium" />
-	
-	        <Spinner
-	            android:id="@+id/zip_parm_dlg_comp_level"
-	            android:layout_width="0dp"
-	            android:layout_height="wrap_content"
-                android:minHeight="36dp"
-                android:paddingLeft="5dp"
-	            android:layout_weight="1"
-	            android:layout_gravity="clip_vertical"
-	            android:layout_marginLeft="5dp"
-	             />
-	
-	    </LinearLayout>
-	
-	    <TextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_marginLeft="5dp"
-	        android:layout_marginRight="5dp"
-	        android:text="@string/msgs_zip_parm_zip_encrypt_method_title"
-	        android:textAppearance="?android:attr/textAppearanceMedium" />
-	
-	    <LinearLayout
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_marginLeft="15dp"
-	        android:layout_marginRight="5dp"
-	        android:orientation="vertical" >
-	
-	        <RadioGroup
-	            android:id="@+id/zip_parm_dlg_enc_type_rg"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:orientation="vertical" >
-	
-	            <RadioButton
-	                android:id="@+id/zip_parm_dlg_enc_type_rb_none"
-	                android:layout_width="match_parent"
-	                android:layout_height="wrap_content"
-	                android:checked="true"
-	                android:text="@string/msgs_zip_parm_zip_encrypt_method_none" />
-	
-	            <RadioButton
-	                android:id="@+id/zip_parm_dlg_enc_type_rb_standard"
-	                android:layout_width="match_parent"
-	                android:layout_height="wrap_content"
-	                android:checked="true"
-	                android:text="@string/msgs_zip_parm_zip_encrypt_method_zip_crypto" />
-	
-	            <RadioButton
-	                android:id="@+id/zip_parm_dlg_enc_type_rb_aes128"
-	                android:layout_width="match_parent"
-	                android:layout_height="wrap_content"
-	                android:text="@string/msgs_zip_parm_zip_encrypt_method_aes128" />
-	
-	            <RadioButton
-	                android:id="@+id/zip_parm_dlg_enc_type_rb_aes256"
-	                android:layout_width="match_parent"
-	                android:layout_height="wrap_content"
-	                android:text="@string/msgs_zip_parm_zip_encrypt_method_aes256" />
-	        </RadioGroup>
+        android:layout_weight="1">
 
-            <com.google.android.material.textfield.TextInputLayout
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/zip_parm_dlg_enc_password"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/msgs_zip_parm_zip_comp_level_title"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <RadioGroup
+                    android:id="@+id/zip_parm_dlg_comp_level_rg"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:hint="password"
-                    android:inputType="textPassword" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="5dp"
+                    android:orientation="horizontal" >
+                    <RadioButton
+                        android:id="@+id/zip_parm_dlg_comp_level_rb_fastest"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/msgs_zip_parm_zip_comp_level_fastest" />
+                    <RadioButton
+                        android:id="@+id/zip_parm_dlg_comp_level_rb_normal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:checked="true"
+                        android:text="@string/msgs_zip_parm_zip_comp_level_normal" />
+                    <RadioButton
+                        android:id="@+id/zip_parm_dlg_comp_level_rb_maximum"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/msgs_zip_parm_zip_comp_level_maximum" />
+                </RadioGroup>
 
-            <com.google.android.material.textfield.TextInputLayout
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="10dp"
+                android:text="@string/msgs_zip_parm_zip_encrypt_method_title"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/zip_parm_dlg_enc_confirm"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="5dp"
+                android:orientation="vertical" >
+
+                <RadioGroup
+                    android:id="@+id/zip_parm_dlg_enc_type_rg"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:hint="confirm"
-                    android:inputType="textPassword" />
-            </com.google.android.material.textfield.TextInputLayout>
-	    </LinearLayout>
-        
+                    android:orientation="vertical" >
+
+                    <RadioButton
+                        android:id="@+id/zip_parm_dlg_enc_type_rb_none"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:checked="true"
+                        android:text="@string/msgs_zip_parm_zip_encrypt_method_none" />
+
+                    <RadioButton
+                        android:id="@+id/zip_parm_dlg_enc_type_rb_standard"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:checked="true"
+                        android:text="@string/msgs_zip_parm_zip_encrypt_method_zip_crypto" />
+
+                    <RadioButton
+                        android:id="@+id/zip_parm_dlg_enc_type_rb_aes128"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/msgs_zip_parm_zip_encrypt_method_aes128" />
+
+                    <RadioButton
+                        android:id="@+id/zip_parm_dlg_enc_type_rb_aes256"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/msgs_zip_parm_zip_encrypt_method_aes256" />
+                </RadioGroup>
+                <include layout="@layout/zip_parm_dlg_password"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/zip_parm_dlg_cancel_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/msgs_common_dialog_cancel" />
+        <Button
+            android:id="@+id/zip_parm_dlg_ok_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/msgs_common_dialog_ok"
+            />
     </LinearLayout>
-
-    <include layout="@layout/zip_parm_dlg_ok_cancel"/>
 </LinearLayout>

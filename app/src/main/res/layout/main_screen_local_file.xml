@@ -10,8 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include layout="@layout/main_dialog"/>
-
         <LinearLayout
             android:id="@+id/local_file_view"
             android:layout_width="fill_parent"
@@ -28,7 +26,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:text="@string/msgs_zip_cont_header_copy" />
+                    android:text="...." />
 
                 <Button
                     android:id="@+id/local_file_copy_cut_clear_btn"

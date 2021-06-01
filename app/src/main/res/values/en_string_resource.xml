@@ -21,6 +21,7 @@
         <string name="msgs_main_about_title">About ZipUtility3</string>
         <string name="msgs_main_confirm_cancel">Do you want to cancel</string>
         <string name="msgs_main_theme_changed_msg">If you change the theme, language or font size, the change will not take effect until the application is restarted.\nWould you like to restart the app now?</string>
+        <string name="msgs_main_snackbar_action_hide">Hide</string>
         <string name="msgs_main_select_file">Select ZIP file</string>
         <string name="msgs_main_invalid_zip_file_specified">The specified file is not a ZIP file.</string>
         <string name="msgs_main_tab_name_local">Local Folder</string>
@@ -34,7 +35,6 @@
         <string name="msgs_main_local_file_ccmenu_open_directory">Open directory</string>
         <string name="msgs_main_local_file_ccmenu_extract">Extract</string>
         <string name="msgs_main_local_file_ccmenu_delete">Delete</string>
-        <string name="deleted_msgs_main_local_file_ccmenu_scan_media_store">Scan media file</string>
         <string name="msgs_main_local_file_ccmenu_compress">Compress</string>
         <string name="msgs_main_local_file_ccmenu_copy">Copy to clipboard</string>
         <string name="msgs_main_local_file_ccmenu_cut">Cut to clipboard</string>
@@ -147,12 +147,13 @@
         <string name="msgs_zip_parm_dlg_title">Specify ZIP Parameter</string>
         <string name="msgs_zip_parm_pswd_not_specified">Specify password.</string>
         <string name="msgs_zip_parm_confirm_pswd_unmatched">Password and confirm a password does not match.</string>
-        <string name="msgs_zip_parm_zip_comp_level_promopt">Select Deflate level</string>
+        <string name="msgs_zip_parm_password_hint">Password</string>
+        <string name="msgs_zip_parm_confirm_password_hint">Confirm password</string>
         <string name="msgs_zip_parm_zip_comp_level_fastest">FASTEST</string>
         <string name="msgs_zip_parm_zip_comp_level_fast">FAST</string>
         <string name="msgs_zip_parm_zip_comp_level_normal">NORMAL</string>
         <string name="msgs_zip_parm_zip_comp_level_maximum">MAXIMUM</string>
-        <string name="msgs_zip_parm_zip_comp_level_title">Deflate level</string>
+        <string name="msgs_zip_parm_zip_comp_level_title">Compression level</string>
         <string name="msgs_zip_parm_zip_encrypt_method_title">Encryption</string>
         <string name="msgs_zip_parm_zip_encrypt_method_none">None</string>
         <string name="msgs_zip_parm_zip_encrypt_method_zip_crypto">ZipCrypto</string>
@@ -195,6 +196,49 @@
         <string name="msgs_local_file_add_file_cancelled">%s Compress cancelled.</string>
         <string name="msgs_local_file_add_file_begin">Compress has bee started.</string>
         <string name="msgs_local_file_add_file_completed">Compress was completed.</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_move_started">Started moving files.</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_copy_started">Starting to copy files.</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_file_copying">Copying %1$s. %2$s%% complete.</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_file_copy_cancelled">Copy of %s canceled.</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_file_copy_failed">Copy of %s failed.</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_file_move_cancelled">Move %s canceled.</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_file_rename_cancelled">Rename %s failed.</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_zip_output_cancelled">Update of %s canceled.</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_zip_output_failed">Update of %s failed.</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_copy_completed">Copy finished.</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_file_copy_completed">File has been copied. File=%s</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_file_move_completed">File moved. File=%s</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_move_completed">Finished moving.</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_zip_output_updating">Updating output ZIP file, File=%1$s %2$s%%.</string>
+        <string name="msgs_zip_file_manager_zip_to_zip_zip_input_updating">Updating source ZIP file, File=%1$s %2$s%%.</string>
+        <string name="msgs_zip_file_manager_local_to_zip_move_started">Starting to move the file.</string>
+        <string name="msgs_zip_file_manager_local_to_zip_copy_started">Copying file started.</string>
+        <string name="msgs_zip_file_manager_local_to_zip_file_copying">Copying file. File=%1$s, %2$s%% complete.</string>
+        <string name="msgs_zip_file_manager_local_to_zip_file_copy_completed">Copying %s.</string>
+        <string name="msgs_zip_file_manager_local_to_zip_file_replace_rejected">Overwriting %s rejected.</string>
+        <string name="msgs_zip_file_manager_local_to_zip_file_move_cancelled">The move has been canceled. File=%s</string>
+        <string name="msgs_zip_file_manager_local_to_zip_file_copy_cancelled">Copy canceled. File=%s</string>
+        <string name="msgs_zip_file_manager_local_to_zip_file_error_occured">An error has occurred. File=%s</string>
+        <string name="msgs_zip_file_manager_local_to_zip_move_completed">Move finished.</string>
+        <string name="msgs_zip_file_manager_local_to_zip_copy_completed">Copy finished.</string>
+        <string name="msgs_zip_file_manager_local_to_zip_update_failed">Failed to update the ZIP file.</string>
+        <string name="msgs_zip_file_manager_local_to_zip_create_failed">Failed to create BufferedZipFile3.</string>
+        <string name="msgs_zip_file_manager_local_to_zip_delete_moved_directory">Deleting the moved directory. Directory=%s</string>
+        <string name="msgs_zip_file_manager_local_to_zip_delete_moved_file">Deleting the moved file. File=%s</string>
+        <string name="msgs_zip_file_manager_zip_to_local_move_started">Started to move file.</string>
+        <string name="msgs_zip_file_manager_zip_to_local_copy_started">Started copying files.</string>
+        <string name="msgs_zip_file_manager_zip_to_local_copy_cancelled">Copy of %s canceled.</string>
+        <string name="msgs_zip_file_manager_zip_to_local_copying">Copying %%1$s. %2$s%% complete.</string>
+        <string name="msgs_zip_file_manager_zip_to_local_move_cancelled">Movement of %s canceled.</string>
+        <string name="msgs_zip_file_manager_zip_to_local_copy_failed">Copy of %s failed.</string>
+        <string name="msgs_zip_file_manager_zip_to_local_file_move_completed">File moved. File=%s</string>
+        <string name="msgs_zip_file_manager_zip_to_local_file_copy_completed">File copied. File=%s</string>
+        <string name="msgs_zip_file_manager_zip_to_local_zip_update_cancelled">Update of %s canceled.</string>
+        <string name="msgs_zip_file_manager_zip_to_local_zip_update_failed">Update %s failed.</string>
+        <string name="msgs_zip_file_manager_zip_to_local_move_completed">Move terminated.</string>
+        <string name="msgs_zip_file_manager_zip_to_local_file_rename_failed">Renaming %s failed.</string>
+        <string name="msgs_zip_file_manager_zip_to_local_copy_completed">Copy finished.</string>
+        <string name="msgs_zip_file_manager_zip_to_local_zip_input_zip_updating">Updating source ZIP file, File=%1$s %2$s%%.</string>
         <string name="msgs_local_file_share_file_max_file_count_reached">The number of shared files that can be up to 100.</string>
         <string name="msgs_local_file_share_file_no_file_selected">No file selected.</string>
         <string name="msgs_local_file_ignore_android_directory">You cannot cut/delete/rename the Android directory.</string>
