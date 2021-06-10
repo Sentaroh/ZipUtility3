@@ -1,3 +1,9 @@
+### 2021/06/10 1.34  
+
+- Resolved a bug that prevented detection of incorrect passwords in encrypted ZIPs  
+- Added the ability to COPY/CUT between ZIP files.  
+- Changed the display color of copied or cut items  
+
 ### 2021/05/25 1.33  
 Update capabity description  
 
