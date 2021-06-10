@@ -80,9 +80,7 @@ import com.sentaroh.android.Utilities3.Zip.BufferedZipFile3;
 import com.sentaroh.android.Utilities3.Zip.ZipUtil;
 
 
-import net.lingala.zip4j.model.FileHeader;
 import net.lingala.zip4j.model.ZipParameters;
-import net.lingala.zip4j.model.enums.CompressionMethod;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -1623,12 +1621,12 @@ public class LocalFileManager {
         });
     }
 
-    private boolean copyZipItemToFile(ThreadCtrl tc, CustomZipFile zf, FileHeader fh, String zip_file_name,
-                                      String dest_path, String dest_file_name) {
-        boolean result = false;
-        result=mActivity.getZipFileManager().copyZipItemToFile(tc, zf, fh, zip_file_name, dest_path, dest_file_name);
-        return result;
-    }
+//    private boolean copyZipItemToFile(ThreadCtrl tc, CustomZipFile zf, FileHeader fh, String zip_file_name,
+//                                      String dest_path, String dest_file_name) {
+//        boolean result = false;
+//        result=mActivity.getZipFileManager().copyZipItemToFile(tc, zf, fh, zip_file_name, dest_path, dest_file_name);
+//        return result;
+//    }
 
     private void confirmCopyFromLocal() {
         mUtil.addDebugMsg(1,"I",CommonUtilities.getExecutedMethodName()+" entered");
@@ -2657,15 +2655,13 @@ public class LocalFileManager {
                                         mTreeFilelistAdapter.notifyDataSetChanged();
 									}
 									@Override
-									public void negativeResponse(Context c, Object[] o) {
-									}
+									public void negativeResponse(Context c, Object[] o) {}
 
 								});
 								ZipFileManager.getZipParmDlg(mUtil, mActivity, mGp, ENCODING_NAME_UTF8, "", out_fl.getPath(), ntfy_zip);
 							}
 							@Override
-							public void negativeResponse(Context c, Object[] o) {
-							}
+							public void negativeResponse(Context c, Object[] o) {}
 						});
 						if (out_fl.exists()) {
 							CommonDialog.showCommonDialog(mFragmentManager, true, "W",
@@ -2704,11 +2700,9 @@ public class LocalFileManager {
 
 			}
 			@Override
-			public void negativeResponse(Context c, Object[] o) {
-			}
+			public void negativeResponse(Context c, Object[] o) {}
 
 		});
-
 		CommonDialog.showCommonDialog(mFragmentManager, true, "W",
 				mActivity.getString(R.string.msgs_zip_create_new_zip_file_confirm), conf_list, ntfy_confirm);
 	}
