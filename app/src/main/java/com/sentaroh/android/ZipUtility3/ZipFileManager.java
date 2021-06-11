@@ -3344,7 +3344,7 @@ public class ZipFileManager {
     static public void getZipPasswordDlg(Activity mActivity, GlobalParameters mGp, String mMainPassword,
                                          final CustomZipFile zf, final FileHeader fh, final NotifyEvent p_ntfy,
                                          final boolean thread_resp) {
-		final Dialog dialog = new Dialog(mActivity, mGp.applicationTheme);
+		final Dialog dialog = new Dialog(mActivity);
 		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		dialog.setCanceledOnTouchOutside(false);
 		dialog.setContentView(R.layout.password_prompt_dlg);
@@ -3376,7 +3376,7 @@ public class ZipFileManager {
 
     	dlg_pswd.setVisibility(EditText.VISIBLE);
 
-    	CommonDialog.setDlgBoxSizeLimit(dialog, true);
+    	CommonDialog.setDlgBoxSizeLimit(dialog, false);
 
         if (mMainPassword!=null) {
             dlg_pswd.setText(mMainPassword);
