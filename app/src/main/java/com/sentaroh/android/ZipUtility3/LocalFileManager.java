@@ -2566,6 +2566,7 @@ public class LocalFileManager {
 			@Override
 			public void onClick(CharSequence menuTitle) {
 				copyItem(tfa);
+				mTreeFilelistAdapter.notifyDataSetChanged();
 			}
 	  	});
 		mCcMenu.addMenuItem(mActivity.getString(R.string.msgs_main_local_file_ccmenu_cut)+"("+sel_list+")",R.drawable.context_button_cut)
@@ -2573,6 +2574,7 @@ public class LocalFileManager {
 			@Override
 			public void onClick(CharSequence menuTitle) {
 				cutItem(tfa);
+                mTreeFilelistAdapter.notifyDataSetChanged();
 			}
 	  	});
 		if (mActivityButtonPasteView.getVisibility()== LinearLayout.VISIBLE) {

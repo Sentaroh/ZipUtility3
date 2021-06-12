@@ -4073,6 +4073,7 @@ public class ZipFileManager {
 			@Override
 			public void onClick(CharSequence menuTitle) {
 				copyItem(tfa);
+                mTreeFilelistAdapter.notifyDataSetChanged();
 			}
 	  	});
 
@@ -4081,6 +4082,7 @@ public class ZipFileManager {
 			@Override
 			public void onClick(CharSequence menuTitle) {
 				cutItem(tfa);
+                mTreeFilelistAdapter.notifyDataSetChanged();
 			}
 	  	});
 

@@ -263,7 +263,7 @@ public class CustomTreeFilelistAdapter extends BaseAdapter {
     }
 
     public void setSortKey(int key_value) {
-	    Thread.dumpStack();
+//	    Thread.dumpStack();
         mSortKey=key_value;
     }
 
