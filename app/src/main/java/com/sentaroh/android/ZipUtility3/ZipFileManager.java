@@ -40,7 +40,10 @@ import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.text.style.ForegroundColorSpan;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -269,7 +272,7 @@ public class ZipFileManager {
     	mContextButtonPaste=(ImageButton)mMainView.findViewById(R.id.context_button_paste);
     	mContextButtonExtract=(ImageButton)mMainView.findViewById(R.id.context_button_extract);
     	mContextButtonOpen=(ImageButton)mMainView.findViewById(R.id.context_button_open);
-    	mContextButtonNew=(ImageButton)mMainView.findViewById(R.id.context_button_add);
+    	mContextButtonNew=(ImageButton)mMainView.findViewById(R.id.context_button_clear);
     	mContextButtonDelete=(ImageButton)mMainView.findViewById(R.id.context_button_delete);
         mContextButtonSelectAll=(ImageButton)mMainView.findViewById(R.id.context_button_select_all);
         mContextButtonUnselectAll=(ImageButton)mMainView.findViewById(R.id.context_button_unselect_all);
@@ -279,7 +282,7 @@ public class ZipFileManager {
     	mContextButtonPasteView=(LinearLayout)mMainView.findViewById(R.id.context_button_paste_view);
     	mContextButtonExtractView=(LinearLayout)mMainView.findViewById(R.id.context_button_extract_view);
     	mContextButtonOpenView=(LinearLayout)mMainView.findViewById(R.id.context_button_open_view);
-    	mContextButtonNewView=(LinearLayout)mMainView.findViewById(R.id.context_button_add_view);
+    	mContextButtonNewView=(LinearLayout)mMainView.findViewById(R.id.context_button_clear_view);
     	mContextButtonDeleteView=(LinearLayout)mMainView.findViewById(R.id.context_button_delete_view);
         mContextButtonSelectAllView=(LinearLayout)mMainView.findViewById(R.id.context_button_select_all_view);
         mContextButtonUnselectAllView=(LinearLayout)mMainView.findViewById(R.id.context_button_unselect_all_view);
@@ -3000,14 +3003,34 @@ public class ZipFileManager {
                 if (dlg_pswd.getTransformationMethod()!=null) {
                     dlg_pswd.setTransformationMethod(null);
                     ll_dlg_conf.setVisibility(TextInputLayout.GONE);
+                    dlg_pswd.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+                        @Override
+                        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                            return true;
+                        }
+                        @Override
+                        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                            menu.removeItem(android.R.id.cut);
+                            menu.removeItem(android.R.id.copy);
+                            menu.removeItem(android.R.id.shareText);
+                            return true;
+                        }
+                        @Override
+                        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                            return false;
+                        }
+                        @Override
+                        public void onDestroyActionMode(ActionMode mode) {
+                        }
+                    });
                 } else {
                     dlg_pswd.setTransformationMethod(new PasswordTransformationMethod());
+                    dlg_pswd.setCustomSelectionActionModeCallback(null);
                     ll_dlg_conf.setVisibility(TextInputLayout.VISIBLE);
                 }
                 checkZipParmValidation(mGp, dialog, fp, zf);
             }
         });
-
         checkZipParmValidation(mGp, dialog, fp, zf);
     	dlg_pswd.addTextChangedListener(new TextWatcher(){
 			@Override
