@@ -2996,41 +2996,41 @@ public class ZipFileManager {
 
     	dlg_pswd.setText(pswd);
 
-    	ll_dlg_pswd.setPasswordVisibilityToggleEnabled(true);
-    	ll_dlg_pswd.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (dlg_pswd.getTransformationMethod()!=null) {
-                    dlg_pswd.setTransformationMethod(null);
-                    ll_dlg_conf.setVisibility(TextInputLayout.GONE);
-                    dlg_pswd.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
-                        @Override
-                        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                            return true;
-                        }
-                        @Override
-                        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                            menu.removeItem(android.R.id.cut);
-                            menu.removeItem(android.R.id.copy);
-                            menu.removeItem(android.R.id.shareText);
-                            return true;
-                        }
-                        @Override
-                        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                            return false;
-                        }
-                        @Override
-                        public void onDestroyActionMode(ActionMode mode) {
-                        }
-                    });
-                } else {
-                    dlg_pswd.setTransformationMethod(new PasswordTransformationMethod());
-                    dlg_pswd.setCustomSelectionActionModeCallback(null);
-                    ll_dlg_conf.setVisibility(TextInputLayout.VISIBLE);
-                }
-                checkZipParmValidation(mGp, dialog, fp, zf);
-            }
-        });
+//    	ll_dlg_pswd.setPasswordVisibilityToggleEnabled(true);
+//    	ll_dlg_pswd.setEndIconOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (dlg_pswd.getTransformationMethod()!=null) {
+//                    dlg_pswd.setTransformationMethod(null);
+//                    ll_dlg_conf.setVisibility(TextInputLayout.GONE);
+//                    dlg_pswd.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+//                        @Override
+//                        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+//                            return true;
+//                        }
+//                        @Override
+//                        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+//                            menu.removeItem(android.R.id.cut);
+//                            menu.removeItem(android.R.id.copy);
+//                            menu.removeItem(android.R.id.shareText);
+//                            return true;
+//                        }
+//                        @Override
+//                        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+//                            return false;
+//                        }
+//                        @Override
+//                        public void onDestroyActionMode(ActionMode mode) {
+//                        }
+//                    });
+//                } else {
+//                    dlg_pswd.setTransformationMethod(new PasswordTransformationMethod());
+//                    dlg_pswd.setCustomSelectionActionModeCallback(null);
+//                    ll_dlg_conf.setVisibility(TextInputLayout.VISIBLE);
+//                }
+//                checkZipParmValidation(mGp, dialog, fp, zf);
+//            }
+//        });
         checkZipParmValidation(mGp, dialog, fp, zf);
     	dlg_pswd.addTextChangedListener(new TextWatcher(){
 			@Override
@@ -3422,6 +3422,26 @@ public class ZipFileManager {
                 tc.setDisabled();
                 if (dlg_pswd.getTransformationMethod()!=null) {
                     dlg_pswd.setTransformationMethod(null);
+                    dlg_pswd.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+                        @Override
+                        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                            return true;
+                        }
+                        @Override
+                        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                            menu.removeItem(android.R.id.cut);
+                            menu.removeItem(android.R.id.copy);
+                            menu.removeItem(android.R.id.shareText);
+                            return true;
+                        }
+                        @Override
+                        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                            return false;
+                        }
+                        @Override
+                        public void onDestroyActionMode(ActionMode mode) {
+                        }
+                    });
                 } else {
                     dlg_pswd.setTransformationMethod(new PasswordTransformationMethod());
                 }
