@@ -3314,16 +3314,23 @@ public class ZipFileManager {
                             return;
                         } else {
                             SafFile3 from_zip=new SafFile3(mActivity, mGp.copyCutFilePath);
-                            from_zip.delete();
-                            result=from_bz.getOutputZipFile().renameTo(from_zip);
-                            if (result) {
-                                msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_move_completed);
-                                mActivity.showSnackbar(mActivity, msg);
-                            } else {
-                                msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_file_rename_failed, mGp.copyCutFilePath);
-                                CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
-                                mUtil.addLogMsg("W", msg);
+                            if (from_zip==null) {
+                                msg="SafFile3 creation error, path="+mGp.copyCutFilePath;
+                                CommonDialog.showCommonDialog(mFragmentManager, false, "E", msg, "", null);
+                                mUtil.addLogMsg("E", msg);
                                 return;
+                            } else {
+                                from_zip.delete();
+                                result=from_bz.getOutputZipFile().renameTo(from_zip);
+                                if (result) {
+                                    msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_move_completed);
+                                    mActivity.showSnackbar(mActivity, msg);
+                                } else {
+                                    msg=mActivity.getString(R.string.msgs_zip_file_manager_zip_to_local_file_rename_failed, mGp.copyCutFilePath);
+                                    CommonDialog.showCommonDialog(mFragmentManager, false, "W", msg, "", null);
+                                    mUtil.addLogMsg("W", msg);
+                                    return;
+                                }
                             }
                         }
                     }
