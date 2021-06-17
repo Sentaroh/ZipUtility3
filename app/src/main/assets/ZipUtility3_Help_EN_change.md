@@ -1,3 +1,7 @@
+### 2021/06/18 1.35  
+
+- Prevent NPE  
+
 ### 2021/06/10 1.34  
 
 - Resolved a bug that prevented detection of incorrect passwords in encrypted ZIPs  
