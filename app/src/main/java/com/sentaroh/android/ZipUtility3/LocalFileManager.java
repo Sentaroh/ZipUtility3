@@ -2746,7 +2746,7 @@ public class LocalFileManager {
                     for(String item:add_item) {
                         SafFile3 in_file=new SafFile3(mActivity, item);
                         ArrayList<SafFile3> sel_list=new ArrayList<SafFile3>();
-                        if (in_file.isDirectory()) sel_list.add(in_file);
+//                        if (in_file.isDirectory()) sel_list.add(in_file);
                         ZipFileManager.getAllItemInLocalDirectory(sel_list, in_file);
                         for(SafFile3 sel_item:sel_list) {
                             processed_file=sel_item;
