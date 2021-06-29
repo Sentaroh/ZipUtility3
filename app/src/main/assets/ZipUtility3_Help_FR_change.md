@@ -1,19 +1,23 @@
+### 2021/06/30 1.37  
+
+- Prévenir NPE  
+
+### 2021/06/20 1.36  
+
+- Correction d'un bogue qui entraînait la duplication du premier répertoire lors de la compression d'un dossier local.  
+
+### 2021/06/18 1.35  
+
+- Prévenir les NPE  
+
+### 2021/06/10 1.34  
+
+- Résolution d'un bogue qui empêchait la détection de mots de passe incorrects dans les ZIP cryptés.  
+- Ajout de la possibilité de COPY/CUT entre les fichiers ZIP.  
+- Changement de la couleur d'affichage des éléments copiés ou coupés.  
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-### 2021/05/23 1.32  
-Retour du SDK cible à 29.  
+Traduit avec www.DeepL.com/Translator (version gratuite)  
 
 ### 2021/05/23 1.32  
 Retour du SDK cible à 29.  

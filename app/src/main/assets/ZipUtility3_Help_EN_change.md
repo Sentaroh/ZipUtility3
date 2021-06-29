@@ -1,3 +1,7 @@
+### 2021/06/30 1.37  
+
+- Prevent NPE  
+
 ### 2021/06/20 1.36  
 
 - Fixed a bug that caused the first directory to be duplicated when compressing a local folder.  
