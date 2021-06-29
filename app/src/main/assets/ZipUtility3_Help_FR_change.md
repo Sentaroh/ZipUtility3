@@ -1,3 +1,7 @@
+### 2021/06/30 1.38  
+
+- Correction d'un bogue qui empêchait la décompression.  
+
 ### 2021/06/30 1.37  
 
 - Prévenir NPE  

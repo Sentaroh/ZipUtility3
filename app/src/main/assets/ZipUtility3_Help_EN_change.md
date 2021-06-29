@@ -1,3 +1,7 @@
+### 2021/06/30 1.38  
+
+- Fixed a bug that prevented unzipping.  
+
 ### 2021/06/30 1.37  
 
 - Prevent NPE  
