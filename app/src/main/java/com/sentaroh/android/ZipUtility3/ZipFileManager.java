@@ -3344,7 +3344,7 @@ public class ZipFileManager {
             mUiHandler.post(new Runnable(){
                 @Override
                 public void run() {
-                    p_ntfy.notifyToListener(true, null);
+                    if (p_ntfy!=null) p_ntfy.notifyToListener(true, null);
                     setUiEnabled();
                     closeUiDialogView(100);
                 }
