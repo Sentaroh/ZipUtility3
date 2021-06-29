@@ -3291,6 +3291,11 @@ public class ZipFileManager {
                             return;
                         }
                     }
+                } else {
+                    String fn=edfh_item.getFileName();
+                    String to_file_dest_path=to_dir.getPath()+"/"+fn;
+                    SafFile3 to_file_dest=new SafFile3(mActivity, to_file_dest_path);
+                    to_file_dest.mkdirs();
                 }
             }
 
